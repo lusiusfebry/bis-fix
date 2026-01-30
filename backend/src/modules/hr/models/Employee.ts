@@ -54,6 +54,10 @@ Employee.init({
         type: DataTypes.DATEONLY,
         allowNull: true,
     },
+    photo: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
 }, {
     sequelize,
     tableName: 'employees',

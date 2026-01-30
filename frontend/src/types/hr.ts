@@ -7,6 +7,7 @@ export interface Employee {
     email: string;
     phone?: string;
     joinDate?: string;
+    photo?: string;
     createdAt: string;
     updatedAt: string;
 }

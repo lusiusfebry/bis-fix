@@ -21,7 +21,7 @@ api.interceptors.response.use(
         // Check if error response is 401 (unauthorized) and redirect to login if so
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
-            // window.location.href = '/auth/login'; // Uncomment when route exists
+            window.location.href = '/login';
         }
         return Promise.reject(error);
     }
