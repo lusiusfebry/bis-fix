@@ -36,7 +36,7 @@ const EmployeeTable = ({ employees, isLoading }: EmployeeTableProps) => {
                             <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{employee.nik}</td>
                             <td className="px-6 py-4">{employee.name}</td>
                             <td className="px-6 py-4">{employee.position}</td>
-                            <td className="px-6 py-4">{employee.department}</td>
+                            <td className="px-6 py-4">{employee.department?.nama || '-'}</td>
                             <td className="px-6 py-4">{formatDate(employee.joinDate)}</td>
                             <td className="px-6 py-4">
                                 <Link to={`/hr/employees/${employee.id}`} className="font-medium text-blue-600 hover:underline dark:text-blue-500">

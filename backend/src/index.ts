@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import path from 'path';
 import { env } from './config/env';
 import sequelize from './config/database';
+import './modules/hr/models/associations'; // Import associations
 
 const app = express();
 
