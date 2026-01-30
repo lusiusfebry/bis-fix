@@ -1,44 +1,66 @@
 import Divisi from './Divisi';
 import Department from './Department';
 import PosisiJabatan from './PosisiJabatan';
+import KategoriPangkat from './KategoriPangkat';
+import Golongan from './Golongan';
+import SubGolongan from './SubGolongan';
+import JenisHubunganKerja from './JenisHubunganKerja';
+import Tag from './Tag';
+import LokasiKerja from './LokasiKerja';
+import StatusKaryawan from './StatusKaryawan';
 import Employee from './Employee';
+import EmployeePersonalInfo from './EmployeePersonalInfo';
+import EmployeeHRInfo from './EmployeeHRInfo';
+import EmployeeFamilyInfo from './EmployeeFamilyInfo';
 
-// Department belongs to Divisi
-Department.belongsTo(Divisi, {
-    foreignKey: 'divisi_id',
-    as: 'divisi',
-});
+// Master Data Relationships
+Department.belongsTo(Divisi, { foreignKey: 'divisi_id', as: 'divisi' });
+Divisi.hasMany(Department, { foreignKey: 'divisi_id', as: 'departments' });
 
-Divisi.hasMany(Department, {
-    foreignKey: 'divisi_id',
-    as: 'departments',
-});
+PosisiJabatan.belongsTo(Department, { foreignKey: 'department_id', as: 'department' });
+Department.hasMany(PosisiJabatan, { foreignKey: 'department_id', as: 'posisi_jabatan' });
 
-// Department belongs to Employee (Manager)
-Department.belongsTo(Employee, {
-    foreignKey: 'manager_id',
-    as: 'manager',
-});
+// Employee Relationships
+// Master Data -> Employee
+Divisi.hasMany(Employee, { foreignKey: 'divisi_id', as: 'employees' });
+Department.hasMany(Employee, { foreignKey: 'department_id', as: 'employees' });
+StatusKaryawan.hasMany(Employee, { foreignKey: 'status_karyawan_id', as: 'employees' });
+LokasiKerja.hasMany(Employee, { foreignKey: 'lokasi_kerja_id', as: 'employees' });
+Tag.hasMany(Employee, { foreignKey: 'tag_id', as: 'employees' });
+PosisiJabatan.hasMany(Employee, { foreignKey: 'posisi_jabatan_id', as: 'employees' });
 
-Employee.hasMany(Department, {
-    foreignKey: 'manager_id',
-    as: 'managed_departments',
-});
+// Employee -> Master Data
+Employee.belongsTo(Divisi, { foreignKey: 'divisi_id', as: 'divisi' });
+Employee.belongsTo(Department, { foreignKey: 'department_id', as: 'department' });
+Employee.belongsTo(PosisiJabatan, { foreignKey: 'posisi_jabatan_id', as: 'posisi_jabatan' });
+Employee.belongsTo(StatusKaryawan, { foreignKey: 'status_karyawan_id', as: 'status_karyawan' });
+Employee.belongsTo(LokasiKerja, { foreignKey: 'lokasi_kerja_id', as: 'lokasi_kerja' });
+Employee.belongsTo(Tag, { foreignKey: 'tag_id', as: 'tag' });
 
-// PosisiJabatan belongs to Department
-PosisiJabatan.belongsTo(Department, {
-    foreignKey: 'department_id',
-    as: 'department',
-});
+// Self References
+Employee.belongsTo(Employee, { foreignKey: 'manager_id', as: 'manager' });
+Employee.belongsTo(Employee, { foreignKey: 'atasan_langsung_id', as: 'atasan_langsung' });
+Employee.hasMany(Employee, { foreignKey: 'manager_id', as: 'managed_employees' });
+Employee.hasMany(Employee, { foreignKey: 'atasan_langsung_id', as: 'directed_employees' });
 
-Department.hasMany(PosisiJabatan, {
-    foreignKey: 'department_id',
-    as: 'posisi_jabatan',
-});
+// Detailed Info
+Employee.hasOne(EmployeePersonalInfo, { foreignKey: 'employee_id', as: 'personal_info' });
+Employee.hasOne(EmployeeHRInfo, { foreignKey: 'employee_id', as: 'hr_info' });
+Employee.hasOne(EmployeeFamilyInfo, { foreignKey: 'employee_id', as: 'family_info' });
 
-export {
-    Divisi,
-    Department,
-    PosisiJabatan,
-    Employee,
-};
+EmployeePersonalInfo.belongsTo(Employee, { foreignKey: 'employee_id', as: 'employee' });
+EmployeeFamilyInfo.belongsTo(Employee, { foreignKey: 'employee_id', as: 'employee' });
+
+// EmployeeHRInfo Relations
+EmployeeHRInfo.belongsTo(Employee, { foreignKey: 'employee_id', as: 'employee' });
+EmployeeHRInfo.belongsTo(JenisHubunganKerja, { foreignKey: 'jenis_hubungan_kerja_id', as: 'jenis_hubungan_kerja' });
+EmployeeHRInfo.belongsTo(KategoriPangkat, { foreignKey: 'kategori_pangkat_id', as: 'kategori_pangkat' });
+EmployeeHRInfo.belongsTo(Golongan, { foreignKey: 'golongan_pangkat_id', as: 'golongan_pangkat' });
+EmployeeHRInfo.belongsTo(SubGolongan, { foreignKey: 'sub_golongan_pangkat_id', as: 'sub_golongan_pangkat' });
+EmployeeHRInfo.belongsTo(LokasiKerja, { foreignKey: 'lokasi_sebelumnya_id', as: 'lokasi_sebelumnya' });
+
+// Reverse Relations for HR Info (Optional but good for integrity checks)
+JenisHubunganKerja.hasMany(EmployeeHRInfo, { foreignKey: 'jenis_hubungan_kerja_id', as: 'employee_hr_infos' });
+KategoriPangkat.hasMany(EmployeeHRInfo, { foreignKey: 'kategori_pangkat_id', as: 'employee_hr_infos' });
+Golongan.hasMany(EmployeeHRInfo, { foreignKey: 'golongan_pangkat_id', as: 'employee_hr_infos' });
+SubGolongan.hasMany(EmployeeHRInfo, { foreignKey: 'sub_golongan_pangkat_id', as: 'employee_hr_infos' });
