@@ -49,16 +49,16 @@ const EmployeeCreatePage = () => {
                     masterDataService.getAll('status-karyawan')
                 ]);
 
-                setDivisi(divisiData);
-                setDepartments(deptData);
-                setPositions(posData);
-                setKategoriPangkat(catData);
-                setGolongan(golData);
-                setSubGolongan(subGolData);
-                setJenisHubunganKerja(relData);
-                setTags(tagData);
-                setLokasiKerja(locData);
-                setStatusKaryawan(statData);
+                setDivisi(divisiData.data);
+                setDepartments(deptData.data);
+                setPositions(posData.data);
+                setKategoriPangkat(catData.data);
+                setGolongan(golData.data);
+                setSubGolongan(subGolData.data);
+                setJenisHubunganKerja(relData.data);
+                setTags(tagData.data);
+                setLokasiKerja(locData.data);
+                setStatusKaryawan(statData.data);
             } catch (error) {
                 console.error('Error fetching master data', error);
             }
@@ -231,7 +231,7 @@ const EmployeeCreatePage = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Sub Golongan</label>
-                                <select {...register('sub_golongan_id'.toString() as any, { valueAsNumber: true })} className="w-full border rounded px-3 py-2">
+                                <select {...register('sub_golongan_id' as any, { valueAsNumber: true })} className="w-full border rounded px-3 py-2">
                                     <option value="">Pilih Sub</option>
                                     {subGolongan.map(item => (
                                         <option key={item.id} value={item.id}>{item.nama}</option>

@@ -24,11 +24,31 @@ class MasterDataController {
 
     async getAll(req: Request, res: Response, next: NextFunction) {
         try {
-            const model = this.getModel(req.params.model);
+            const modelName = req.params.model;
+            const model = this.getModel(modelName);
             if (!model) return res.status(404).json({ message: 'Resource not found' });
 
-            const data = await masterDataService.findAll(model);
-            res.json({ status: 'success', data });
+            const include: any[] = [];
+            if (modelName === 'divisi') {
+                include.push({ association: 'departments' });
+            } else if (modelName === 'department') {
+                include.push({ association: 'divisi' });
+                include.push({ association: 'manager' });
+            } else if (modelName === 'posisi-jabatan') {
+                include.push({ association: 'department' });
+            }
+
+            const result = await masterDataService.findAllWithFilter(model, req.query, include);
+
+            res.json({
+                status: 'success',
+                data: result.data,
+                pagination: {
+                    total: result.total,
+                    page: result.page,
+                    totalPages: result.totalPages
+                }
+            });
         } catch (error) {
             next(error);
         }

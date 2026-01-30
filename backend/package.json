@@ -24,7 +24,8 @@
     "qrcode": "^1.5.3",
     "sequelize": "^6.37.1",
     "umzug": "^3.8.2",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

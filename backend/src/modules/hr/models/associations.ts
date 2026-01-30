@@ -19,6 +19,7 @@ Divisi.hasMany(Department, { foreignKey: 'divisi_id', as: 'departments' });
 
 PosisiJabatan.belongsTo(Department, { foreignKey: 'department_id', as: 'department' });
 Department.hasMany(PosisiJabatan, { foreignKey: 'department_id', as: 'posisi_jabatan' });
+Department.belongsTo(Employee, { foreignKey: 'manager_id', as: 'manager' });
 
 // Employee Relationships
 // Master Data -> Employee

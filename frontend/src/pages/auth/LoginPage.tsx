@@ -5,6 +5,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { loginSchema, LoginInput } from '../../schemas/auth.schema';
 import { authService } from '../../services/api/auth.service';
 import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -26,9 +27,10 @@ const LoginPage = () => {
             const response = await authService.login(data);
             login(response.data.token, response.data.user);
             navigate('/welcome');
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err);
-            setError(err.response?.data?.message || 'Terjadi kesalahan saat login');
+            const error = err as AxiosError<{ message: string }>;
+            setError(error.response?.data?.message || 'Terjadi kesalahan saat login');
             // If unauthorized, specific error is already in catch, but we set robust fallback
         }
     };

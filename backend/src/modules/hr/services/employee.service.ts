@@ -1,4 +1,4 @@
-import Employee from '../models/Employee';
+import Employee, { EmployeeCreationAttributes } from '../models/Employee';
 
 class EmployeeService {
     async getAllEmployees() {
@@ -9,7 +9,7 @@ class EmployeeService {
         return await Employee.findByPk(id);
     }
 
-    async createEmployee(data: Partial<Employee>) {
+    async createEmployee(data: EmployeeCreationAttributes) {
         return await Employee.create(data);
     }
 

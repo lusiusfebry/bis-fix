@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { validateMasterData } from '../../../shared/middleware/validateMasterData';
 import employeeController from '../controllers/employee.controller';
 import masterDataController from '../controllers/master-data.controller';
 import { authenticate } from '../../../shared/middleware/auth.middleware';
@@ -15,8 +16,8 @@ router.delete('/employees/:id', (req, res, next) => employeeController.delete(re
 // Master Data Generic Routes
 router.get('/master/:model', (req, res, next) => masterDataController.getAll(req, res, next));
 router.get('/master/:model/:id', (req, res, next) => masterDataController.getOne(req, res, next));
-router.post('/master/:model', (req, res, next) => masterDataController.create(req, res, next));
-router.put('/master/:model/:id', (req, res, next) => masterDataController.update(req, res, next));
+router.post('/master/:model', validateMasterData, (req, res, next) => masterDataController.create(req, res, next));
+router.put('/master/:model/:id', validateMasterData, (req, res, next) => masterDataController.update(req, res, next));
 router.delete('/master/:model/:id', (req, res, next) => masterDataController.delete(req, res, next));
 
 export default router;

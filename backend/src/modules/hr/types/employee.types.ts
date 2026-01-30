@@ -49,7 +49,7 @@ export interface CreateEmployeeDTO {
 export interface UpdateEmployeeDTO extends Partial<CreateEmployeeDTO> { }
 
 // Response DTO
-export interface EmployeeDetailDTO extends EmployeeAttributes {
+export interface EmployeeDetailDTO extends Omit<EmployeeAttributes, 'personal_info' | 'hr_info' | 'family_info'> {
     personal_info?: EmployeePersonalInfoAttributes;
     hr_info?: EmployeeHRInfoAttributes;
     family_info?: EmployeeFamilyInfoAttributes;
