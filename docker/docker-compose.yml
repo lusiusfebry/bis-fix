@@ -34,6 +34,41 @@ services:
     networks:
       - bebang-network
 
+  backend:
+    build: 
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: bebang-backend-dev
+    command: npm run dev
+    volumes:
+      - ../backend/src:/app/src
+      - ../backend/.env:/app/.env
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - bebang-network
+
+  frontend:
+    build: 
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: bebang-frontend-dev
+    command: npm run dev -- --host
+    volumes:
+      - ../frontend/src:/app/src
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3000/api
+    networks:
+      - bebang-network
+
 volumes:
   postgres-data:
 

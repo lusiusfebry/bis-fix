@@ -23,6 +23,7 @@
     "pg-hstore": "^2.3.4",
     "qrcode": "^1.5.3",
     "sequelize": "^6.37.1",
+    "umzug": "^3.8.2",
     "winston": "^3.11.0"
   },
   "devDependencies": {

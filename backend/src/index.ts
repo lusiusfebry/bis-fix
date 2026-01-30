@@ -17,9 +17,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
+import hrRoutes from './modules/hr/routes/hr.routes';
+
 app.get('/', (req, res) => {
     res.send('Bebang Sistem Informasi API Running');
 });
+
+app.use('/api/hr', hrRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
