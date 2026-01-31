@@ -12,6 +12,12 @@ import Employee from './Employee';
 import EmployeePersonalInfo from './EmployeePersonalInfo';
 import EmployeeHRInfo from './EmployeeHRInfo';
 import EmployeeFamilyInfo from './EmployeeFamilyInfo';
+import AuditLog from './AuditLog';
+import User from '../../auth/models/User';
+
+// Audit Log Relations
+User.hasMany(AuditLog, { foreignKey: 'user_id', as: 'audit_logs' });
+AuditLog.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 // Master Data Relationships
 Department.belongsTo(Divisi, { foreignKey: 'divisi_id', as: 'divisi' });

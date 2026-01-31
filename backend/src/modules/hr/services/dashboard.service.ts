@@ -68,23 +68,57 @@ class DashboardService {
     }
 
     async getRecentActivities() {
-        const recentEmployees = await Employee.findAll({
+        const { default: AuditLog } = await import('../models/AuditLog');
+
+        // Find recent interesting activities (CREATE/UPDATE/DELETE)
+        const logs = await AuditLog.findAll({
             limit: 10,
-            order: [['createdAt', 'DESC']],
+            order: [['timestamp', 'DESC']],
+            where: {
+                action: { [Op.ne]: 'VIEW' }
+            },
             include: [
-                { model: Department, as: 'department', attributes: ['nama'] },
-                { model: StatusKaryawan, as: 'status_karyawan', attributes: ['nama'] }
-            ],
-            attributes: ['id', 'nama_lengkap', 'foto_karyawan', 'createdAt']
+                // If you want user photo, you might need to join with User -> Employee -> Foto
+                // For now, let's assume User has 'name' or we use 'user_name' from log
+            ]
         });
 
-        return recentEmployees.map((e: any) => ({
-            nama_lengkap: e.nama_lengkap,
-            foto_karyawan: e.foto_karyawan,
-            department_name: e.department?.nama,
-            status: e.status_karyawan?.nama,
-            createdAt: e.createdAt
+        // Current dashboard expects specific shape:
+        // { nama_lengkap, foto_karyawan, department_name, status, createdAt }
+        // We need to map AuditLog to this shape OR update Frontend to accept AuditLog shape.
+        // The plan says: "Update RecentActivitiesTable in Dashboard... Add field action, entity_type..."
+        // So we should return the AuditLog data but perhaps mapped slightly to be consumed easily.
+
+        return logs.map((log: any) => ({
+            id: log.id,
+            user_name: log.user_name || 'System',
+            user_photo: null, // Pending: Join with User.employee.foto_karyawan if available
+            action: log.action,
+            entity_type: log.entity_type,
+            entity_name: log.entity_name,
+            timestamp: log.timestamp,
+            // Fallback fields for backward compatibility if frontend not yet updated (though we will update frontend)
+            nama_lengkap: log.user_name || 'System',
+            createdAt: log.timestamp
         }));
+    }
+
+    async getActivitySummary() {
+        const { default: AuditLog } = await import('../models/AuditLog');
+
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const summary = await AuditLog.findAll({
+            attributes: ['action', [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']],
+            where: {
+                timestamp: { [Op.gte]: startOfDay }
+            },
+            group: ['action'],
+            raw: true
+        });
+
+        return summary;
     }
 
     async getEmploymentStatusDistribution() {

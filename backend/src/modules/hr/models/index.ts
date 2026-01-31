@@ -12,6 +12,7 @@ import Employee from './Employee';
 import EmployeePersonalInfo from './EmployeePersonalInfo';
 import EmployeeHRInfo from './EmployeeHRInfo';
 import EmployeeFamilyInfo from './EmployeeFamilyInfo';
+import AuditLog from './AuditLog';
 import './associations';
 
 export {
@@ -28,5 +29,6 @@ export {
     Employee,
     EmployeePersonalInfo,
     EmployeeHRInfo,
-    EmployeeFamilyInfo
+    EmployeeFamilyInfo,
+    AuditLog
 };

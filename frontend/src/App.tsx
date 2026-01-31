@@ -19,6 +19,7 @@ import JenisHubunganKerjaPage from './pages/hr/masterdata/JenisHubunganKerjaPage
 import TagPage from './pages/hr/masterdata/TagPage';
 import LokasiKerjaPage from './pages/hr/masterdata/LokasiKerjaPage';
 import StatusKaryawanPage from './pages/hr/masterdata/StatusKaryawanPage';
+import AuditLogPage from './pages/hr/AuditLogPage';
 
 function App() {
     return (
@@ -68,6 +69,7 @@ function App() {
                         <Route path="lokasi-kerja" element={<LokasiKerjaPage />} />
                         <Route path="status-karyawan" element={<StatusKaryawanPage />} />
                     </Route>
+                    <Route path="audit-logs" element={<AuditLogPage />} />
                 </Route>
             </Route>
 

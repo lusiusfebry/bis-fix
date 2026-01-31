@@ -174,3 +174,44 @@ export interface Employee {
 
 export type CreateEmployeeInput = Omit<Employee, 'id' | 'createdAt' | 'updatedAt' | 'divisi' | 'department' | 'posisi_jabatan' | 'status_karyawan' | 'lokasi_kerja' | 'tag' | 'personal_info'>;
 export type UpdateEmployeeInput = Partial<CreateEmployeeInput>;
+
+// Audit Log Types
+export type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'VIEW';
+
+export interface AuditUser {
+    user_id: number;
+    user_name: string;
+    log_count: number;
+}
+
+export interface AuditLog {
+    id: number;
+    user_id?: number;
+    user_nik?: string;
+    user_name?: string;
+    action: AuditAction;
+    entity_type: string;
+    entity_id?: number;
+    entity_name?: string;
+    old_values?: Record<string, unknown> | null;
+    new_values?: Record<string, unknown> | null;
+    ip_address?: string;
+    user_agent?: string;
+    timestamp: string;
+}
+
+export interface AuditLogFilters {
+    user_id?: number;
+    entity_type?: string;
+    entity_id?: number;
+    action?: AuditAction;
+    date_from?: string;
+    date_to?: string;
+}
+
+export interface AuditStats {
+    total_logs: number;
+    by_action: { action: string; count: string }[];
+    by_entity: { entity_type: string; count: string }[];
+    top_users: { user_name: string; count: string }[];
+}

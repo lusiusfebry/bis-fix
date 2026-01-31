@@ -12,6 +12,8 @@ import { EmployeeHRInfoView } from '../../components/hr/EmployeeHRInfoView';
 import { EmployeeDocumentsSection } from '../../components/hr/EmployeeDocumentsSection';
 import { ExportButton } from '../../components/hr/ExportButton';
 import { EmployeeQRCode } from '../../components/hr/EmployeeQRCode';
+import EntityHistoryTimeline from '../../components/hr/EntityHistoryTimeline';
+
 const EmployeeDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
@@ -54,7 +56,8 @@ const EmployeeDetailPage: React.FC = () => {
         { id: 'personal', label: 'Personal Information' },
         { id: 'hr', label: 'Informasi HR' },
         { id: 'family', label: 'Informasi Keluarga' },
-        { id: 'documents', label: 'Dokumen' }
+        { id: 'documents', label: 'Dokumen' },
+        { id: 'history', label: 'Riwayat Perubahan' }
     ];
 
     return (
@@ -176,6 +179,9 @@ const EmployeeDetailPage: React.FC = () => {
                     )}
                     {activeTab === 'documents' && (
                         <EmployeeDocumentsSection employeeId={employee.id} />
+                    )}
+                    {activeTab === 'history' && employee.id && (
+                        <EntityHistoryTimeline entityType="employees" entityId={employee.id} />
                     )}
                 </div>
             </div>

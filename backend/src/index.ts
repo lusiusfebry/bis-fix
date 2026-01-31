@@ -44,6 +44,14 @@ const startServer = async () => {
         await sequelize.authenticate();
         console.log('Database connection has been established successfully.');
 
+        // Initialize Scheduler
+        try {
+            const { initScheduler } = await import('./shared/utils/scheduler');
+            initScheduler();
+        } catch (schedErr) {
+            console.error('Failed to initialize scheduler:', schedErr);
+        }
+
         app.listen(env.port, () => {
             console.log(`Server is running on port ${env.port}`);
         });

@@ -37,6 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
             ]
         },
         { name: 'Absensi & Cuti', path: '/hr/attendance', icon: 'calendar_month' },
+        { name: 'Riwayat Aktivitas', path: '/hr/audit-logs', icon: 'history' },
     ];
 
     return (
