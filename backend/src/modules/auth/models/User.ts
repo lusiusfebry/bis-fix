@@ -1,6 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../../../config/database';
 import Employee from '../../hr/models/Employee';
+import { Role } from './Role';
 import bcrypt from 'bcryptjs';
 
 export class User extends Model {
@@ -8,10 +9,11 @@ export class User extends Model {
     public nik!: string;
     public password!: string;
     public employee_id!: number | null;
-    public role!: 'superadmin' | 'admin' | 'staff' | 'employee';
+    public role_id!: number | null;
     public is_active!: boolean;
     public last_login!: Date | null;
     public employee?: Employee;
+    public roleDetails?: Role;
 
     public readonly created_at!: Date;
     public readonly updated_at!: Date;
@@ -44,10 +46,15 @@ User.init({
             key: 'id',
         },
     },
-    role: {
-        type: DataTypes.ENUM('superadmin', 'admin', 'staff', 'employee'),
-        allowNull: false,
-        defaultValue: 'employee',
+    role_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'roles',
+            key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
     },
     is_active: {
         type: DataTypes.BOOLEAN,
@@ -92,5 +99,9 @@ User.init({
 // Define association
 User.belongsTo(Employee, { foreignKey: 'employee_id', as: 'employee' });
 Employee.hasOne(User, { foreignKey: 'employee_id', as: 'user' });
+
+// Role association
+User.belongsTo(Role, { foreignKey: 'role_id', as: 'roleDetails' });
+Role.hasMany(User, { foreignKey: 'role_id', as: 'users' });
 
 export default User;

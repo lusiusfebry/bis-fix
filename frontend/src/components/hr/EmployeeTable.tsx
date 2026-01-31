@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../common/Button';
+import { PermissionGuard } from '../auth/PermissionGuard';
+import { RESOURCES, ACTIONS } from '../../types/permission';
 
 interface Employee {
     id: number;
@@ -100,22 +102,26 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, isLoading, onD
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                            <Link to={`/hr/employees/${employee.id}/edit`}>
-                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
-                                                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                                            <PermissionGuard resource={RESOURCES.EMPLOYEES} action={ACTIONS.UPDATE}>
+                                                <Link to={`/hr/employees/${employee.id}/edit`}>
+                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
+                                                        <span className="material-symbols-outlined text-[18px]">edit</span>
+                                                    </Button>
+                                                </Link>
+                                            </PermissionGuard>
+                                            <PermissionGuard resource={RESOURCES.EMPLOYEES} action={ACTIONS.DELETE}>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-8 w-8 p-0 rounded-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onDelete(employee.id);
+                                                    }}
+                                                >
+                                                    <span className="material-symbols-outlined text-[18px]">delete</span>
                                                 </Button>
-                                            </Link>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="h-8 w-8 p-0 rounded-full text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    onDelete(employee.id);
-                                                }}
-                                            >
-                                                <span className="material-symbols-outlined text-[18px]">delete</span>
-                                            </Button>
+                                            </PermissionGuard>
                                         </div>
                                     </td>
                                 </tr>

@@ -1,7 +1,8 @@
 import React from 'react';
 import { PencilSquareIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import Button from '../common/Button';
-
+import { PermissionGuard } from '../auth/PermissionGuard';
+import { RESOURCES, ACTIONS } from '../../types/permission';
 import { LayoutView, LAYOUT_CONFIGS } from '../../types/layout';
 
 export interface Column<T> {
@@ -91,22 +92,26 @@ const MasterDataTable = <T extends { id: number | string; status?: string }>({
                                 </div>
                             </div>
                             <div className="flex justify-end gap-2 pt-3 border-t border-gray-100">
-                                <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    className="!p-1.5 text-blue-600 hover:bg-blue-50 border-blue-100"
-                                    onClick={() => onEdit(item)}
-                                >
-                                    <PencilSquareIcon className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    className="!p-1.5 text-red-600 hover:bg-red-50 border-red-100"
-                                    onClick={() => onDelete(item)}
-                                >
-                                    <TrashIcon className="w-4 h-4" />
-                                </Button>
+                                <PermissionGuard resource={RESOURCES.MASTER_DATA} action={ACTIONS.UPDATE}>
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        className="!p-1.5 text-blue-600 hover:bg-blue-50 border-blue-100"
+                                        onClick={() => onEdit(item)}
+                                    >
+                                        <PencilSquareIcon className="w-4 h-4" />
+                                    </Button>
+                                </PermissionGuard>
+                                <PermissionGuard resource={RESOURCES.MASTER_DATA} action={ACTIONS.DELETE}>
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        className="!p-1.5 text-red-600 hover:bg-red-50 border-red-100"
+                                        onClick={() => onDelete(item)}
+                                    >
+                                        <TrashIcon className="w-4 h-4" />
+                                    </Button>
+                                </PermissionGuard>
                             </div>
                         </div>
                     ))
@@ -147,22 +152,26 @@ const MasterDataTable = <T extends { id: number | string; status?: string }>({
                                     ))}
                                     <td className={`px-6 ${isCompact ? 'py-2' : 'py-4'} text-right`}>
                                         <div className="flex items-center justify-end gap-2">
-                                            <Button
-                                                variant="secondary"
-                                                size="sm"
-                                                className={`!p-1.5 text-blue-600 hover:bg-blue-50 border-blue-100 ${isCompact ? 'h-7 w-7' : ''}`}
-                                                onClick={() => onEdit(item)}
-                                            >
-                                                <PencilSquareIcon className="w-4 h-4" />
-                                            </Button>
-                                            <Button
-                                                variant="secondary"
-                                                size="sm"
-                                                className={`!p-1.5 text-red-600 hover:bg-red-50 border-red-100 ${isCompact ? 'h-7 w-7' : ''}`}
-                                                onClick={() => onDelete(item)}
-                                            >
-                                                <TrashIcon className="w-4 h-4" />
-                                            </Button>
+                                            <PermissionGuard resource={RESOURCES.MASTER_DATA} action={ACTIONS.UPDATE}>
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    className={`!p-1.5 text-blue-600 hover:bg-blue-50 border-blue-100 ${isCompact ? 'h-7 w-7' : ''}`}
+                                                    onClick={() => onEdit(item)}
+                                                >
+                                                    <PencilSquareIcon className="w-4 h-4" />
+                                                </Button>
+                                            </PermissionGuard>
+                                            <PermissionGuard resource={RESOURCES.MASTER_DATA} action={ACTIONS.DELETE}>
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    className={`!p-1.5 text-red-600 hover:bg-red-50 border-red-100 ${isCompact ? 'h-7 w-7' : ''}`}
+                                                    onClick={() => onDelete(item)}
+                                                >
+                                                    <TrashIcon className="w-4 h-4" />
+                                                </Button>
+                                            </PermissionGuard>
                                         </div>
                                     </td>
                                 </tr>

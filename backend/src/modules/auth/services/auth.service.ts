@@ -4,11 +4,16 @@ import { env } from '../../../config/env';
 import User from '../models/User';
 import Employee from '../../hr/models/Employee';
 
+import { Role } from '../models/Role';
+
 class AuthService {
     async login(nik: string, password: string) {
         const user = await User.findOne({
             where: { nik },
-            include: [{ model: Employee, as: 'employee' }]
+            include: [
+                { model: Employee, as: 'employee' },
+                { model: Role, as: 'roleDetails' }
+            ]
         });
 
         if (!user) {
@@ -34,7 +39,7 @@ class AuthService {
             {
                 id: user.id,
                 nik: user.nik,
-                role: user.role,
+                role: user.roleDetails?.name,
                 employee_id: user.employee_id
             },
             env.jwtSecret,

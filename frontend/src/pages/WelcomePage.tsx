@@ -68,7 +68,7 @@ const WelcomePage = () => {
                         <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-700 pl-4">
                             <div className="hidden sm:flex flex-col items-end">
                                 <span className="text-xs font-bold dark:text-white">{user?.employee?.nama_lengkap || user?.nik}</span>
-                                <span className="text-[10px] text-[#4c669a] capitalize">{user?.role}</span>
+                                <span className="text-[10px] text-[#4c669a] capitalize">{user?.roleDetails?.display_name || user?.roleDetails?.name}</span>
                             </div>
                             <UserProfileDropdown />
                         </div>

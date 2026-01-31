@@ -1,14 +1,25 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { NavLink } from 'react-router-dom';
 import clsx from 'clsx';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { usePermission } from '../../hooks/usePermission';
+import { RESOURCES, ACTIONS } from '../../types/permission';
 
 interface SidebarProps {
     collapsed: boolean;
 }
 
+interface NavItem {
+    name: string;
+    path?: string;
+    icon: string;
+    permission?: { resource: string; action: string };
+    subItems?: NavItem[];
+}
+
 const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
-    const [openMenus, setOpenMenus] = useState<string[]>(['Master Data']);
+    const [openMenus, setOpenMenus] = useState<string[]>(['Master Data', 'Pengaturan']);
+    const { can } = usePermission();
 
     const toggleMenu = (name: string) => {
         setOpenMenus(prev =>
@@ -16,29 +27,95 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
         );
     };
 
-    const navItems = [
-        { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
-        { name: 'Manajemen Karyawan', path: '/hr/employees', icon: 'groups' },
-        {
-            name: 'Master Data',
-            icon: 'database',
-            path: '/hr/master-data',
-            subItems: [
-                { name: 'Divisi', path: '/hr/master-data/divisi', icon: 'domain' },
-                { name: 'Departemen', path: '/hr/master-data/department', icon: 'groups' },
-                { name: 'Posisi Jabatan', path: '/hr/master-data/posisi-jabatan', icon: 'badge' },
-                { name: 'Kategori Pangkat', path: '/hr/master-data/kategori-pangkat', icon: 'military_tech' },
-                { name: 'Golongan', path: '/hr/master-data/golongan', icon: 'stars' },
-                { name: 'Sub Golongan', path: '/hr/master-data/sub-golongan', icon: 'hotel_class' },
-                { name: 'Jenis Hubungan', path: '/hr/master-data/jenis-hubungan-kerja', icon: 'handshake' },
-                { name: 'Tag', path: '/hr/master-data/tag', icon: 'label' },
-                { name: 'Lokasi Kerja', path: '/hr/master-data/lokasi-kerja', icon: 'location_on' },
-                { name: 'Status Karyawan', path: '/hr/master-data/status-karyawan', icon: 'verified_user' },
-            ]
-        },
-        { name: 'Absensi & Cuti', path: '/hr/attendance', icon: 'calendar_month' },
-        { name: 'Riwayat Aktivitas', path: '/hr/audit-logs', icon: 'history' },
-    ];
+    const navItems = useMemo(() => {
+        const items: NavItem[] = [
+            {
+                name: 'Dashboard',
+                path: '/dashboard',
+                icon: 'dashboard',
+                permission: { resource: RESOURCES.DASHBOARD, action: ACTIONS.READ }
+            },
+            {
+                name: 'Manajemen Karyawan',
+                path: '/hr/employees',
+                icon: 'groups',
+                permission: { resource: RESOURCES.EMPLOYEES, action: ACTIONS.READ }
+            },
+            {
+                name: 'Master Data',
+                icon: 'database',
+                // path: '/hr/master-data', // Main item might not have path if it has subitems in this design? Kept original.
+                permission: { resource: RESOURCES.MASTER_DATA, action: ACTIONS.READ },
+                subItems: [
+                    { name: 'Divisi', path: '/hr/master-data/divisi', icon: 'domain' },
+                    { name: 'Departemen', path: '/hr/master-data/department', icon: 'groups' },
+                    { name: 'Posisi Jabatan', path: '/hr/master-data/posisi-jabatan', icon: 'badge' },
+                    { name: 'Kategori Pangkat', path: '/hr/master-data/kategori-pangkat', icon: 'military_tech' },
+                    { name: 'Golongan', path: '/hr/master-data/golongan', icon: 'stars' },
+                    { name: 'Sub Golongan', path: '/hr/master-data/sub-golongan', icon: 'hotel_class' },
+                    { name: 'Jenis Hubungan', path: '/hr/master-data/jenis-hubungan-kerja', icon: 'handshake' },
+                    { name: 'Tag', path: '/hr/master-data/tag', icon: 'label' },
+                    { name: 'Lokasi Kerja', path: '/hr/master-data/lokasi-kerja', icon: 'location_on' },
+                    { name: 'Status Karyawan', path: '/hr/master-data/status-karyawan', icon: 'verified_user' },
+                ]
+            },
+            {
+                name: 'Absensi & Cuti',
+                path: '/hr/attendance',
+                icon: 'calendar_month',
+                // permission: { resource: 'attendance', action: 'read' } // TODO: Define attendance permissions
+            },
+            {
+                name: 'Riwayat Aktivitas',
+                path: '/hr/audit-logs',
+                icon: 'history',
+                permission: { resource: RESOURCES.AUDIT_LOGS, action: ACTIONS.READ }
+            },
+            {
+                name: 'Pengaturan',
+                icon: 'settings',
+                // path: '/settings',
+                subItems: [
+                    {
+                        name: 'Manajemen User',
+                        path: '/settings/users',
+                        icon: 'manage_accounts',
+                        permission: { resource: RESOURCES.USERS, action: ACTIONS.READ }
+                    },
+                    {
+                        name: 'Role & Akses',
+                        path: '/settings/roles',
+                        icon: 'admin_panel_settings',
+                        permission: { resource: RESOURCES.ROLES, action: ACTIONS.READ }
+                    }
+                ]
+            }
+        ];
+
+        // Filter items based on permissions
+        return items.filter(item => {
+            if (item.permission && !can(item.permission.resource, item.permission.action)) {
+                return false;
+            }
+
+            // Filter subItems if they exist
+            if (item.subItems) {
+                const visibleSubItems = item.subItems.filter(sub => {
+                    if (sub.permission) {
+                        return can(sub.permission.resource, sub.permission.action);
+                    }
+                    return true;
+                });
+
+                if (visibleSubItems.length === 0) return false;
+
+                // Mutation via filter return new object usually preferred, but for now reassignment to local copy or mutation
+                item.subItems = visibleSubItems;
+            }
+
+            return true;
+        });
+    }, [can]);
 
     return (
         <aside className={clsx(
@@ -72,7 +149,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
                                         {item.subItems.map((sub) => (
                                             <NavLink
                                                 key={sub.name}
-                                                to={sub.path}
+                                                to={sub.path || '#'}
                                                 className={({ isActive }) =>
                                                     clsx(
                                                         'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-colors',
@@ -91,7 +168,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
                             </>
                         ) : (
                             <NavLink
-                                to={item.path}
+                                to={item.path || '#'}
                                 className={({ isActive }) =>
                                     clsx(
                                         'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors',

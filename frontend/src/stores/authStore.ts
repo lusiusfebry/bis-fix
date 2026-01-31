@@ -14,6 +14,7 @@ export const useAuthStore = create<AuthStore>()(
             token: null,
             isAuthenticated: false,
             isLoading: true,
+            isLoadingPermissions: false,
 
             login: (token: string, user: User) => {
                 set({ token, user, isAuthenticated: true });
@@ -30,6 +31,18 @@ export const useAuthStore = create<AuthStore>()(
             setLoading: (isLoading: boolean) => set({ isLoading }),
 
             setUser: (user: User) => set({ user }),
+
+            hasPermission: (resource: string, action: string) => {
+                const { user } = get();
+                if (!user || !user.roleDetails || !user.roleDetails.permissions) return false;
+
+                // Superadmin bypass (optional, but good for safety)
+                if (user.roleDetails.name === 'superadmin') return true;
+
+                return user.roleDetails.permissions.some(
+                    p => p.resource === resource && p.action === action
+                );
+            },
 
             checkAuth: async () => {
                 const token = localStorage.getItem('token'); // or get().token if persisted

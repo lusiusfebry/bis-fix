@@ -26,7 +26,12 @@ app.get('/', (req, res) => {
 
 app.use('/api/hr', hrRoutes);
 import authRoutes from './modules/auth/routes/auth.routes';
+import roleRoutes from './modules/auth/routes/role.routes';
+import userRoutes from './modules/auth/routes/user.routes';
+
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', roleRoutes);
+app.use('/api/auth', userRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {

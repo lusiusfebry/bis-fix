@@ -4,7 +4,15 @@ import employeeService from '../services/employee.service';
 class EmployeeController {
     async getAll(req: Request, res: Response, next: NextFunction) {
         try {
-            const employees = await employeeService.getAllEmployees(req.query);
+            // Apply department filter if set by middleware (for managers)
+            const queryParams = { ...req.query };
+
+            if (req.departmentFilter) {
+                // Force department_id to be what specific manager is allowed to see
+                queryParams.department_id = req.departmentFilter.toString();
+            }
+
+            const employees = await employeeService.getAllEmployees(queryParams);
             res.json(employees);
         } catch (error) {
             next(error);

@@ -9,6 +9,8 @@ import { AdvancedEmployeeFilter } from '../../components/hr/AdvancedEmployeeFilt
 import { FilterChipsContainer } from '../../components/common/FilterChipsContainer';
 import { ExportButton } from '../../components/hr/ExportButton';
 import { EmployeeFilterParams, Divisi, Department, PosisiJabatan, StatusKaryawan, LokasiKerja, Tag } from '../../types/hr';
+import { PermissionGuard } from '../../components/auth/PermissionGuard';
+import { RESOURCES, ACTIONS } from '../../types/permission';
 
 const EmployeeListPage = () => {
     const navigate = useNavigate();
@@ -125,15 +127,23 @@ const EmployeeListPage = () => {
                     <p className="text-gray-500 dark:text-gray-400">Kelola data karyawan, filter, dan export.</p>
                 </div>
                 <div className="flex gap-2">
-                    <ExportButton filters={{ ...filters, search }} />
-                    <Button onClick={() => navigate('/hr/import')} variant="secondary" className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-[20px]">upload_file</span>
-                        Import Excel
-                    </Button>
-                    <Button onClick={() => navigate('/hr/employees/create')} className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-[20px]">add</span>
-                        Tambah Karyawan
-                    </Button>
+                    <PermissionGuard resource={RESOURCES.EXPORT} action={ACTIONS.EXPORT}>
+                        <ExportButton filters={{ ...filters, search }} />
+                    </PermissionGuard>
+
+                    <PermissionGuard resource={RESOURCES.IMPORT} action={ACTIONS.IMPORT}>
+                        <Button onClick={() => navigate('/hr/import')} variant="secondary" className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[20px]">upload_file</span>
+                            Import Excel
+                        </Button>
+                    </PermissionGuard>
+
+                    <PermissionGuard resource={RESOURCES.EMPLOYEES} action={ACTIONS.CREATE}>
+                        <Button onClick={() => navigate('/hr/employees/create')} className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[20px]">add</span>
+                            Tambah Karyawan
+                        </Button>
+                    </PermissionGuard>
                 </div>
             </div>
 

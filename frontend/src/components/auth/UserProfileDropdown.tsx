@@ -43,7 +43,7 @@ const UserProfileDropdown = () => {
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 py-1 z-50">
                     <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800">
                         <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{user?.employee?.nama_lengkap || user?.nik}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user?.roleDetails?.display_name || user?.roleDetails?.name || 'User'}</p>
                     </div>
                     <button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2">
                         <span className="material-symbols-outlined text-lg">account_circle</span>

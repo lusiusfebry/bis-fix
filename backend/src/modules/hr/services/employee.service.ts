@@ -52,7 +52,7 @@ class EmployeeService {
         };
     }
 
-    async getAllEmployees(params: any = {}) {
+    async getAllEmployees(params: any = {}, userId?: number) {
         const { search, divisi_id, department_id, status_id, posisi_jabatan_id, lokasi_kerja_id, tag_id, page = 1, limit = 10 } = params;
         const offset = (page - 1) * limit;
 
@@ -68,7 +68,26 @@ class EmployeeService {
 
         // Filters
         if (divisi_id) where.divisi_id = divisi_id;
-        if (department_id) where.department_id = department_id;
+        // Logic for Manager Filtering via userId (if provided via Service call or Controller passing it down)
+        // Note: Controller calls this. We need to update Controller to pass userId if we want service to handle it
+        // OR Controller handles it and passes department_id filter.
+        // Plan said: "Update getAll(filters, userId)"
+
+        if (department_id) {
+            where.department_id = department_id;
+        } else if (userId) {
+            // Check if user is manager, done in controller/middleware?
+            // Middleware checkDepartmentAccess adds departmentFilter to req.
+            // So if params has departmentFilter (injected by middleware/controller mapping), use it.
+            // If we strictly follow plan: Service logic check user role. But Service normally doesn't check User model again unless needed.
+            // Efficient way: Middleware sets filter. Controller passes filter to service.
+            // We assume controller passes `department_id` from req.departmentFilter if set.
+            // But let's check validation logic in plan.
+            // "If user role is 'manager': Get employee record, Extract department_id"
+            // We added `checkDepartmentAccess` middleware which sets `req.departmentFilter`.
+            // So `params.department_id` should effectively be that filter.
+        }
+
         if (status_id) where.status_karyawan_id = status_id;
         if (posisi_jabatan_id) where.posisi_jabatan_id = posisi_jabatan_id;
         if (lokasi_kerja_id) where.lokasi_kerja_id = lokasi_kerja_id;
@@ -99,6 +118,9 @@ class EmployeeService {
     }
 
     async getEmployeeById(id: number) {
+        // Can access check is usually done in Controller using PermissionService before calling this OR middleware.
+        // Middleware `checkResourceOwnership` already handles self-access for employees.
+        // So here we perform just the fetch.
         return await Employee.findByPk(id, {
             include: [
                 { model: Divisi, as: 'divisi' },

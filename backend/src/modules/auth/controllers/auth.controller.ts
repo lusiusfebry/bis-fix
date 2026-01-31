@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import authService from '../services/auth.service';
 import User from '../models/User';
+import { Role } from '../models/Role';
 import Employee from '../../hr/models/Employee';
 
 class AuthController {
@@ -14,14 +15,25 @@ class AuthController {
 
             const { user, token } = await authService.login(nik, password);
 
+            const fullUser = await User.findByPk(user.id, {
+                include: [
+                    { model: Employee, as: 'employee' },
+                    { model: Role, as: 'roleDetails', include: ['permissions'] }
+                ]
+            });
+
+            if (!fullUser) {
+                return res.status(401).json({ message: 'User retrieval failed' });
+            }
+
             res.json({
                 status: 'success',
                 data: {
                     user: {
-                        id: user.id,
-                        nik: user.nik,
-                        role: user.role,
-                        employee: user.employee_id ? (user as any).employee : null
+                        id: fullUser.id,
+                        nik: fullUser.nik,
+                        roleDetails: fullUser.roleDetails, // Use roleDetails, not role
+                        employee: fullUser.employee
                     },
                     token
                 }
@@ -43,7 +55,10 @@ class AuthController {
             }
 
             const fullUser = await User.findByPk(decodedUser.id, {
-                include: [{ model: Employee, as: 'employee' }]
+                include: [
+                    { model: Employee, as: 'employee' },
+                    { model: Role, as: 'roleDetails', include: ['permissions'] }
+                ]
             });
 
             if (!fullUser) {
@@ -56,7 +71,7 @@ class AuthController {
                     user: {
                         id: fullUser.id,
                         nik: fullUser.nik,
-                        role: fullUser.role,
+                        roleDetails: fullUser.roleDetails,
                         employee: fullUser.employee
                     }
                 }
