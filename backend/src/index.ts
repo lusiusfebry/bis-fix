@@ -35,6 +35,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/auth', roleRoutes);
 app.use('/api/auth', userRoutes);
 
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpecs from './config/swagger';
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error(err.stack);
@@ -75,4 +80,8 @@ const startServer = async () => {
     }
 };
 
-startServer();
+if (process.env.NODE_ENV !== 'test') {
+    startServer();
+}
+
+export { app };
