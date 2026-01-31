@@ -140,6 +140,56 @@ export interface QRCodeData {
     employee?: Partial<Employee>;
 }
 
+// Define EmployeeHRInfo based on backend model
+export interface EmployeeHRInfo {
+    id: number;
+    employee_id: number;
+    jenis_hubungan_kerja_id?: number;
+    tanggal_masuk_group?: string;
+    tanggal_masuk?: string;
+    tanggal_permanent?: string;
+    tanggal_kontrak?: string;
+    tanggal_akhir_kontrak?: string;
+    tanggal_berhenti?: string;
+    tingkat_pendidikan?: string;
+    bidang_studi?: string;
+    nama_sekolah?: string;
+    kota_sekolah?: string;
+    status_kelulusan?: string;
+    keterangan_pendidikan?: string;
+    kategori_pangkat_id?: number;
+    golongan_pangkat_id?: number;
+    sub_golongan_pangkat_id?: number;
+    no_dana_pensiun?: string;
+    nama_kontak_darurat_1?: string;
+    nomor_telepon_kontak_darurat_1?: string;
+    hubungan_kontak_darurat_1?: string;
+    alamat_kontak_darurat_1?: string;
+    nama_kontak_darurat_2?: string;
+    nomor_telepon_kontak_darurat_2?: string;
+    hubungan_kontak_darurat_2?: string;
+    alamat_kontak_darurat_2?: string;
+    point_of_original?: string;
+    point_of_hire?: string;
+    ukuran_seragam_kerja?: string;
+    ukuran_sepatu_kerja?: string;
+    lokasi_sebelumnya_id?: number;
+    tanggal_mutasi?: string;
+    siklus_pembayaran_gaji?: string;
+    costing?: string;
+    assign?: string;
+    actual?: string;
+    create_at?: string;
+    update_at?: string;
+
+    // Associations
+    jenis_hubungan_kerja?: JenisHubunganKerja;
+    kategori_pangkat?: KategoriPangkat;
+    golongan_pangkat?: Golongan;
+    sub_golongan_pangkat?: SubGolongan;
+    lokasi_sebelumnya?: LokasiKerja;
+}
+
 export interface Employee {
     id: number;
     nama_lengkap: string;
@@ -166,6 +216,7 @@ export interface Employee {
     lokasi_kerja?: LokasiKerja;
     tag?: Tag;
     personal_info?: EmployeePersonalInfo;
+    hr_info?: EmployeeHRInfo;
     family_info?: EmployeeFamilyInfo;
 
     createdAt: string;

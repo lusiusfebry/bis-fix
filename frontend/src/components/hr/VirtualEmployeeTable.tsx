@@ -1,4 +1,15 @@
-import React, { useRef, useCallback } from 'react';
+import React from 'react';
+import * as ReactWindow from 'react-window';
+import * as InfiniteLoaderLib from 'react-window-infinite-loader';
+import * as AutoSizerLib from 'react-virtualized-auto-sizer';
+
+// Defensive import to handle ESM/CJS interop issues in Rollup
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const List = (ReactWindow as any).FixedSizeList || (ReactWindow as any).default?.FixedSizeList || ReactWindow;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const InfiniteLoader = (InfiniteLoaderLib as any).InfiniteLoader || (InfiniteLoaderLib as any).default || InfiniteLoaderLib;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const AutoSizer = (AutoSizerLib as any).AutoSizer || (AutoSizerLib as any).default || AutoSizerLib;
 
 interface VirtualEmployeeTableProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,72 +30,103 @@ const VirtualEmployeeTable: React.FC<VirtualEmployeeTableProps> = ({
     onRowClick,
     onDelete,
 }) => {
-    const observer = useRef<IntersectionObserver | null>(null);
-    const lastElementRef = useCallback((node: HTMLDivElement) => {
-        if (isNextPageLoading) return;
-        if (observer.current) observer.current.disconnect();
-        observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && hasNextPage) {
-                loadNextPage();
-            }
-        });
-        if (node) observer.current.observe(node);
-    }, [isNextPageLoading, hasNextPage, loadNextPage]);
+    // If hasNextPage, add 1 for "Loading..." row
+    const itemCount = hasNextPage ? employees.length + 1 : employees.length;
+    const isItemLoaded = (index: number) => !hasNextPage || index < employees.length;
+
+    const loadMoreItems = isNextPageLoading ? () => Promise.resolve() : loadNextPage;
+
+    const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+        if (!isItemLoaded(index)) {
+            return (
+                <div style={style} className="flex items-center justify-center p-4 text-gray-500 border-b border-gray-100 dark:border-slate-700">
+                    Loading more...
+                </div>
+            );
+        }
+
+        const employee = employees[index];
+        // Safety check
+        if (!employee) return null;
+
+        return (
+            <div
+                style={style}
+                className="flex items-center px-6 py-4 border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer transition-colors"
+                onClick={() => onRowClick(employee)}
+            >
+                <div className="flex items-center gap-3 flex-[2] min-w-0">
+                    <img
+                        src={employee.foto_karyawan ? `http://localhost:3000${employee.foto_karyawan}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.nama_lengkap)}&background=random`}
+                        alt={employee.nama_lengkap}
+                        className="h-10 w-10 rounded-full object-cover border border-gray-200"
+                        loading="lazy"
+                        onError={(e) => {
+                            (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.nama_lengkap)}&background=random`;
+                        }}
+                    />
+                    <div className="truncate">
+                        <div className="font-medium text-gray-900 dark:text-gray-100 truncate">{employee.nama_lengkap}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400 truncate">{employee.nomor_induk_karyawan}</div>
+                    </div>
+                </div>
+                <div className="flex-1 text-sm text-gray-700 dark:text-gray-300 truncate px-2">{employee.posisi_jabatan?.nama || '-'}</div>
+                <div className="flex-1 text-sm text-gray-700 dark:text-gray-300 truncate px-2">{employee.department?.nama || '-'}</div>
+                <div className="w-20 flex justify-end">
+                    {onDelete && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(employee.id);
+                            }}
+                            className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors"
+                            title="Hapus Karyawan"
+                        >
+                            <span className="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
+                    )}
+                </div>
+            </div>
+        );
+    };
 
     return (
-        <div className="w-full bg-white dark:bg-slate-800 rounded-lg shadow border border-gray-200 dark:border-slate-700 h-full overflow-auto custom-scrollbar" style={{ height: '600px' }}>
+        <div className="w-full bg-white dark:bg-slate-800 rounded-lg shadow border border-gray-200 dark:border-slate-700 h-[600px] flex flex-col">
             {/* Header */}
-            <div className="flex px-6 py-3 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 rounded-t-lg font-medium text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider sticky top-0 z-10">
-                <div className="flex-1">Nama / NIK</div>
-                <div className="flex-1">Posisi</div>
-                <div className="flex-1">Department</div>
+            <div className="flex px-6 py-3 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 rounded-t-lg font-medium text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <div className="flex-[2]">Nama / NIK</div>
+                <div className="flex-1 px-2">Posisi</div>
+                <div className="flex-1 px-2">Department</div>
                 <div className="w-20 text-right">Aksi</div>
             </div>
 
-            <div className="divide-y divide-gray-200 dark:divide-slate-700">
-                {employees.map((employee, index) => (
-                    <div
-                        key={employee.id}
-                        ref={employees.length === index + 1 ? lastElementRef : null}
-                        className="flex items-center px-6 py-4 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer"
-                        onClick={() => onRowClick(employee)}
-                    >
-                        <div className="flex items-center gap-3 flex-1">
-                            <img
-                                src={employee.foto_karyawan || '/default-avatar.png'}
-                                alt={employee.nama_lengkap}
-                                className="h-10 w-10 rounded-full object-cover"
-                                loading="lazy"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).src = '/default-avatar.png';
-                                }}
-                            />
-                            <div>
-                                <div className="font-medium text-gray-900 dark:text-gray-100">{employee.nama_lengkap}</div>
-                                <div className="text-sm text-gray-500 dark:text-gray-400">{employee.nomor_induk_karyawan}</div>
-                            </div>
-                        </div>
-                        <div className="flex-1 text-sm text-gray-700 dark:text-gray-300">{employee.posisi_jabatan?.nama || '-'}</div>
-                        <div className="flex-1 text-sm text-gray-700 dark:text-gray-300">{employee.department?.nama || '-'}</div>
-                        <div className="w-20 flex justify-end">
-                            {onDelete && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onDelete(employee.id);
-                                    }}
-                                    className="text-red-600 hover:text-red-800 p-2"
+            <div className="flex-grow">
+                <AutoSizer>
+                    {({ height, width }: { height: number; width: number }) => (
+                        <InfiniteLoader
+                            isItemLoaded={isItemLoaded}
+                            itemCount={itemCount}
+                            loadMoreItems={loadMoreItems}
+                            threshold={5}
+                        >
+                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                            {({ onItemsRendered, ref }: { onItemsRendered: any; ref: any }) => (
+                                <List
+                                    className="custom-scrollbar"
+                                    height={height}
+                                    itemCount={itemCount}
+                                    itemSize={80}
+                                    onItemsRendered={onItemsRendered}
+                                    ref={ref}
+                                    width={width}
                                 >
-                                    <span className="material-symbols-outlined text-[20px]">delete</span>
-                                </button>
+                                    {Row}
+                                </List>
                             )}
-                        </div>
-                    </div>
-                ))}
+                        </InfiniteLoader>
+                    )}
+                </AutoSizer>
             </div>
-            {isNextPageLoading && (
-                <div className="p-4 text-center text-gray-500">Loading more...</div>
-            )}
         </div>
     );
 };

@@ -56,7 +56,13 @@ class MasterDataService {
     }
 
     async invalidateCache(modelName: string) {
+        // Invalidate internal service cache
         await cacheService.delPattern(`master_data:${modelName}:*`);
+
+        // Invalidate API response cache (middleware)
+        // Matches keys like: cache:/api/hr/master/department?page=1...
+        // We use lowercase modelName because URLs are typically lowercase
+        await cacheService.delPattern(`cache:/api/hr/master/${modelName.toLowerCase()}*`);
     }
 
     async create(model: ModelStatic<Model>, data: any) {

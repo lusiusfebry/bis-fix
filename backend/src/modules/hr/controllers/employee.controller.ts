@@ -22,9 +22,63 @@ class EmployeeController {
     async getOne(req: Request, res: Response, next: NextFunction) {
         try {
             const id = parseInt(req.params.id);
-            const employee = await employeeService.getEmployeeWithDetails(id);
+            // Default to base + all for backward compatibility or strict base if requested?
+            // "load the minimal base employee record initially"
+            // Let's make getOne return the Base record so the initial page load is fast.
+            // OR keep getOne as full and make FE use explicit tab endpoints.
+            // Comment 2 says: "update EmployeeDetailPage to load minimal base... then fetch tab data".
+            // So getOne effectively becomes getBase or we keep getOne as is (backend doesn't break) and add new endpoints.
+            // Let's add new endpoints and FE uses them.
+            // If FE calls /employees/:id, let's return Base to be safe for "Lazy Loading" pattern recommendation, 
+            // BUT existing code might rely on it. Let's create specific methods.
+
+            const employee = await employeeService.getEmployeeWithDetails(id); // Keeping full fetch for regular getOne to avoid breaking other consumers
             if (!employee) return res.status(404).json({ message: 'Employee not found' });
             res.json({ data: employee });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getBase(req: Request, res: Response, next: NextFunction) {
+        try {
+            const id = parseInt(req.params.id);
+            const employee = await employeeService.getEmployeeBase(id);
+            if (!employee) return res.status(404).json({ message: 'Employee not found' });
+            res.json({ data: employee });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getPersonal(req: Request, res: Response, next: NextFunction) {
+        try {
+            const id = parseInt(req.params.id);
+            const employee = await employeeService.getEmployeePersonalInfo(id);
+            if (!employee) return res.status(404).json({ message: 'Employee not found' });
+            res.json({ data: employee.personal_info });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getEmployment(req: Request, res: Response, next: NextFunction) {
+        try {
+            const id = parseInt(req.params.id);
+            const employee = await employeeService.getEmployeeEmploymentData(id);
+            if (!employee) return res.status(404).json({ message: 'Employee not found' });
+            res.json({ data: employee.hr_info });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getFamily(req: Request, res: Response, next: NextFunction) {
+        try {
+            const id = parseInt(req.params.id);
+            const employee = await employeeService.getEmployeeFamilyData(id);
+            if (!employee) return res.status(404).json({ message: 'Employee not found' });
+            res.json({ data: employee.family_info });
         } catch (error) {
             next(error);
         }

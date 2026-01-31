@@ -149,9 +149,7 @@ class EmployeeService {
     }
 
     async getEmployeeById(id: number) {
-        // Can access check is usually done in Controller using PermissionService before calling this OR middleware.
-        // Middleware `checkResourceOwnership` already handles self-access for employees.
-        // So here we perform just the fetch.
+        // Legacy method, kept for compatibility if needed, but ideally we use granular methods
         return await Employee.findByPk(id, {
             include: [
                 { model: Divisi, as: 'divisi' },
@@ -174,6 +172,59 @@ class EmployeeService {
                         { model: LokasiKerja, as: 'lokasi_sebelumnya' }
                     ]
                 },
+                { model: EmployeeFamilyInfo, as: 'family_info' }
+            ]
+        });
+    }
+
+    // Lazy Loading Methods
+    async getEmployeeBase(id: number) {
+        return await Employee.findByPk(id, {
+            include: [
+                { model: Divisi, as: 'divisi' },
+                { model: Department, as: 'department' },
+                { model: PosisiJabatan, as: 'posisi_jabatan' },
+                { model: StatusKaryawan, as: 'status_karyawan' },
+                { model: LokasiKerja, as: 'lokasi_kerja' },
+                { model: Tag, as: 'tag' },
+                { model: Employee, as: 'manager' },
+                { model: Employee, as: 'atasan_langsung' }
+            ]
+        });
+    }
+
+    async getEmployeePersonalInfo(id: number) {
+        return await Employee.findByPk(id, {
+            attributes: ['id'], // minimize main table data
+            include: [
+                { model: EmployeePersonalInfo, as: 'personal_info' }
+            ]
+        });
+    }
+
+    async getEmployeeEmploymentData(id: number) {
+        return await Employee.findByPk(id, {
+            attributes: ['id'],
+            include: [
+                {
+                    model: EmployeeHRInfo,
+                    as: 'hr_info',
+                    include: [
+                        { model: JenisHubunganKerja, as: 'jenis_hubungan_kerja' },
+                        { model: KategoriPangkat, as: 'kategori_pangkat' },
+                        { model: Golongan, as: 'golongan' },
+                        { model: SubGolongan, as: 'sub_golongan' },
+                        { model: LokasiKerja, as: 'lokasi_sebelumnya' }
+                    ]
+                }
+            ]
+        });
+    }
+
+    async getEmployeeFamilyData(id: number) {
+        return await Employee.findByPk(id, {
+            attributes: ['id'],
+            include: [
                 { model: EmployeeFamilyInfo, as: 'family_info' }
             ]
         });

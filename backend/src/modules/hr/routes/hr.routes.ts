@@ -69,6 +69,34 @@ router.get(
     (req, res, next) => employeeController.getOne(req, res, next)
 );
 
+router.get(
+    '/employees/:id/base',
+    checkPermission(RESOURCES.EMPLOYEES, ACTIONS.READ),
+    checkResourceOwnership('employee'),
+    (req, res, next) => employeeController.getBase(req, res, next)
+);
+
+router.get(
+    '/employees/:id/personal',
+    checkPermission(RESOURCES.EMPLOYEES, ACTIONS.READ),
+    checkResourceOwnership('employee'),
+    (req, res, next) => employeeController.getPersonal(req, res, next)
+);
+
+router.get(
+    '/employees/:id/employment',
+    checkPermission(RESOURCES.EMPLOYEES, ACTIONS.READ),
+    checkResourceOwnership('employee'),
+    (req, res, next) => employeeController.getEmployment(req, res, next)
+);
+
+router.get(
+    '/employees/:id/family',
+    checkPermission(RESOURCES.EMPLOYEES, ACTIONS.READ),
+    checkResourceOwnership('employee'),
+    (req, res, next) => employeeController.getFamily(req, res, next)
+);
+
 router.post(
     '/employees',
     checkPermission(RESOURCES.EMPLOYEES, ACTIONS.CREATE),

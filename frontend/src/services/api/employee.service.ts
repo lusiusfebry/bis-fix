@@ -14,6 +14,26 @@ export const employeeService = {
         return response.data.data;
     },
 
+    getEmployeeBase: async (id: number) => {
+        const response = await api.get(`${BASE_URL}/${id}/base`);
+        return response.data.data;
+    },
+
+    getEmployeePersonal: async (id: number) => {
+        const response = await api.get(`${BASE_URL}/${id}/personal`);
+        return response.data.data;
+    },
+
+    getEmployeeEmployment: async (id: number) => {
+        const response = await api.get(`${BASE_URL}/${id}/employment`);
+        return response.data.data;
+    },
+
+    getEmployeeFamily: async (id: number) => {
+        const response = await api.get(`${BASE_URL}/${id}/family`);
+        return response.data.data;
+    },
+
     createEmployee: async (formData: FormData) => {
         const response = await api.post(BASE_URL, formData, {
             headers: {

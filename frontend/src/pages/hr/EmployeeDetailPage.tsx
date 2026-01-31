@@ -23,10 +23,10 @@ const EmployeeDetailPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState('personal');
 
     useEffect(() => {
-        const fetchEmployee = async () => {
+        const fetchBase = async () => {
             try {
                 if (!id) return;
-                const data = await employeeService.getEmployee(parseInt(id));
+                const data = await employeeService.getEmployeeBase(parseInt(id));
                 setEmployee(data as Employee);
             } catch (error) {
                 console.error('Failed to fetch employee:', error);
@@ -35,8 +35,46 @@ const EmployeeDetailPage: React.FC = () => {
                 setLoading(false);
             }
         };
-        fetchEmployee();
+        fetchBase();
     }, [id]);
+
+    useEffect(() => {
+        const fetchTabData = async () => {
+            if (!id || !employee) return;
+
+            try {
+                const empId = parseInt(id);
+                // Check if data is already loaded to avoid redundant calls
+                // If specific fields are missing, fetch them. 
+                // Note: 'employee' initially has base info only.
+
+                if (activeTab === 'personal' && !employee.personal_info) {
+                    const personalData = await employeeService.getEmployeePersonal(empId);
+                    setEmployee(prev => prev ? { ...prev, personal_info: personalData } : null);
+                } else if (activeTab === 'hr' && !employee.hr_info) {
+                    const hrData = await employeeService.getEmployeeEmployment(empId);
+                    setEmployee(prev => prev ? { ...prev, hr_info: hrData } : null);
+                } else if (activeTab === 'family' && !employee.family_info) {
+                    const familyData = await employeeService.getEmployeeFamily(empId);
+                    setEmployee(prev => prev ? { ...prev, family_info: familyData } : null);
+                }
+                // Documents and history are handled by their own components usually, 
+                // but if using Employee object, check structure. 
+                // EmployeeDocumentsSection handles its own fetching.
+                // EntityHistoryTimeline handles its own fetching.
+
+            } catch (error) {
+                console.error(`Failed to fetch ${activeTab} data:`, error);
+                toast.error('Gagal memuat detail data');
+            }
+        };
+
+        if (!loading) {
+            fetchTabData();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id, activeTab, loading]);
+
 
     const handleDelete = async () => {
         try {
