@@ -231,7 +231,7 @@ const EmployeeCreatePage = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Sub Golongan</label>
-                                <select {...register('sub_golongan_id' as any, { valueAsNumber: true })} className="w-full border rounded px-3 py-2">
+                                <select {...register('sub_golongan_id', { valueAsNumber: true })} className="w-full border rounded px-3 py-2">
                                     <option value="">Pilih Sub</option>
                                     {subGolongan.map(item => (
                                         <option key={item.id} value={item.id}>{item.nama}</option>

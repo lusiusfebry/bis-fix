@@ -73,6 +73,27 @@ class MasterDataController {
             const model = this.getModel(req.params.model);
             if (!model) return res.status(404).json({ message: 'Resource not found' });
 
+            // Foreign Key Validation
+            // Divisi validation for Department
+            if (req.params.model === 'department' && req.body.divisi_id) {
+                const divisi = await (models as any).Divisi.findByPk(req.body.divisi_id);
+                if (!divisi) return res.status(400).json({ message: 'Divisi tidak ditemukan' });
+            }
+            // Manager validation for Department
+            if (req.params.model === 'department' && req.body.manager_id) {
+                // Assuming Employee model exists and is exported in models
+                // Use safe check if model exists
+                if ((models as any).Employee) {
+                    const manager = await (models as any).Employee.findByPk(req.body.manager_id);
+                    if (!manager) return res.status(400).json({ message: 'Manager tidak ditemukan' });
+                }
+            }
+            // Department validation for PosisiJabatan
+            if (req.params.model === 'posisi-jabatan' && req.body.department_id) {
+                const dept = await (models as any).Department.findByPk(req.body.department_id);
+                if (!dept) return res.status(400).json({ message: 'Department tidak ditemukan' });
+            }
+
             const data = await masterDataService.create(model, req.body);
             res.status(201).json({ status: 'success', data });
         } catch (error) {
@@ -84,6 +105,22 @@ class MasterDataController {
         try {
             const model = this.getModel(req.params.model);
             if (!model) return res.status(404).json({ message: 'Resource not found' });
+
+            // Foreign Key Validation (Update)
+            if (req.params.model === 'department' && req.body.divisi_id) {
+                const divisi = await (models as any).Divisi.findByPk(req.body.divisi_id);
+                if (!divisi) return res.status(400).json({ message: 'Divisi tidak ditemukan' });
+            }
+            if (req.params.model === 'department' && req.body.manager_id) {
+                if ((models as any).Employee) {
+                    const manager = await (models as any).Employee.findByPk(req.body.manager_id);
+                    if (!manager) return res.status(400).json({ message: 'Manager tidak ditemukan' });
+                }
+            }
+            if (req.params.model === 'posisi-jabatan' && req.body.department_id) {
+                const dept = await (models as any).Department.findByPk(req.body.department_id);
+                if (!dept) return res.status(400).json({ message: 'Department tidak ditemukan' });
+            }
 
             const data = await masterDataService.update(model, Number(req.params.id), req.body);
             if (!data) return res.status(404).json({ message: 'Item not found' });

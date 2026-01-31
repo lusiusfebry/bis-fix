@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { usePosisiJabatanList, useDepartmentList, useCreateMasterData, useUpdateMasterData, useDeleteMasterData } from '../../../hooks/useMasterData';
 import MasterDataTable, { Column } from '../../../components/hr/MasterDataTable';
 import MasterDataForm from '../../../components/hr/MasterDataForm';
+import LayoutSwitcher from '../../../components/layout/LayoutSwitcher';
+import MasterDataLayout from '../../../components/layout/MasterDataLayout';
 import Modal from '../../../components/common/Modal';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import SearchFilter from '../../../components/common/SearchFilter';
 import { PosisiJabatan } from '../../../types/hr';
+import { LayoutView } from '../../../types/layout';
 
 const PosisiJabatanPage: React.FC = () => {
     const [page, setPage] = useState(1);
@@ -16,19 +20,30 @@ const PosisiJabatanPage: React.FC = () => {
     const [selectedItem, setSelectedItem] = useState<PosisiJabatan | null>(null);
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
 
-    const { data, isLoading } = usePosisiJabatanList({ page, limit: 10, search, status });
-    const { data: deptData } = useDepartmentList({ limit: 100, status: 'true' });
+    // Layout State
+    const [layout, setLayout] = useState<LayoutView>(() => {
+        const saved = localStorage.getItem('masterDataLayout');
+        return (saved as LayoutView) || LayoutView.VIEW_1;
+    });
 
-    const createMutation = useCreateMasterData('posisi-jabatan');
-    const updateMutation = useUpdateMasterData('posisi-jabatan');
+    const { data, isLoading } = usePosisiJabatanList({ page, limit: 10, search, status });
+    const { data: deptData } = useDepartmentList({ limit: 100, status: 'Aktif' }); // Assuming 'Aktif' over 'true'
+
+    const createMutation = useCreateMasterData<PosisiJabatan>('posisi-jabatan');
+    const updateMutation = useUpdateMasterData<PosisiJabatan>('posisi-jabatan');
     const deleteMutation = useDeleteMasterData('posisi-jabatan');
+
+    // Derived states for loading
+    const isCreating = createMutation.isPending;
+    const isUpdating = updateMutation.isPending;
+    const isDeleting = deleteMutation.isPending;
 
     const columns: Column<PosisiJabatan>[] = [
         { header: 'No', accessor: (item) => item.id, className: 'w-16' },
         { header: 'Nama Posisi', accessor: 'nama' },
         {
             header: 'Department',
-            accessor: (item: any) => item.department?.nama || '-'
+            accessor: (item: PosisiJabatan) => item.department?.nama || '-'
         },
         { header: 'Status', accessor: 'status' },
     ];
@@ -63,79 +78,103 @@ const PosisiJabatanPage: React.FC = () => {
         setIsConfirmOpen(true);
     };
 
-    const onFormSubmit = (formData: any) => {
+    const onFormSubmit = (formData: Record<string, unknown>) => {
         const payload = {
             ...formData,
             department_id: Number(formData.department_id)
         };
 
         if (modalMode === 'create') {
-            createMutation.mutate(payload, { onSuccess: () => setIsModalOpen(false) });
+            createMutation.mutate(payload as unknown as Partial<PosisiJabatan>, {
+                onSuccess: () => {
+                    setIsModalOpen(false);
+                    toast.success('Data berhasil ditambahkan');
+                },
+                onError: () => toast.error('Gagal menambahkan data')
+            });
         } else {
             if (!selectedItem) return;
-            updateMutation.mutate({ id: selectedItem.id, data: payload }, { onSuccess: () => setIsModalOpen(false) });
+            updateMutation.mutate({ id: selectedItem.id, data: payload as unknown as Partial<PosisiJabatan> }, {
+                onSuccess: () => {
+                    setIsModalOpen(false);
+                    toast.success('Data berhasil diperbarui');
+                },
+                onError: () => toast.error('Gagal memperbarui data')
+            });
         }
     };
 
     const onConfirmDelete = () => {
         if (!selectedItem) return;
-        deleteMutation.mutate(selectedItem.id, { onSuccess: () => setIsConfirmOpen(false) });
+        deleteMutation.mutate(selectedItem.id, {
+            onSuccess: () => {
+                setIsConfirmOpen(false);
+                toast.success('Data berhasil dihapus');
+            },
+            onError: () => toast.error('Gagal menghapus data')
+        });
     };
 
     return (
-        <div className="p-6">
-            <div className="mb-6 flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Master Data Posisi Jabatan</h1>
-                    <p className="text-sm text-gray-500 mt-1">Kelola data posisi dan jabatan karyawan</p>
+        <MasterDataLayout view={layout}>
+            <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Posisi Jabatan</h1>
+                        <p className="text-gray-500 dark:text-gray-400 mt-1">Kelola data posisi dan jabatan karyawan</p>
+                    </div>
                 </div>
-            </div>
 
-            <SearchFilter
-                onSearchChange={setSearch}
-                onFilterChange={setStatus}
-                onAdd={handleAdd}
-                addButtonText="Tambah Posisi"
-            />
-
-            <MasterDataTable
-                columns={columns}
-                data={data?.data || []}
-                isLoading={isLoading}
-                pagination={{
-                    page: data?.pagination?.page || 1,
-                    totalPages: data?.pagination?.totalPages || 1,
-                    total: data?.pagination?.total || 0,
-                    onPageChange: setPage
-                }}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
-
-            <Modal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title={modalMode === 'create' ? 'Tambah Posisi' : 'Edit Posisi'}
-            >
-                <MasterDataForm
-                    fields={formFields}
-                    initialValues={selectedItem}
-                    onSubmit={onFormSubmit}
-                    onCancel={() => setIsModalOpen(false)}
-                    isLoading={createMutation.isPending || updateMutation.isPending}
+                <SearchFilter
+                    onSearchChange={setSearch}
+                    onFilterChange={setStatus}
+                    onAdd={handleAdd}
+                    addButtonText="Tambah Posisi"
                 />
-            </Modal>
 
-            <ConfirmDialog
-                isOpen={isConfirmOpen}
-                onCancel={() => setIsConfirmOpen(false)}
-                onConfirm={onConfirmDelete}
-                title="Hapus Posisi"
-                message="Apakah Anda yakin ingin menghapus posisi ini?"
-                itemPreview={selectedItem ? { Nama: selectedItem.nama } : null}
-                isLoading={deleteMutation.isPending}
-            />
-        </div>
+                <div className="mb-4 flex justify-end">
+                    <LayoutSwitcher currentLayout={layout} onLayoutChange={setLayout} />
+                </div>
+
+                <MasterDataTable
+                    view={layout}
+                    columns={columns}
+                    data={data?.data || []}
+                    isLoading={isLoading}
+                    pagination={{
+                        page: data?.pagination?.page || 1,
+                        totalPages: data?.pagination?.totalPages || 1,
+                        totalItems: data?.pagination?.total || 0,
+                        onPageChange: setPage,
+                    }}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
+
+                <Modal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    title={modalMode === 'create' ? 'Tambah Posisi' : 'Edit Posisi'}
+                >
+                    <MasterDataForm
+                        fields={formFields}
+                        initialValues={(selectedItem || {}) as Record<string, unknown>}
+                        onSubmit={onFormSubmit}
+                        isLoading={isCreating || isUpdating}
+                        onCancel={() => setIsModalOpen(false)}
+                    />
+                </Modal>
+
+                <ConfirmDialog
+                    isOpen={isConfirmOpen}
+                    title="Hapus Posisi"
+                    message={`Apakah Anda yakin ingin menghapus posisi ${selectedItem?.nama}?`}
+                    onConfirm={onConfirmDelete}
+                    onCancel={() => setIsConfirmOpen(false)}
+                    isLoading={isDeleting}
+                />
+            </div>
+        </MasterDataLayout>
     );
 };
 

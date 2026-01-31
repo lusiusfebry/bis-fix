@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import clsx from 'clsx';
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'; // Need heroicons or material
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 
-const Sidebar = () => {
-    const [openMenus, setOpenMenus] = useState<string[]>(['Master Data']); // Default open or closed?
+interface SidebarProps {
+    collapsed: boolean;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
+    const [openMenus, setOpenMenus] = useState<string[]>(['Master Data']);
 
     const toggleMenu = (name: string) => {
         setOpenMenus(prev =>
@@ -14,11 +18,11 @@ const Sidebar = () => {
 
     const navItems = [
         { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
-        { name: 'HR', path: '/hr/employees', icon: 'groups' }, // Changed /hr to /hr/employees approx
+        { name: 'Manajemen Karyawan', path: '/hr/employees', icon: 'groups' },
         {
             name: 'Master Data',
             icon: 'database',
-            path: '/hr/master-data', // pseudo path
+            path: '/hr/master-data',
             subItems: [
                 { name: 'Divisi', path: '/hr/master-data/divisi', icon: 'domain' },
                 { name: 'Departemen', path: '/hr/master-data/department', icon: 'groups' },
@@ -29,17 +33,21 @@ const Sidebar = () => {
                 { name: 'Jenis Hubungan', path: '/hr/master-data/jenis-hubungan-kerja', icon: 'handshake' },
                 { name: 'Tag', path: '/hr/master-data/tag', icon: 'label' },
                 { name: 'Lokasi Kerja', path: '/hr/master-data/lokasi-kerja', icon: 'location_on' },
-                { name: 'Status Karyawan', path: '/hr/master-data/status-karyawan', icon: 'person_pin' },
+                { name: 'Status Karyawan', path: '/hr/master-data/status-karyawan', icon: 'verified_user' },
             ]
         },
+        { name: 'Absensi & Cuti', path: '/hr/attendance', icon: 'calendar_month' },
     ];
 
     return (
-        <aside className="fixed left-0 top-16 z-20 hidden h-[calc(100vh-4rem)] w-64 border-r border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 md:block overflow-y-auto">
+        <aside className={clsx(
+            "fixed left-0 top-16 z-20 hidden h-[calc(100vh-4rem)] border-r border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 md:block overflow-y-auto transition-all duration-300",
+            collapsed ? "w-20" : "w-64"
+        )}>
             <nav className="flex flex-col gap-2 p-4">
                 {navItems.map((item) => (
                     <div key={item.name}>
-                        {item.subItems ? (
+                        {item.subItems && !collapsed ? (
                             <>
                                 <button
                                     onClick={() => toggleMenu(item.name)}
@@ -82,24 +90,25 @@ const Sidebar = () => {
                             </>
                         ) : (
                             <NavLink
-                                to={item.path!}
+                                to={item.path}
                                 className={({ isActive }) =>
                                     clsx(
                                         'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors',
                                         isActive
                                             ? 'bg-primary text-white shadow-sm'
-                                            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700'
+                                            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700',
+                                        collapsed && 'justify-center px-0'
                                     )
                                 }
                             >
-                                <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-                                {item.name}
+                                <span className="material-symbols-outlined text-[20px] shrink-0">{item.icon}</span>
+                                {!collapsed && item.name}
                             </NavLink>
                         )}
                     </div>
                 ))}
             </nav>
-        </aside >
+        </aside>
     );
 };
 

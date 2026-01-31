@@ -4,7 +4,15 @@ import employeeController from '../controllers/employee.controller';
 import masterDataController from '../controllers/master-data.controller';
 import { authenticate } from '../../../shared/middleware/auth.middleware';
 
+import dashboardController from '../controllers/dashboard.controller';
+
 const router = Router();
+
+// Dashboard Routes
+router.get('/dashboard/stats', dashboardController.getDashboardStats);
+router.get('/dashboard/distribution', dashboardController.getEmployeeDistribution);
+router.get('/dashboard/activities', dashboardController.getRecentActivities);
+router.get('/dashboard/employment-status', dashboardController.getEmploymentStatus);
 
 // Employee Routes
 router.get('/employees', (req, res, next) => employeeController.getAll(req, res, next));

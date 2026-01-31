@@ -7,11 +7,14 @@ export interface MasterData {
     updatedAt: string;
 }
 
-export interface Divisi extends MasterData { }
+export interface Divisi extends MasterData {
+    departments?: Department[];
+}
 export interface Department extends MasterData {
     divisi_id: number;
-    manager_id?: number;
+    manager_id?: number | null;
     divisi?: Divisi;
+    manager?: { name: string };
 }
 export interface PosisiJabatan extends MasterData {
     department_id: number;

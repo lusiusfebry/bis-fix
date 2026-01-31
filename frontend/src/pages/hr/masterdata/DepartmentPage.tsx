@@ -1,11 +1,16 @@
+
 import React, { useState } from 'react';
 import { useDepartmentList, useDivisiList, useCreateMasterData, useUpdateMasterData, useDeleteMasterData } from '../../../hooks/useMasterData';
+import { useEmployeeList } from '../../../hooks/useEmployee';
 import MasterDataTable, { Column } from '../../../components/hr/MasterDataTable';
 import MasterDataForm from '../../../components/hr/MasterDataForm';
+import LayoutSwitcher from '../../../components/layout/LayoutSwitcher';
+import MasterDataLayout from '../../../components/layout/MasterDataLayout';
 import Modal from '../../../components/common/Modal';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import SearchFilter from '../../../components/common/SearchFilter';
 import { Department } from '../../../types/hr';
+import { LayoutView } from '../../../types/layout';
 
 const DepartmentPage: React.FC = () => {
     // State
@@ -17,20 +22,20 @@ const DepartmentPage: React.FC = () => {
     const [selectedItem, setSelectedItem] = useState<Department | null>(null);
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
 
+    // Layout State
+    const [layout, setLayout] = useState<LayoutView>(() => {
+        const saved = localStorage.getItem('masterDataLayout');
+        return (saved as LayoutView) || LayoutView.VIEW_1;
+    });
+
     // API Hooks
     const { data, isLoading } = useDepartmentList({ page, limit: 10, search, status });
     // Fetch generic options for dropdowns
     const { data: divisiData } = useDivisiList({ limit: 100, status: 'true' });
-    // TODO: Fetch Manager (Employees) list logic. 
-    // For now, assuming we might need an employee hook.
-    // I'll leave manager empty or fetch if I had useEmployeeList.
-    // The plan said "manager (dropdown dari karyawan aktif)".
-    // I'll skip manager dropdown integration for now or check if useEmployeeList exists. 
-    // It exists in my mind but file? `hooks/useEmployee.ts` likely.
-    // I will try to import it, if fail, I'll comment it out.
+    const { data: employeeData } = useEmployeeList();
 
-    const createMutation = useCreateMasterData('department');
-    const updateMutation = useUpdateMasterData('department');
+    const createMutation = useCreateMasterData<Department>('department');
+    const updateMutation = useUpdateMasterData<Department>('department');
     const deleteMutation = useDeleteMasterData('department');
 
     // Columns
@@ -39,11 +44,11 @@ const DepartmentPage: React.FC = () => {
         { header: 'Nama Department', accessor: 'nama' },
         {
             header: 'Manager',
-            accessor: (item: Department) => (item as any).manager?.name || '-'
+            accessor: (item: Department) => item.manager?.name || '-'
         },
         {
             header: 'Divisi',
-            accessor: (item: Department) => (item as any).divisi?.nama || '-'
+            accessor: (item: Department) => item.divisi?.nama || '-'
         },
         { header: 'Status', accessor: 'status' },
     ];
@@ -56,14 +61,21 @@ const DepartmentPage: React.FC = () => {
             label: 'Divisi',
             type: 'select' as const,
             required: true,
-            options: divisiData?.data.map(d => ({ label: d.nama, value: d.id })) || []
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            options: divisiData?.data.map((d: any) => ({ label: d.nama, value: d.id })) || []
         },
-        // Manager field can be added here if we have data
+        {
+            name: 'manager_id',
+            label: 'Manager',
+            type: 'select' as const,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            options: employeeData?.data.map((e: any) => ({ label: e.name, value: e.id })) || []
+        },
         { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const },
         { name: 'status', label: 'Status', type: 'toggle' as const },
     ];
 
-    // Handlers (duplicate logic, could be abstracted but separate pages is fine)
+    // Handlers
     const handleAdd = () => {
         setModalMode('create');
         setSelectedItem(null);
@@ -81,12 +93,12 @@ const DepartmentPage: React.FC = () => {
         setIsConfirmOpen(true);
     };
 
-    const onFormSubmit = (formData: any) => {
+    const onFormSubmit = (formData: Record<string, unknown>) => {
         // Convert IDs to number if select returns string
         const payload = {
             ...formData,
             divisi_id: Number(formData.divisi_id),
-            // manager_id...
+            manager_id: formData.manager_id ? Number(formData.manager_id) : null,
         };
 
         if (modalMode === 'create') {
@@ -103,59 +115,65 @@ const DepartmentPage: React.FC = () => {
     };
 
     return (
-        <div className="p-6">
-            <div className="mb-6 flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Master Data Department</h1>
-                    <p className="text-sm text-gray-500 mt-1">Kelola data department dan struktur organisasi</p>
+        <MasterDataLayout view={layout}>
+            <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Department</h1>
+                        <p className="text-gray-500 dark:text-gray-400 mt-1">Manage company departments</p>
+                    </div>
                 </div>
-            </div>
 
-            <SearchFilter
-                onSearchChange={setSearch}
-                onFilterChange={setStatus}
-                onAdd={handleAdd}
-                addButtonText="Tambah Department"
-            />
-
-            <MasterDataTable
-                columns={columns}
-                data={data?.data || []}
-                isLoading={isLoading}
-                pagination={{
-                    page: data?.pagination?.page || 1,
-                    totalPages: data?.pagination?.totalPages || 1,
-                    total: data?.pagination?.total || 0,
-                    onPageChange: setPage
-                }}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
-
-            <Modal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title={modalMode === 'create' ? 'Tambah Department' : 'Edit Department'}
-            >
-                <MasterDataForm
-                    fields={formFields}
-                    initialValues={selectedItem}
-                    onSubmit={onFormSubmit}
-                    onCancel={() => setIsModalOpen(false)}
-                    isLoading={createMutation.isPending || updateMutation.isPending}
+                <SearchFilter
+                    onSearchChange={setSearch}
+                    onFilterChange={setStatus}
+                    onAdd={handleAdd}
+                    addButtonText="Tambah Department"
                 />
-            </Modal>
 
-            <ConfirmDialog
-                isOpen={isConfirmOpen}
-                onCancel={() => setIsConfirmOpen(false)}
-                onConfirm={onConfirmDelete}
-                title="Hapus Department"
-                message="Apakah Anda yakin ingin menghapus department ini? Data yang dihapus tidak dapat dikembalikan."
-                itemPreview={selectedItem ? { Nama: selectedItem.nama } : null}
-                isLoading={deleteMutation.isPending}
-            />
-        </div>
+                <div className="mb-4 flex justify-end">
+                    <LayoutSwitcher currentLayout={layout} onLayoutChange={setLayout} />
+                </div>
+
+                <MasterDataTable
+                    view={layout}
+                    columns={columns}
+                    data={data?.data || []}
+                    isLoading={isLoading}
+                    pagination={{
+                        page: data?.pagination?.page || 1,
+                        totalPages: data?.pagination?.totalPages || 1,
+                        totalItems: data?.pagination?.total || 0,
+                        onPageChange: setPage,
+                    }}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
+
+                <Modal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    title={modalMode === 'create' ? 'Tambah Department' : 'Edit Department'}
+                >
+                    <MasterDataForm
+                        fields={formFields}
+                        initialValues={(selectedItem || {}) as Record<string, unknown>}
+                        onSubmit={onFormSubmit}
+                        isLoading={createMutation.isPending || updateMutation.isPending}
+                        onCancel={() => setIsModalOpen(false)}
+                    />
+                </Modal>
+
+                <ConfirmDialog
+                    isOpen={isConfirmOpen}
+                    title="Hapus Department"
+                    message={`Apakah Anda yakin ingin menghapus department ${selectedItem?.nama}?`}
+                    onConfirm={onConfirmDelete}
+                    onCancel={() => setIsConfirmOpen(false)}
+                    isLoading={deleteMutation.isPending}
+                />
+            </div>
+        </MasterDataLayout>
     );
 };
 

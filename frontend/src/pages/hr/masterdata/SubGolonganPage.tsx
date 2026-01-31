@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { useSubGolonganList, useCreateMasterData, useUpdateMasterData, useDeleteMasterData } from '../../../hooks/useMasterData';
 import MasterDataTable, { Column } from '../../../components/hr/MasterDataTable';
 import MasterDataForm from '../../../components/hr/MasterDataForm';
+import LayoutSwitcher from '../../../components/layout/LayoutSwitcher';
+import MasterDataLayout from '../../../components/layout/MasterDataLayout';
 import Modal from '../../../components/common/Modal';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import SearchFilter from '../../../components/common/SearchFilter';
 import { SubGolongan } from '../../../types/hr';
+import { LayoutView } from '../../../types/layout';
 
 const SubGolonganPage: React.FC = () => {
     const [page, setPage] = useState(1);
@@ -16,10 +20,20 @@ const SubGolonganPage: React.FC = () => {
     const [selectedItem, setSelectedItem] = useState<SubGolongan | null>(null);
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
 
+    const [layout, setLayout] = useState<LayoutView>(() => {
+        const saved = localStorage.getItem('masterDataLayout');
+        return (saved as LayoutView) || LayoutView.VIEW_1;
+    });
+
     const { data, isLoading } = useSubGolonganList({ page, limit: 10, search, status });
-    const createMutation = useCreateMasterData('sub-golongan');
-    const updateMutation = useUpdateMasterData('sub-golongan');
+    const createMutation = useCreateMasterData<SubGolongan>('sub-golongan');
+    const updateMutation = useUpdateMasterData<SubGolongan>('sub-golongan');
     const deleteMutation = useDeleteMasterData('sub-golongan');
+
+    // Derived states
+    const isCreating = createMutation.isPending;
+    const isUpdating = updateMutation.isPending;
+    const isDeleting = deleteMutation.isPending;
 
     const columns: Column<SubGolongan>[] = [
         { header: 'No', accessor: (item) => item.id, className: 'w-16' },
@@ -37,27 +51,77 @@ const SubGolonganPage: React.FC = () => {
     const handleAdd = () => { setModalMode('create'); setSelectedItem(null); setIsModalOpen(true); };
     const handleEdit = (item: SubGolongan) => { setModalMode('edit'); setSelectedItem(item); setIsModalOpen(true); };
     const handleDelete = (item: SubGolongan) => { setSelectedItem(item); setIsConfirmOpen(true); };
-    const onFormSubmit = (formData: any) => {
-        if (modalMode === 'create') createMutation.mutate(formData, { onSuccess: () => setIsModalOpen(false) });
-        else if (selectedItem) updateMutation.mutate({ id: selectedItem.id, data: formData }, { onSuccess: () => setIsModalOpen(false) });
+
+    const onFormSubmit = (formData: Record<string, unknown>) => {
+        if (modalMode === 'create') {
+            createMutation.mutate(formData as unknown as Partial<SubGolongan>, {
+                onSuccess: () => { setIsModalOpen(false); toast.success('Data berhasil ditambahkan'); },
+                onError: () => toast.error('Gagal menambahkan data')
+            });
+        } else {
+            if (!selectedItem) return;
+            updateMutation.mutate({ id: selectedItem.id, data: formData as unknown as Partial<SubGolongan> }, {
+                onSuccess: () => { setIsModalOpen(false); toast.success('Data berhasil diperbarui'); },
+                onError: () => toast.error('Gagal memperbarui data')
+            });
+        }
     };
-    const onConfirmDelete = () => { if (selectedItem) deleteMutation.mutate(selectedItem.id, { onSuccess: () => setIsConfirmOpen(false) }); };
+
+    const onConfirmDelete = () => {
+        if (selectedItem) {
+            deleteMutation.mutate(selectedItem.id, {
+                onSuccess: () => { setIsConfirmOpen(false); toast.success('Data berhasil dihapus'); },
+                onError: () => toast.error('Gagal menghapus data')
+            });
+        }
+    };
 
     return (
-        <div className="p-6">
-            <div className="mb-6 flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Master Data Sub Golongan</h1>
-                    <p className="text-sm text-gray-500 mt-1">Kelola sub golongan pangkat</p>
+        <MasterDataLayout view={layout}>
+            <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sub Golongan</h1>
+                        <p className="text-gray-500 dark:text-gray-400 mt-1">Kelola sub golongan pangkat</p>
+                    </div>
                 </div>
+                <SearchFilter onSearchChange={setSearch} onFilterChange={setStatus} onAdd={handleAdd} addButtonText="Tambah Sub Golongan" />
+                <div className="mb-4 flex justify-end">
+                    <LayoutSwitcher currentLayout={layout} onLayoutChange={setLayout} />
+                </div>
+                <MasterDataTable
+                    view={layout}
+                    columns={columns}
+                    data={data?.data || []}
+                    isLoading={isLoading}
+                    pagination={{
+                        page: data?.pagination?.page || 1,
+                        totalPages: data?.pagination?.totalPages || 1,
+                        totalItems: data?.pagination?.total || 0,
+                        onPageChange: setPage
+                    }}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
+                <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalMode === 'create' ? 'Tambah Sub Golongan' : 'Edit Sub Golongan'}>
+                    <MasterDataForm
+                        fields={formFields}
+                        initialValues={selectedItem as unknown as Record<string, unknown>}
+                        onSubmit={onFormSubmit}
+                        onCancel={() => setIsModalOpen(false)}
+                        isLoading={isCreating || isUpdating}
+                    />
+                </Modal>
+                <ConfirmDialog
+                    isOpen={isConfirmOpen}
+                    onCancel={() => setIsConfirmOpen(false)}
+                    onConfirm={onConfirmDelete}
+                    title="Hapus Sub Golongan"
+                    message={`Apakah Anda yakin ingin menghapus data ${selectedItem?.nama}?`}
+                    isLoading={isDeleting}
+                />
             </div>
-            <SearchFilter onSearchChange={setSearch} onFilterChange={setStatus} onAdd={handleAdd} addButtonText="Tambah Sub Golongan" />
-            <MasterDataTable columns={columns} data={data?.data || []} isLoading={isLoading} pagination={{ page: data?.pagination?.page || 1, totalPages: data?.pagination?.totalPages || 1, total: data?.pagination?.total || 0, onPageChange: setPage }} onEdit={handleEdit} onDelete={handleDelete} />
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalMode === 'create' ? 'Tambah Sub Golongan' : 'Edit Sub Golongan'}>
-                <MasterDataForm fields={formFields} initialValues={selectedItem} onSubmit={onFormSubmit} onCancel={() => setIsModalOpen(false)} isLoading={createMutation.isPending || updateMutation.isPending} />
-            </Modal>
-            <ConfirmDialog isOpen={isConfirmOpen} onCancel={() => setIsConfirmOpen(false)} onConfirm={onConfirmDelete} title="Hapus Sub Golongan" message="Apakah Anda yakin ingin menghapus data ini?" itemPreview={selectedItem ? { Nama: selectedItem.nama } : null} isLoading={deleteMutation.isPending} />
-        </div>
+        </MasterDataLayout>
     );
 };
 

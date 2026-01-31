@@ -6,7 +6,13 @@ import { AppError } from '../utils/errorHandler';
 const baseSchema = z.object({
     nama: z.string().min(1, 'Nama tidak boleh kosong'),
     keterangan: z.string().optional(),
-    status: z.union([z.boolean(), z.string().transform(val => val === 'true')]).optional(),
+    status: z.union([z.boolean(), z.string()])
+        .transform(val => {
+            if (val === true || val === 'true' || val === 'Aktif') return 'Aktif';
+            return 'Tidak Aktif';
+        })
+        .optional()
+        .default('Aktif'),
 });
 
 // Specific schemas

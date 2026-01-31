@@ -20,6 +20,7 @@ export const createEmployeeSchema = z.object({
     jenis_hubungan_kerja_id: z.number().optional(),
     golongan_id: z.number().optional(),
     kategori_pangkat_id: z.number().optional(),
+    sub_golongan_id: z.number().optional(),
     posisi_jabatan_id: z.number().min(1, 'Posisi Jabatan wajib dipilih'),
     department_id: z.number().min(1, 'Department wajib dipilih'),
     divisi_id: z.number().min(1, 'Divisi wajib dipilih'),
