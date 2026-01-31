@@ -50,7 +50,7 @@ export interface EmployeeAttributes {
 }
 
 // Updated EmployeeCreationAttributes to include all nullable fields as optional
-export interface EmployeeCreationAttributes extends Optional<EmployeeAttributes,
+export type EmployeeCreationAttributes = Optional<EmployeeAttributes,
     'id' |
     'createdAt' |
     'updatedAt' |
@@ -65,7 +65,7 @@ export interface EmployeeCreationAttributes extends Optional<EmployeeAttributes,
     'status_karyawan_id' |
     'lokasi_kerja_id' |
     'tag_id'
-> { }
+>;
 
 export class Employee extends Model<EmployeeAttributes, EmployeeCreationAttributes> implements EmployeeAttributes {
     public id!: number;

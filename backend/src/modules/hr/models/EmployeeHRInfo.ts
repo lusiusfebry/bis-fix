@@ -67,7 +67,7 @@ export interface EmployeeHRInfoAttributes {
     lokasi_sebelumnya?: LokasiKerja;
 }
 
-export interface EmployeeHRInfoCreationAttributes extends Optional<EmployeeHRInfoAttributes, 'id' | 'created_at' | 'updated_at'> { }
+export type EmployeeHRInfoCreationAttributes = Optional<EmployeeHRInfoAttributes, 'id' | 'created_at' | 'updated_at'>;
 
 export class EmployeeHRInfo extends Model<EmployeeHRInfoAttributes, EmployeeHRInfoCreationAttributes> implements EmployeeHRInfoAttributes {
     public id!: number;

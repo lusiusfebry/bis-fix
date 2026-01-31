@@ -52,7 +52,7 @@ export interface EmployeePersonalInfoAttributes {
     employee?: Employee;
 }
 
-export interface EmployeePersonalInfoCreationAttributes extends Optional<EmployeePersonalInfoAttributes, 'id' | 'created_at' | 'updated_at'> { }
+export type EmployeePersonalInfoCreationAttributes = Optional<EmployeePersonalInfoAttributes, 'id' | 'created_at' | 'updated_at'>;
 
 export class EmployeePersonalInfo extends Model<EmployeePersonalInfoAttributes, EmployeePersonalInfoCreationAttributes> implements EmployeePersonalInfoAttributes {
     public id!: number;

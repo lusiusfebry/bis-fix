@@ -2,7 +2,6 @@
 import { Request, Response, NextFunction } from 'express';
 import excelImportService from '../services/excel-import.service';
 import fs from 'fs';
-import path from 'path';
 
 class ImportController {
     async uploadAndPreview(req: Request, res: Response, next: NextFunction) {

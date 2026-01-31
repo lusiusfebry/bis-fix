@@ -2,8 +2,6 @@ import { Router } from 'express';
 import { validateMasterData } from '../../../shared/middleware/validateMasterData';
 import employeeController from '../controllers/employee.controller';
 import masterDataController from '../controllers/master-data.controller';
-import { authenticate } from '../../../shared/middleware/auth.middleware';
-
 import dashboardController from '../controllers/dashboard.controller';
 
 const router = Router();

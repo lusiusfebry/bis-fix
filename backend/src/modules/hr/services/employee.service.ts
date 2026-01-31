@@ -1,12 +1,12 @@
 import Employee, { EmployeeCreationAttributes } from '../models/Employee';
-import EmployeePersonalInfo, { EmployeePersonalInfoAttributes } from '../models/EmployeePersonalInfo';
+import EmployeePersonalInfo from '../models/EmployeePersonalInfo';
 import Divisi from '../models/Divisi';
 import Department from '../models/Department';
 import PosisiJabatan from '../models/PosisiJabatan';
 import StatusKaryawan from '../models/StatusKaryawan';
 import LokasiKerja from '../models/LokasiKerja';
 import Tag from '../models/Tag';
-import { Sequelize, Op } from 'sequelize';
+import { Op } from 'sequelize';
 import sequelize from '../../../config/database'; // Import sequelize instance
 import EmployeeFamilyInfo from '../models/EmployeeFamilyInfo'; // Assuming we need this for full details
 import EmployeeHRInfo from '../models/EmployeeHRInfo';

@@ -13,7 +13,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
 
         (req as any).user = decoded;
         next();
-    } catch (error) {
+    } catch {
         return res.status(401).json({ message: 'Invalid token' });
     }
 };

@@ -1,11 +1,5 @@
-
 import ExcelJS from 'exceljs';
-import { Op } from 'sequelize';
 import sequelize from '../../../config/database';
-import Employee from '../models/Employee';
-import EmployeePersonalInfo from '../models/EmployeePersonalInfo';
-import EmployeeHRInfo from '../models/EmployeeHRInfo';
-import EmployeeFamilyInfo from '../models/EmployeeFamilyInfo';
 import Divisi from '../models/Divisi';
 import Department from '../models/Department';
 import PosisiJabatan from '../models/PosisiJabatan';
@@ -17,7 +11,7 @@ import KategoriPangkat from '../models/KategoriPangkat';
 import Golongan from '../models/Golongan';
 import SubGolongan from '../models/SubGolongan';
 import employeeService from './employee.service';
-import { ImportResult, ImportError, PreviewData, ExcelMapping, ImportOptions } from '../types/import.types';
+import { ImportResult, ImportError, ExcelMapping } from '../types/import.types';
 
 class ExcelImportService {
     async parseExcelFile(filePath: string): Promise<{ workbook: ExcelJS.Workbook; rows: any[] }> {
@@ -260,7 +254,7 @@ class ExcelImportService {
         return null;
     }
 
-    async importEmployees(filePath: string, options?: ImportOptions): Promise<ImportResult> {
+    async importEmployees(filePath: string): Promise<ImportResult> {
         const { workbook, rows } = await this.parseExcelFile(filePath);
         const mapping = await this.getMappingConfiguration(workbook);
         const masterCache = await this.loadMasterDataCache();
@@ -334,7 +328,7 @@ class ExcelImportService {
     }
 
     async importMasterData(filePath: string, type: string): Promise<ImportResult> {
-        const { workbook, rows } = await this.parseExcelFile(filePath);
+        const { rows } = await this.parseExcelFile(filePath);
         // Look for sheet matching type name or default 'Master Data'
         // For simplicity, we scan rows and insert.
         // Assume mapping is simple: 'Nama' -> name, 'Kode' -> code

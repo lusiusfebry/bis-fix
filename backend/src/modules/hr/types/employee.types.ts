@@ -51,7 +51,7 @@ export interface CreateEmployeeDTO {
     family_info?: Partial<EmployeeFamilyInfoAttributes>;
 }
 
-export interface UpdateEmployeeDTO extends Partial<CreateEmployeeDTO> { }
+export type UpdateEmployeeDTO = Partial<CreateEmployeeDTO>;
 
 // Response DTO
 export interface EmployeeDetailDTO extends Omit<EmployeeAttributes, 'personal_info' | 'hr_info' | 'family_info'> {

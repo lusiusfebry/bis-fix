@@ -54,7 +54,7 @@ export interface EmployeeFamilyInfoAttributes {
     employee?: Employee;
 }
 
-export interface EmployeeFamilyInfoCreationAttributes extends Optional<EmployeeFamilyInfoAttributes, 'id' | 'created_at' | 'updated_at'> { }
+export type EmployeeFamilyInfoCreationAttributes = Optional<EmployeeFamilyInfoAttributes, 'id' | 'created_at' | 'updated_at'>;
 
 export class EmployeeFamilyInfo extends Model<EmployeeFamilyInfoAttributes, EmployeeFamilyInfoCreationAttributes> implements EmployeeFamilyInfoAttributes {
     public id!: number;
