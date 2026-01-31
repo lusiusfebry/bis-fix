@@ -7,6 +7,7 @@ import Button from '../../components/common/Button';
 import { UserCircleIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Employee } from '../../types/hr';
+import { EmployeeHRInfoView } from '../../components/hr/EmployeeHRInfoView';
 
 const EmployeeDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -123,14 +124,15 @@ const EmployeeDetailPage: React.FC = () => {
                             <DetailItem label="Agama" value={employee.personal_info?.agama || '-'} />
                             <DetailItem label="Status Pernikahan" value={employee.personal_info?.status_pernikahan || '-'} />
                             <DetailItem label="Email Pribadi" value={employee.personal_info?.email_pribadi || '-'} />
-                            <DetailItem label="No. Handphone" value={employee.personal_info?.nomor_handphone || '-'} />
+                            <DetailItem label="No. Handphone" value={employee.nomor_handphone || '-'} />
                             <DetailItem label="Alamat Domisili" value={employee.personal_info?.alamat_domisili || '-'} fullWidth />
                             <DetailItem label="Divisi" value={employee.divisi?.nama || '-'} />
                             <DetailItem label="Departemen" value={employee.department?.nama || '-'} />
                         </div>
                     )}
+
                     {activeTab === 'hr' && (
-                        <div className="text-gray-500 text-center py-10">Informasi HR Content Coming Soon</div>
+                        <EmployeeHRInfoView employee={employee} />
                     )}
                     {activeTab === 'family' && (
                         <div className="text-gray-500 text-center py-10">Informasi Keluarga Content Coming Soon</div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Employee } from '../../types/hr';
 import { EmployeeStep1Form } from './EmployeeStep1Form';
+import { EmployeeStep2Form } from './EmployeeStep2Form';
 import { CheckIcon } from '@heroicons/react/24/solid';
 
 interface EmployeeWizardProps {
@@ -41,6 +42,18 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
         // So Step 2 and 3 might be placeholders for now.
 
         setCurrentStep(2);
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleStep2Next = (data: any) => {
+        // Merge data
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setFormData((prev: any) => ({ ...prev, ...data }));
+        setCurrentStep(3);
+    };
+
+    const handleStep2Back = () => {
+        setCurrentStep(1);
     };
 
     // Placeholder for final submission (temporary until step 2/3 built)
@@ -98,19 +111,18 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
             <div className="p-6">
                 {currentStep === 1 && (
                     <EmployeeStep1Form
-                        initialData={initialData}
+                        initialData={formData}
                         onNext={handleStep1Next}
                         onCancel={onCancel}
                     />
                 )}
                 {currentStep === 2 && (
-                    <div className="text-center py-10">
-                        <p className="text-gray-500">Step 2 (Informasi HR) Coming Soon...</p>
-                        <div className="mt-4 flex justify-center space-x-4">
-                            <button onClick={() => setCurrentStep(1)} className="px-4 py-2 border rounded">Back</button>
-                            <button onClick={() => setCurrentStep(3)} className="px-4 py-2 bg-primary-600 text-white rounded">Next</button>
-                        </div>
-                    </div>
+                    <EmployeeStep2Form
+                        initialData={formData}
+                        headData={formData} // Pass collected data to populate read-only fields
+                        onNext={handleStep2Next}
+                        onBack={handleStep2Back}
+                    />
                 )}
                 {currentStep === 3 && (
                     <div className="text-center py-10">
@@ -122,9 +134,6 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
                                     // Construct FormData
                                     const payload = new FormData();
                                     // Append all fields manually or flatten
-                                    // Note: JSON stringify complicated nested objects if backend expects structured
-                                    // But based on controller `req.body` usage, it expects flat fields logic or we need to align.
-                                    // Let's assume flat fields for now based on Schema.
                                     Object.keys(formData).forEach(key => {
                                         if (key === 'foto_karyawan' && formData[key] instanceof File) {
                                             payload.append('foto_karyawan', formData[key]);

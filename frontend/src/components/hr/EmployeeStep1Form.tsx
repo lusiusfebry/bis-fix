@@ -12,7 +12,8 @@ import {
     usePosisiJabatanList,
     useStatusKaryawanList,
     useLokasiKerjaList,
-    useTagList
+    useTagList,
+    useEmployeeList
 } from '../../hooks/useMasterData';
 
 interface EmployeeStep1FormProps {
@@ -40,6 +41,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
     const { data: statusList } = useStatusKaryawanList();
     const { data: lokasiList } = useLokasiKerjaList();
     const { data: tagList } = useTagList();
+    const { data: employeeList } = useEmployeeList(); // For Manager/Atasan
 
     const onSubmit = (data: EmployeeStep1FormValues) => {
         onNext(data);
@@ -164,6 +166,49 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             )}
                         />
                     </div>
+
+                    {/* Head Extra Fields */}
+                    <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 border-t pt-4">
+                        <Input
+                            label="Email Perusahaan"
+                            type="email"
+                            {...register('email_perusahaan')}
+                            error={errors.email_perusahaan?.message}
+                            placeholder="email@perusahaan.com"
+                        />
+                        <Input
+                            label="Nomor Handphone (Utama)"
+                            {...register('nomor_handphone')}
+                            error={errors.nomor_handphone?.message}
+                            placeholder="Nomor Handphone"
+                        />
+                        <Controller
+                            control={control}
+                            name="manager_id"
+                            render={({ field }) => (
+                                <SearchableSelect
+                                    label="Manager"
+                                    options={mapOptions(employeeList?.data || [])}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    error={errors.manager_id?.message}
+                                />
+                            )}
+                        />
+                        <Controller
+                            control={control}
+                            name="atasan_langsung_id"
+                            render={({ field }) => (
+                                <SearchableSelect
+                                    label="Atasan Langsung"
+                                    options={mapOptions(employeeList?.data || [])}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    error={errors.atasan_langsung_id?.message}
+                                />
+                            )}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -263,6 +308,70 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                     </div>
                 </div>
 
+                {/* Family Info */}
+                <div className="mb-6 border-t pt-4">
+                    <h4 className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                        <span className="mr-2">👨‍👩‍👧‍👦</span> Keluarga
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <Input
+                            label="Nama Pasangan"
+                            {...register('nama_pasangan')}
+                            error={errors.nama_pasangan?.message}
+                        />
+                        <Input
+                            label="Pekerjaan Pasangan"
+                            {...register('pekerjaan_pasangan')}
+                            error={errors.pekerjaan_pasangan?.message}
+                        />
+                        <Input
+                            label="Jumlah Anak"
+                            type="number"
+                            {...register('jumlah_anak')}
+                            error={errors.jumlah_anak?.message}
+                        />
+                        <Input
+                            label="Tanggal Menikah"
+                            type="date"
+                            {...register('tanggal_menikah')}
+                            error={errors.tanggal_menikah?.message}
+                        />
+                    </div>
+                </div>
+
+                <hr className="my-6 border-gray-200" />
+
+                {/* Bank Info */}
+                <div className="mb-6">
+                    <h4 className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                        <span className="mr-2">🏦</span> Informasi Bank
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <Input
+                                label="Nama Bank"
+                                {...register('nama_bank')}
+                                error={errors.nama_bank?.message}
+                            />
+                            <Input
+                                label="Cabang Bank"
+                                {...register('cabang_bank')}
+                                error={errors.cabang_bank?.message}
+                            />
+                        </div>
+                        <Input
+                            label="Nomor Rekening"
+                            {...register('nomor_rekening')}
+                            error={errors.nomor_rekening?.message}
+                        />
+                        <Input
+                            label="Nama Pemegang Rekening"
+                            {...register('nama_pemegang_rekening')}
+                            error={errors.nama_pemegang_rekening?.message}
+                        />
+                    </div>
+                </div>
+
                 <hr className="my-6 border-gray-200" />
 
                 {/* Group 2: Identitas & Kontak */}
@@ -288,49 +397,89 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             error={errors.email_pribadi?.message}
                         />
                         <Input
-                            label="Nomor Handphone"
-                            {...register('nomor_handphone')}
-                            error={errors.nomor_handphone?.message}
+                            label="Nomor Handphone 2 (Alternatif)"
+                            {...register('nomor_handphone_2')}
+                            error={errors.nomor_handphone_2?.message}
+                        />
+                        <Input
+                            label="Telp Rumah"
+                            {...register('nomor_telepon_rumah_1')}
+                            error={errors.nomor_telepon_rumah_1?.message}
                         />
                     </div>
                 </div>
 
                 <hr className="my-6 border-gray-200" />
 
-                {/* Group 3: Alamat Domisili */}
                 <div>
-                    <h4 className="flex items-center text-sm font-semibold text-gray-700 mb-3">
-                        <span className="mr-2">🏠</span> Alamat Domisili
-                    </h4>
-                    <div className="grid grid-cols-1 gap-4">
-                        <div className="col-span-1">
-                            {/* Reuse Input for textarea or just use textarea manually styling */}
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Alamat Lengkap
-                            </label>
-                            <textarea
-                                {...register('alamat_domisili')}
-                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                                rows={3}
-                            ></textarea>
-                            {errors.alamat_domisili && <p className="mt-1 text-sm text-red-600">{errors.alamat_domisili.message}</p>}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Address KTP */}
+                        <div>
+                            <h4 className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                                <span className="mr-2">💳</span> Alamat KTP
+                            </h4>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Alamat Lengkap
+                                    </label>
+                                    <textarea
+                                        {...register('alamat_ktp')}
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                                        rows={3}
+                                    ></textarea>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Input
+                                        label="Kota/Kab"
+                                        {...register('kota_ktp')}
+                                        error={errors.kota_ktp?.message}
+                                    />
+                                    <Input
+                                        label="Provinsi"
+                                        {...register('provinsi_ktp')}
+                                        error={errors.provinsi_ktp?.message}
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <Input
-                                label="Kota/Kabupaten"
-                                {...register('kota_domisili')}
-                                error={errors.kota_domisili?.message}
-                            />
-                            <Input
-                                label="Provinsi"
-                                {...register('provinsi_domisili')}
-                                error={errors.provinsi_domisili?.message}
-                            />
-                            <Input
-                                label="Kode Pos"
-                                {...register('kode_pos')}
-                                error={errors.kode_pos?.message}
-                            />
+
+                        {/* Address Domisili */}
+                        <div>
+                            <h4 className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                                <span className="mr-2">🏠</span> Alamat Domisili
+                            </h4>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Alamat Lengkap
+                                    </label>
+                                    <textarea
+                                        {...register('alamat_domisili')}
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                                        rows={3}
+                                    ></textarea>
+                                    {errors.alamat_domisili && <p className="mt-1 text-sm text-red-600">{errors.alamat_domisili.message}</p>}
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Input
+                                        label="Kota/Kab"
+                                        {...register('kota_domisili')}
+                                        error={errors.kota_domisili?.message}
+                                    />
+                                    <Input
+                                        label="Provinsi"
+                                        {...register('provinsi_domisili')}
+                                        error={errors.provinsi_domisili?.message}
+                                    />
+                                </div>
+                                <Input
+                                    label="Kode Pos"
+                                    {...register('kode_pos')}
+                                    error={errors.kode_pos?.message}
+                                    className="w-1/2"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

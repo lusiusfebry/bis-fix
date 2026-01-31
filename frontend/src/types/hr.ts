@@ -58,6 +58,8 @@ export interface Employee {
     nama_lengkap: string;
     nomor_induk_karyawan: string;
     foto_karyawan?: string;
+    email_perusahaan?: string;
+    nomor_handphone?: string;
 
     // Foreign Keys
     divisi_id?: number;
@@ -66,6 +68,8 @@ export interface Employee {
     status_karyawan_id?: number;
     lokasi_kerja_id?: number;
     tag_id?: number;
+    manager_id?: number;
+    atasan_langsung_id?: number;
 
     // Relations
     divisi?: Divisi;

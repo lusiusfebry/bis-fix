@@ -9,6 +9,11 @@ import Tag from '../models/Tag';
 import { Sequelize, Op } from 'sequelize';
 import sequelize from '../../../config/database'; // Import sequelize instance
 import EmployeeFamilyInfo from '../models/EmployeeFamilyInfo'; // Assuming we need this for full details
+import EmployeeHRInfo from '../models/EmployeeHRInfo';
+import JenisHubunganKerja from '../models/JenisHubunganKerja';
+import KategoriPangkat from '../models/KategoriPangkat';
+import Golongan from '../models/Golongan';
+import SubGolongan from '../models/SubGolongan';
 
 class EmployeeService {
     async getAllEmployees(params: any = {}) {
@@ -63,7 +68,18 @@ class EmployeeService {
                 { model: Tag, as: 'tag' },
                 { model: Employee, as: 'manager' }, // Self join
                 { model: Employee, as: 'atasan_langsung' }, // Self join
-                { model: EmployeePersonalInfo, as: 'personal_info' }
+                { model: EmployeePersonalInfo, as: 'personal_info' },
+                {
+                    model: EmployeeHRInfo,
+                    as: 'hr_info',
+                    include: [
+                        { model: JenisHubunganKerja, as: 'jenis_hubungan_kerja' },
+                        { model: KategoriPangkat, as: 'kategori_pangkat' },
+                        { model: Golongan, as: 'golongan' },
+                        { model: SubGolongan, as: 'sub_golongan' },
+                        { model: LokasiKerja, as: 'lokasi_sebelumnya' }
+                    ]
+                }
             ]
         });
     }
@@ -76,7 +92,7 @@ class EmployeeService {
         return await Employee.create(data);
     }
 
-    async createEmployeeWithPersonalInfo(employeeData: EmployeeCreationAttributes, personalInfoData: any, photoPath?: string) {
+    async createEmployeeComplete(employeeData: EmployeeCreationAttributes, personalInfoData: any, hrInfoData: any, photoPath?: string) {
         const t = await sequelize.transaction();
         try {
             if (photoPath) {
@@ -88,6 +104,13 @@ class EmployeeService {
             if (personalInfoData) {
                 await EmployeePersonalInfo.create({
                     ...personalInfoData,
+                    employee_id: employee.id
+                }, { transaction: t });
+            }
+
+            if (hrInfoData) {
+                await EmployeeHRInfo.create({
+                    ...hrInfoData,
                     employee_id: employee.id
                 }, { transaction: t });
             }
@@ -106,7 +129,7 @@ class EmployeeService {
         return await employee.update(data);
     }
 
-    async updateEmployeeWithPersonalInfo(id: number, employeeData: Partial<Employee>, personalInfoData: any, photoPath?: string) {
+    async updateEmployeeComplete(id: number, employeeData: Partial<Employee>, personalInfoData: any, hrInfoData: any, photoPath?: string) {
         const t = await sequelize.transaction();
         try {
             const employee = await Employee.findByPk(id);
@@ -126,6 +149,19 @@ class EmployeeService {
                 } else {
                     await EmployeePersonalInfo.create({
                         ...personalInfoData,
+                        employee_id: id
+                    }, { transaction: t });
+                }
+            }
+
+            if (hrInfoData) {
+                // Upsert hr info
+                const existingHRInfo = await EmployeeHRInfo.findOne({ where: { employee_id: id } });
+                if (existingHRInfo) {
+                    await existingHRInfo.update(hrInfoData, { transaction: t });
+                } else {
+                    await EmployeeHRInfo.create({
+                        ...hrInfoData,
                         employee_id: id
                     }, { transaction: t });
                 }
