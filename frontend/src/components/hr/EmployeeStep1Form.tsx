@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { employeeStep1Schema, EmployeeStep1FormValues } from '../../schemas/employee.schema';
@@ -8,13 +8,18 @@ import { PhotoUpload } from './PhotoUpload';
 import Button from '../common/Button';
 import {
     useDivisiList,
-    useDepartmentList,
-    usePosisiJabatanList,
     useStatusKaryawanList,
     useLokasiKerjaList,
-    useTagList,
-    useEmployeeList
+    useTagList
 } from '../../hooks/useMasterData';
+import {
+    useDepartmentByDivisi,
+    usePosisiByDepartment,
+    useManagerList,
+    useActiveEmployees
+} from '../../hooks/useCascadeDropdown';
+import { validationService } from '../../services/validation.service';
+import { formatNPWP, formatPhoneNumber } from '../../utils/validators';
 
 import { DocumentUpload } from './DocumentUpload';
 
@@ -31,20 +36,64 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
         register,
         control,
         handleSubmit,
+        watch,
+        setValue,
+        setError,
+        clearErrors,
         formState: { errors }
     } = useForm<EmployeeStep1FormValues>({
         resolver: zodResolver(employeeStep1Schema),
-        defaultValues: initialData
+        defaultValues: initialData,
+        mode: 'onChange'
     });
 
-    // Master Data Hooks
-    const { data: divisiList } = useDivisiList();
-    const { data: departmentList } = useDepartmentList();
-    const { data: posisiList } = usePosisiJabatanList();
-    const { data: statusList } = useStatusKaryawanList();
-    const { data: lokasiList } = useLokasiKerjaList();
-    const { data: tagList } = useTagList();
-    const { data: employeeList } = useEmployeeList(); // For Manager/Atasan
+    // Watch values for cascade & conditions
+    const selectedDivisi = watch('divisi_id');
+    const selectedDepartment = watch('department_id');
+    const statusPernikahan = watch('status_pernikahan');
+    const nik = watch('nomor_induk_karyawan');
+
+    // NIK Validation State
+    const [isNikChecking, setIsNikChecking] = React.useState(false);
+
+    // Debounce Check NIK
+    useEffect(() => {
+        const checkNik = async () => {
+            if (!nik || nik.length < 5) return;
+            setIsNikChecking(true);
+            const isUnique = await validationService.checkNIKUnique(nik, employeeId);
+            setIsNikChecking(false);
+            if (!isUnique) {
+                setError('nomor_induk_karyawan', { type: 'manual', message: 'NIK sudah terdaftar' });
+            } else {
+                // Only clear manual error, let schema validation run
+                // Re-trigger validation for format if needed, but schema handles format.
+                // We simply explicitly clear the manual error.
+                if (errors.nomor_induk_karyawan?.type === 'manual') {
+                    clearErrors('nomor_induk_karyawan');
+                }
+            }
+        };
+        const timer = setTimeout(checkNik, 500);
+        return () => clearTimeout(timer);
+    }, [nik, employeeId, setError, clearErrors, errors.nomor_induk_karyawan?.type]);
+
+    // Master Data Hooks (Independent)
+    const { data: divisiList, isLoading: isDivisiLoading } = useDivisiList();
+    const { data: statusList, isLoading: isStatusLoading } = useStatusKaryawanList();
+    const { data: lokasiList, isLoading: isLokasiLoading } = useLokasiKerjaList();
+    const { data: tagList, isLoading: isTagLoading } = useTagList();
+
+    // Cascading Hooks
+    const { data: departmentList, isLoading: isDeptLoading } = useDepartmentByDivisi(selectedDivisi);
+    const { data: posisiList, isLoading: isPosisiLoading } = usePosisiByDepartment(selectedDepartment);
+    const { data: managerList, isLoading: isManagerLoading } = useManagerList();
+    const { data: activeEmployeeList, isLoading: isActiveEmpLoading } = useActiveEmployees();
+
+
+
+    // Better approach: Handle clear in the onChange of the parent component.
+    // Let's remove this Effect and put logic in Controller's onChange.
 
     const onSubmit = (data: EmployeeStep1FormValues) => {
         onNext(data);
@@ -52,7 +101,11 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
 
     // Map options for selects
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mapOptions = (list: any[]) => list?.map(item => ({ value: item.id, label: item.nama })) || [];
+    const mapOptions = (list: any[]) => list?.map(item => ({ value: item.id, label: item.nama || item.nama_lengkap || item.nama_posisi || item.nama_status || item.nama_divisi || item.nama_department || item.nama_lokasi || item.nama_tag })) || [];
+
+    // Helper for Manager/Atasan options (uses nama_lengkap)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mapEmployeeOptions = (list: any[]) => list?.map(item => ({ value: item.id, label: `${item.nama_lengkap} - ${item.nomor_induk_karyawan}` })) || [];
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
@@ -76,13 +129,16 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
 
                     {/* Basic Fields - Right */}
                     <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input
-                            label="NIK"
-                            {...register('nomor_induk_karyawan')}
-                            error={errors.nomor_induk_karyawan?.message}
-                            required
-                            placeholder="Contoh: 2024001"
-                        />
+                        <div className="relative">
+                            <Input
+                                label="NIK"
+                                {...register('nomor_induk_karyawan')}
+                                error={errors.nomor_induk_karyawan?.message}
+                                required
+                                placeholder="Contoh: 2024001"
+                            />
+                            {isNikChecking && <span className="absolute right-3 top-9 text-xs text-gray-400">Checking...</span>}
+                        </div>
                         <Input
                             label="Nama Lengkap"
                             {...register('nama_lengkap')}
@@ -98,8 +154,14 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                     label="Divisi"
                                     options={mapOptions(divisiList?.data || [])}
                                     value={field.value}
-                                    onChange={field.onChange}
+                                    onChange={(val) => {
+                                        field.onChange(val);
+                                        // Clear dependent fields
+                                        setValue('department_id', undefined);
+                                        setValue('posisi_jabatan_id', undefined);
+                                    }}
                                     error={errors.divisi_id?.message}
+                                    loading={isDivisiLoading}
                                 />
                             )}
                         />
@@ -109,10 +171,16 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             render={({ field }) => (
                                 <SearchableSelect
                                     label="Departemen"
-                                    options={mapOptions(departmentList?.data || [])}
+                                    options={mapOptions(departmentList || [])}
                                     value={field.value}
-                                    onChange={field.onChange}
+                                    onChange={(val) => {
+                                        field.onChange(val);
+                                        // Clear dependent field
+                                        setValue('posisi_jabatan_id', undefined);
+                                    }}
                                     error={errors.department_id?.message}
+                                    disabled={!selectedDivisi}
+                                    loading={isDeptLoading}
                                 />
                             )}
                         />
@@ -122,10 +190,12 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             render={({ field }) => (
                                 <SearchableSelect
                                     label="Posisi Jabatan"
-                                    options={mapOptions(posisiList?.data || [])}
+                                    options={mapOptions(posisiList || [])}
                                     value={field.value}
                                     onChange={field.onChange}
                                     error={errors.posisi_jabatan_id?.message}
+                                    disabled={!selectedDepartment}
+                                    loading={isPosisiLoading}
                                 />
                             )}
                         />
@@ -139,6 +209,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                     value={field.value}
                                     onChange={field.onChange}
                                     error={errors.status_karyawan_id?.message}
+                                    loading={isStatusLoading}
                                 />
                             )}
                         />
@@ -152,6 +223,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                     value={field.value}
                                     onChange={field.onChange}
                                     error={errors.lokasi_kerja_id?.message}
+                                    loading={isLokasiLoading}
                                 />
                             )}
                         />
@@ -165,6 +237,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                     value={field.value}
                                     onChange={field.onChange}
                                     error={errors.tag_id?.message}
+                                    loading={isTagLoading}
                                 />
                             )}
                         />
@@ -179,11 +252,18 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             error={errors.email_perusahaan?.message}
                             placeholder="email@perusahaan.com"
                         />
-                        <Input
-                            label="Nomor Handphone (Utama)"
-                            {...register('nomor_handphone')}
-                            error={errors.nomor_handphone?.message}
-                            placeholder="Nomor Handphone"
+                        <Controller
+                            control={control}
+                            name="nomor_handphone"
+                            render={({ field }) => (
+                                <Input
+                                    label="Nomor Handphone (Utama)"
+                                    value={field.value || ''}
+                                    onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                                    error={errors.nomor_handphone?.message}
+                                    placeholder="Nomor Handphone"
+                                />
+                            )}
                         />
                         <Controller
                             control={control}
@@ -191,10 +271,11 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             render={({ field }) => (
                                 <SearchableSelect
                                     label="Manager"
-                                    options={mapOptions(employeeList?.data || [])}
+                                    options={mapEmployeeOptions(managerList || [])}
                                     value={field.value}
                                     onChange={field.onChange}
                                     error={errors.manager_id?.message}
+                                    loading={isManagerLoading}
                                 />
                             )}
                         />
@@ -204,10 +285,11 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             render={({ field }) => (
                                 <SearchableSelect
                                     label="Atasan Langsung"
-                                    options={mapOptions(employeeList?.data || [])}
+                                    options={mapEmployeeOptions(activeEmployeeList || [])}
                                     value={field.value}
                                     onChange={field.onChange}
                                     error={errors.atasan_langsung_id?.message}
+                                    loading={isActiveEmpLoading}
                                 />
                             )}
                         />
@@ -353,32 +435,40 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                 </div>
 
                 {/* Family Info */}
+                {/* Family Info - Conditional */}
+                {statusPernikahan === 'Menikah' && (
+                    <div className="mb-6 border-t pt-4">
+                        <h4 className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                            <span className="mr-2">👨‍👩‍👧‍👦</span> Keluarga
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <Input
+                                label="Nama Pasangan"
+                                {...register('nama_pasangan')}
+                                error={errors.nama_pasangan?.message}
+                            />
+                            <Input
+                                label="Pekerjaan Pasangan"
+                                {...register('pekerjaan_pasangan')}
+                                error={errors.pekerjaan_pasangan?.message}
+                            />
+                            <Input
+                                label="Tanggal Menikah"
+                                type="date"
+                                {...register('tanggal_menikah')}
+                                error={errors.tanggal_menikah?.message}
+                            />
+                        </div>
+                    </div>
+                )}
                 <div className="mb-6 border-t pt-4">
-                    <h4 className="flex items-center text-sm font-semibold text-gray-700 mb-3">
-                        <span className="mr-2">👨‍👩‍👧‍👦</span> Keluarga
-                    </h4>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Informasi Tambahan</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <Input
-                            label="Nama Pasangan"
-                            {...register('nama_pasangan')}
-                            error={errors.nama_pasangan?.message}
-                        />
-                        <Input
-                            label="Pekerjaan Pasangan"
-                            {...register('pekerjaan_pasangan')}
-                            error={errors.pekerjaan_pasangan?.message}
-                        />
                         <Input
                             label="Jumlah Anak"
                             type="number"
                             {...register('jumlah_anak')}
                             error={errors.jumlah_anak?.message}
-                        />
-                        <Input
-                            label="Tanggal Menikah"
-                            type="date"
-                            {...register('tanggal_menikah')}
-                            error={errors.tanggal_menikah?.message}
                         />
                     </div>
                 </div>
@@ -429,10 +519,23 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             {...register('nomor_ktp')}
                             error={errors.nomor_ktp?.message}
                         />
+                        <Controller
+                            control={control}
+                            name="nomor_npwp"
+                            render={({ field }) => (
+                                <Input
+                                    label="Nomor NPWP"
+                                    value={field.value || ''}
+                                    onChange={(e) => field.onChange(formatNPWP(e.target.value))}
+                                    error={errors.nomor_npwp?.message}
+                                />
+                            )}
+                        />
                         <Input
-                            label="Nomor NPWP"
-                            {...register('nomor_npwp')}
-                            error={errors.nomor_npwp?.message}
+                            label="Nomor BPJS"
+                            {...register('nomor_bpjs')}
+                            error={errors.nomor_bpjs?.message}
+                            placeholder="13 digit angka"
                         />
                         <Input
                             label="Email Pribadi"
@@ -440,15 +543,29 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             {...register('email_pribadi')}
                             error={errors.email_pribadi?.message}
                         />
-                        <Input
-                            label="Nomor Handphone 2 (Alternatif)"
-                            {...register('nomor_handphone_2')}
-                            error={errors.nomor_handphone_2?.message}
+                        <Controller
+                            control={control}
+                            name="nomor_handphone_2"
+                            render={({ field }) => (
+                                <Input
+                                    label="Nomor Handphone 2 (Alternatif)"
+                                    value={field.value || ''}
+                                    onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                                    error={errors.nomor_handphone_2?.message}
+                                />
+                            )}
                         />
-                        <Input
-                            label="Telp Rumah"
-                            {...register('nomor_telepon_rumah_1')}
-                            error={errors.nomor_telepon_rumah_1?.message}
+                        <Controller
+                            control={control}
+                            name="nomor_telepon_rumah_1"
+                            render={({ field }) => (
+                                <Input
+                                    label="Telp Rumah"
+                                    value={field.value || ''}
+                                    onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                                    error={errors.nomor_telepon_rumah_1?.message}
+                                />
+                            )}
                         />
                     </div>
                 </div>

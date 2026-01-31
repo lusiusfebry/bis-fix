@@ -15,6 +15,8 @@ import KategoriPangkat from '../models/KategoriPangkat';
 import Golongan from '../models/Golongan';
 import SubGolongan from '../models/SubGolongan';
 import { qrcodeService } from './qrcode.service';
+import { validateManagerPosition, validateAtasanLangsungActive, validateDepartmentBelongsToDivisi, validatePosisiJabatanBelongsToDepartment, validateContractDates } from '../validators/business-rules.validator';
+import { ERROR_MESSAGES } from '../../../shared/constants/error-messages';
 
 class EmployeeService {
     async getEmployeeQRCode(id: number) {
@@ -132,7 +134,58 @@ class EmployeeService {
         return await Employee.create(data);
     }
 
+    async validateEmployeeBusinessRules(data: any, isUpdate: boolean = false, employeeId?: number) {
+        const errors: string[] = [];
+
+        // 1. NIK Unique
+        if (data.nomor_induk_karyawan) {
+            const isUnique = await this.validateNIKUnique(data.nomor_induk_karyawan, isUpdate ? employeeId : undefined);
+            if (!isUnique) {
+                errors.push(ERROR_MESSAGES.NIK_ALREADY_EXISTS);
+            }
+        }
+
+        // 2. Manager Position check
+        if (data.manager_id) {
+            const result = await validateManagerPosition(data.manager_id);
+            if (!result.valid) errors.push(result.message!);
+        }
+
+        // 3. Atasan Langsung Active
+        if (data.atasan_langsung_id) {
+            const result = await validateAtasanLangsungActive(data.atasan_langsung_id);
+            if (!result.valid) errors.push(result.message!);
+        }
+
+        // 4. Department in Divisi
+        if (data.divisi_id && data.department_id) {
+            const result = await validateDepartmentBelongsToDivisi(data.department_id, data.divisi_id);
+            if (!result.valid) errors.push(result.message!);
+        }
+
+        // 5. Posisi in Department
+        if (data.department_id && data.posisi_jabatan_id) {
+            const result = await validatePosisiJabatanBelongsToDepartment(data.posisi_jabatan_id, data.department_id);
+            if (!result.valid) errors.push(result.message!);
+        }
+
+        // 6. Contract Dates
+        if (data.tanggal_kontrak && data.tanggal_akhir_kontrak) {
+            const result = await validateContractDates(data.tanggal_kontrak, data.tanggal_akhir_kontrak);
+            if (!result.valid) errors.push(result.message!);
+        }
+
+        if (errors.length > 0) {
+            throw new Error(JSON.stringify({ message: ERROR_MESSAGES.VALIDATION_ERROR, errors }));
+        }
+    }
+
     async createEmployeeComplete(employeeData: EmployeeCreationAttributes, personalInfoData: any, hrInfoData: any, familyInfoData: any, photoPath?: string, options?: { transaction?: any }) {
+        // Run Business Rule Validation First
+        // Merge data for validation
+        const validationData = { ...employeeData, ...hrInfoData };
+        await this.validateEmployeeBusinessRules(validationData, false);
+
         const t = options?.transaction || await sequelize.transaction();
         const isExternalTransaction = !!options?.transaction;
 
@@ -170,24 +223,18 @@ class EmployeeService {
 
             if (!isExternalTransaction) await t.commit();
 
-            // If external transaction, we can't return the fully fetched object safely if we plan to rely on it immediately committed? 
-            // Actually findByPk inside transaction works fine.
-            return await this.getEmployeeById(employee.id); // This might need transaction pass-through if getEmployeeById uses read-committed etc, but usually findByPk is simple. 
-            // Better to simple return employee.id or basic object if inside transaction to avoid locking issues? 
-            // For now, assume getEmployeeById is fine or we skip it if speed is concern.
+            return await this.getEmployeeById(employee.id);
         } catch (error) {
             if (!isExternalTransaction) await t.rollback();
             throw error;
         }
     }
 
-    async updateEmployee(id: number, data: Partial<Employee>) {
-        const employee = await Employee.findByPk(id);
-        if (!employee) throw new Error('Employee not found');
-        return await employee.update(data);
-    }
-
     async updateEmployeeComplete(id: number, employeeData: Partial<Employee>, personalInfoData: any, hrInfoData: any, familyInfoData: any, photoPath?: string) {
+        // Run Business Rule Validation
+        const validationData = { ...employeeData, ...hrInfoData };
+        await this.validateEmployeeBusinessRules(validationData, true, id);
+
         const t = await sequelize.transaction();
         try {
             const employee = await Employee.findByPk(id);
@@ -249,6 +296,7 @@ class EmployeeService {
             throw error;
         }
     }
+
 
     async deleteEmployee(id: number) {
         const t = await sequelize.transaction();

@@ -1,10 +1,21 @@
 import { z } from 'zod';
+import { validateNIK, validateNPWP, validatePhoneNumber, calculateAge, validateBPJS } from '../utils/validators';
+import { ERROR_MESSAGES } from '../constants/error-messages';
+
+// Helper for custom refinements
+const customRefine = (validator: (val: string) => boolean) => {
+    return (val: string | undefined | null) => {
+        if (!val) return true; // Skip empty
+        return validator(val);
+    };
+};
 
 export const employeeStep1Schema = z.object({
     // Head / Basic Info
     nama_lengkap: z.string().min(1, 'Nama lengkap wajib diisi').max(200, 'Maksimal 200 karakter'),
-    nomor_induk_karyawan: z.string().min(1, 'NIK wajib diisi').max(50, 'Maksimal 50 karakter'),
-    foto_karyawan: z.instanceof(File).optional().or(z.string().optional()), // File object or URL string (if existing)
+    nomor_induk_karyawan: z.string().min(1, 'NIK wajib diisi').max(50, 'Maksimal 50 karakter')
+        .refine(customRefine(validateNIK), { message: ERROR_MESSAGES.NIK_INVALID_FORMAT }),
+    foto_karyawan: z.instanceof(File).optional().or(z.string().optional()),
 
     // Organization
     divisi_id: z.coerce.number().optional(),
@@ -17,24 +28,33 @@ export const employeeStep1Schema = z.object({
     atasan_langsung_id: z.coerce.number().optional(),
 
     // Contacts
-    email_perusahaan: z.string().email('Format email tidak valid').optional().or(z.literal('')),
-    nomor_handphone: z.string().max(20, 'Maksimal 20 karakter').optional(),
+    email_perusahaan: z.string().email(ERROR_MESSAGES.EMAIL_INVALID_FORMAT).optional().or(z.literal('')),
+    nomor_handphone: z.string().max(20, 'Maksimal 20 karakter').optional().or(z.literal(''))
+        .refine(customRefine(validatePhoneNumber), { message: ERROR_MESSAGES.PHONE_INVALID_FORMAT }),
 
     // Personal Info - Biodata
     jenis_kelamin: z.enum(['Laki-laki', 'Perempuan']).optional(),
     tempat_lahir: z.string().max(100).optional(),
-    tanggal_lahir: z.string().optional(),
+    tanggal_lahir: z.string().optional()
+        .refine((val) => !val || calculateAge(val) >= 17, { message: ERROR_MESSAGES.AGE_BELOW_MINIMUM }),
     agama: z.string().optional(),
     golongan_darah: z.enum(['A', 'B', 'AB', 'O']).optional(),
     status_pernikahan: z.string().optional(),
 
     // Personal Info - Identity & Contracts
-    nomor_ktp: z.string().min(16, 'No KTP minimal 16 karakter').optional().or(z.literal('')),
-    nomor_npwp: z.string().optional(),
-    email_pribadi: z.string().email('Format email tidak valid').optional().or(z.literal('')),
-    nomor_handphone_2: z.string().max(20).optional(),
-    nomor_telepon_rumah_1: z.string().max(20).optional(),
-    nomor_telepon_rumah_2: z.string().max(20).optional(),
+    nomor_ktp: z.string().min(16, 'No KTP minimal 16 karakter').optional().or(z.literal(''))
+        .refine(customRefine(validateNIK), { message: 'No KTP harus 16 digit angka' }),
+    nomor_npwp: z.string().optional()
+        .refine(customRefine(validateNPWP), { message: ERROR_MESSAGES.NPWP_INVALID_FORMAT }),
+    nomor_bpjs: z.string().optional()
+        .refine(customRefine(validateBPJS), { message: ERROR_MESSAGES.BPJS_INVALID_FORMAT }),
+    email_pribadi: z.string().email(ERROR_MESSAGES.EMAIL_INVALID_FORMAT).optional().or(z.literal('')),
+    nomor_handphone_2: z.string().max(20).optional().or(z.literal(''))
+        .refine(customRefine(validatePhoneNumber), { message: ERROR_MESSAGES.PHONE_INVALID_FORMAT }),
+    nomor_telepon_rumah_1: z.string().max(20).optional().or(z.literal(''))
+        .refine(customRefine(validatePhoneNumber), { message: ERROR_MESSAGES.PHONE_INVALID_FORMAT }),
+    nomor_telepon_rumah_2: z.string().max(20).optional().or(z.literal(''))
+        .refine(customRefine(validatePhoneNumber), { message: ERROR_MESSAGES.PHONE_INVALID_FORMAT }),
 
     // Personal Info - Address KTP
     alamat_ktp: z.string().optional(),
@@ -60,6 +80,14 @@ export const employeeStep1Schema = z.object({
     nama_pemegang_rekening: z.string().optional(),
     nama_bank: z.string().optional(),
     cabang_bank: z.string().optional(),
+}).superRefine((data) => {
+    if (data.divisi_id && data.department_id) {
+        // Should validate department belongs to divisi.
+        // Since we can't async call API in sync Zod superRefine easily without side effects or complexity,
+        // we usually rely on form/hook logic to clear mismatch.
+        // Here we just placeholder or remove if logic is handled in UI.
+        // UI cascade handles clearing, so invalid combination is unlikely unless forced.
+    }
 });
 
 export type EmployeeStep1FormValues = z.infer<typeof employeeStep1Schema>;
@@ -99,13 +127,15 @@ export const employeeStep2Schema = z.object({
 
     // Kontak Darurat 1
     nama_kontak_darurat_1: z.string().optional(),
-    nomor_telepon_kontak_darurat_1: z.string().optional(),
+    nomor_telepon_kontak_darurat_1: z.string().optional().or(z.literal(''))
+        .refine(customRefine(validatePhoneNumber), { message: ERROR_MESSAGES.PHONE_INVALID_FORMAT }),
     hubungan_kontak_darurat_1: z.string().optional(),
     alamat_kontak_darurat_1: z.string().optional(),
 
     // Kontak Darurat 2
     nama_kontak_darurat_2: z.string().optional(),
-    nomor_telepon_kontak_darurat_2: z.string().optional(),
+    nomor_telepon_kontak_darurat_2: z.string().optional().or(z.literal(''))
+        .refine(customRefine(validatePhoneNumber), { message: ERROR_MESSAGES.PHONE_INVALID_FORMAT }),
     hubungan_kontak_darurat_2: z.string().optional(),
     alamat_kontak_darurat_2: z.string().optional(),
 
@@ -132,8 +162,16 @@ export const employeeStep2Schema = z.object({
     }
     return true;
 }, {
-    message: "Tanggal Akhir Kontrak harus setelah Tanggal Kontrak",
+    message: ERROR_MESSAGES.CONTRACT_DATE_INVALID,
     path: ["tanggal_akhir_kontrak"]
+}).refine(data => {
+    if (data.tanggal_masuk && data.tanggal_permanent) {
+        return new Date(data.tanggal_permanent) >= new Date(data.tanggal_masuk);
+    }
+    return true;
+}, {
+    message: ERROR_MESSAGES.PERMANENT_DATE_INVALID,
+    path: ["tanggal_permanent"]
 });
 
 export type EmployeeStep2FormValues = z.infer<typeof employeeStep2Schema>;

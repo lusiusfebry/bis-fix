@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import masterDataService from '../services/master-data.service';
 import * as models from '../models';
+import { Op } from 'sequelize';
 
 class MasterDataController {
     private getModel(modelName: string) {
@@ -140,6 +141,76 @@ class MasterDataController {
             if (!success) return res.status(404).json({ message: 'Item not found' });
 
             res.json({ status: 'success', message: 'Item deleted successfully' });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getDepartmentsByDivisi(req: Request, res: Response, next: NextFunction) {
+        try {
+            const divisiId = parseInt(req.params.divisiId);
+            const departments = await (models as any).Department.findAll({
+                where: { divisi_id: divisiId }
+            });
+            res.json({ status: 'success', data: departments });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getPosisiByDepartment(req: Request, res: Response, next: NextFunction) {
+        try {
+            const departmentId = parseInt(req.params.departmentId);
+            const posisi = await (models as any).PosisiJabatan.findAll({
+                where: { department_id: departmentId }
+            });
+            res.json({ status: 'success', data: posisi });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getManagers(req: Request, res: Response, next: NextFunction) {
+        try {
+            // Find employees with position containing "head", "manager", "kepala"
+            // We need to join with PosisiJabatan
+
+            const managers = await (models as any).Employee.findAll({
+                include: [{
+                    model: (models as any).PosisiJabatan,
+                    as: 'posisi_jabatan',
+                    where: {
+                        nama_posisi: {
+                            [Op.iLike]: { [Op.any]: ['%head%', '%manager%', '%kepala%', '%direktur%', '%chief%'] }
+                        }
+                    }
+                }],
+                where: {
+                    status_karyawan_id: { [Op.ne]: null } // Assuming active means having a status, usually we check StatusKaryawan 'Aktif'
+                }
+            });
+            res.json({ status: 'success', data: managers });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getActiveEmployees(req: Request, res: Response, next: NextFunction) {
+        try {
+            // Fetch employees with 'Aktif' status
+            // We need to find the StatusKaryawan ID for 'Aktif' first OR join it.
+            // Let's join.
+
+            const employees = await (models as any).Employee.findAll({
+                include: [{
+                    model: (models as any).StatusKaryawan,
+                    as: 'status_karyawan',
+                    where: {
+                        nama_status: { [Op.iLike]: 'aktif' }
+                    }
+                }]
+            });
+            res.json({ status: 'success', data: employees });
         } catch (error) {
             next(error);
         }

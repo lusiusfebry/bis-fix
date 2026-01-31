@@ -43,6 +43,7 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
         control,
         handleSubmit,
         setValue,
+        watch,
         formState: { errors }
     } = useForm<EmployeeStep2FormValues>({
         resolver: zodResolver(employeeStep2Schema),
@@ -56,8 +57,11 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
             email_perusahaan: headData?.email_perusahaan,
             manager_id: headData?.manager_id,
             atasan_langsung_id: headData?.atasan_langsung_id,
-        }
+        },
+        mode: 'onChange'
     });
+
+    // Watchers
 
     useEffect(() => {
         if (headData) {
@@ -77,6 +81,16 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
     const { data: golonganList } = useGolonganList();
     const { data: subGolonganList } = useSubGolonganList();
     const { data: lokasiList } = useLokasiKerjaList();
+
+    // Determine if contract dates should be shown
+    const selectedJenisKontrakId = watch('jenis_hubungan_kerja_id');
+    const isContract = React.useMemo(() => {
+        if (!jenisKontrakList?.data || !selectedJenisKontrakId) return false;
+        const selected = jenisKontrakList.data.find(item => item.id === selectedJenisKontrakId);
+        if (!selected) return false;
+        const name = selected.nama.toLowerCase();
+        return name.includes('kontrak') || name.includes('pkwt') || name.includes('magang') || name.includes('intern');
+    }, [jenisKontrakList, selectedJenisKontrakId]);
 
     const onSubmit = (data: EmployeeStep2FormValues) => {
         onNext(data);
@@ -168,8 +182,14 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
                     <Input label="Tanggal Masuk Group" type="date" {...register('tanggal_masuk_group')} error={errors.tanggal_masuk_group?.message} />
                     <Input label="Tanggal Masuk" type="date" {...register('tanggal_masuk')} error={errors.tanggal_masuk?.message} />
                     <Input label="Tanggal Permanent" type="date" {...register('tanggal_permanent')} error={errors.tanggal_permanent?.message} />
-                    <Input label="Tanggal Kontrak" type="date" {...register('tanggal_kontrak')} error={errors.tanggal_kontrak?.message} />
-                    <Input label="Tanggal Akhir Kontrak" type="date" {...register('tanggal_akhir_kontrak')} error={errors.tanggal_akhir_kontrak?.message} />
+
+                    {isContract && (
+                        <>
+                            <Input label="Tanggal Kontrak" type="date" {...register('tanggal_kontrak')} error={errors.tanggal_kontrak?.message} />
+                            <Input label="Tanggal Akhir Kontrak" type="date" {...register('tanggal_akhir_kontrak')} error={errors.tanggal_akhir_kontrak?.message} />
+                        </>
+                    )}
+
                     <Input label="Tanggal Berhenti" type="date" {...register('tanggal_berhenti')} error={errors.tanggal_berhenti?.message} />
                 </div>
             </div>

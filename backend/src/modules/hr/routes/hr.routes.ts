@@ -58,6 +58,12 @@ router.get('/employees/:id/qrcode', (req, res, next) => employeeController.getQR
 router.get('/employees/:id/qrcode/download', (req, res, next) => employeeController.downloadQRCode(req, res, next));
 router.get('/qrcode/generate', (req, res, next) => qrcodeController.generateQRCode(req, res, next));
 
+// Cascade & Dropdown Routes
+router.get('/departments/by-divisi/:divisiId', (req, res, next) => masterDataController.getDepartmentsByDivisi(req, res, next));
+router.get('/posisi-jabatan/by-department/:departmentId', (req, res, next) => masterDataController.getPosisiByDepartment(req, res, next));
+router.get('/validation/employees/managers', (req, res, next) => masterDataController.getManagers(req, res, next));
+router.get('/validation/employees/active', (req, res, next) => masterDataController.getActiveEmployees(req, res, next));
+
 // Import Routes
 import importController from '../controllers/import.controller';
 import { uploadExcelFile } from '../../../shared/middleware/upload.middleware';
