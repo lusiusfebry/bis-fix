@@ -20,7 +20,7 @@ interface EmployeeTableProps {
     onDelete: (id: number) => void;
 }
 
-const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, isLoading, onDelete }) => {
+const EmployeeTable: React.FC<EmployeeTableProps> = React.memo(({ employees, isLoading, onDelete }) => {
     const navigate = useNavigate();
 
     return (
@@ -75,6 +75,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, isLoading, onD
                                                         src={employee.foto_karyawan}
                                                         alt={employee.nama_lengkap}
                                                         className="h-full w-full object-cover"
+                                                        loading="lazy"
                                                         onError={(e) => {
                                                             (e.target as HTMLImageElement).src = '/default-avatar.png'; // Fallback or handling
                                                             (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
@@ -132,6 +133,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, isLoading, onD
             </div>
         </div>
     );
-};
+});
 
 export default EmployeeTable;

@@ -1,5 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../../../config/database';
+import cacheService from '../../../shared/services/cache.service';
 
 export class Divisi extends Model {
     public id!: number;
@@ -39,6 +40,18 @@ Divisi.init({
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
+});
+
+Divisi.addHook('afterCreate', async () => {
+    await cacheService.delPattern('master_data:Divisi:*');
+});
+
+Divisi.addHook('afterUpdate', async () => {
+    await cacheService.delPattern('master_data:Divisi:*');
+});
+
+Divisi.addHook('afterDestroy', async () => {
+    await cacheService.delPattern('master_data:Divisi:*');
 });
 
 export default Divisi;

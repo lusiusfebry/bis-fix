@@ -15,6 +15,31 @@ export default defineConfig({
             '@types': path.resolve(__dirname, './src/types'),
         },
     },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    // 'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+                    // 'ui-vendor': ['@headlessui/react', '@heroicons/react'],
+                    // 'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
+                    // 'chart-vendor': ['recharts'],
+                    // 'hr-module': [
+                    //     './src/pages/hr/EmployeeListPage',
+                    //     './src/pages/hr/EmployeeDetailPage',
+                    //     './src/components/hr/EmployeeTable',
+                    // ],
+                },
+            },
+        },
+        chunkSizeWarningLimit: 1000,
+        minify: 'terser',
+        terserOptions: {
+            compress: {
+                drop_console: true,
+                drop_debugger: true,
+            },
+        },
+    },
     server: {
         proxy: {
             '/api': {
@@ -22,5 +47,8 @@ export default defineConfig({
                 changeOrigin: true,
             },
         },
+    },
+    optimizeDeps: {
+        include: ['react', 'react-dom', 'react-router-dom'],
     },
 });

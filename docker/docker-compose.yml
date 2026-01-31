@@ -21,6 +21,22 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: bebang-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - bebang-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: bebang-pgadmin
@@ -71,6 +87,7 @@ services:
 
 volumes:
   postgres-data:
+  redis-data:
 
 networks:
   bebang-network:

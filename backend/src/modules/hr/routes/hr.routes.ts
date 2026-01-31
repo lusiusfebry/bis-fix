@@ -8,6 +8,7 @@ import { uploadMultipleDocuments } from '../../../shared/middleware/upload.middl
 import { checkPermission, checkDepartmentAccess, checkResourceOwnership } from '../../../shared/middleware/permission.middleware';
 import { authenticate } from '../../../shared/middleware/auth.middleware';
 import { RESOURCES, ACTIONS } from '../../../shared/constants/permissions';
+import { cacheMiddleware } from '../../../shared/middleware/cache.middleware';
 
 const router = Router();
 
@@ -101,6 +102,7 @@ const dynamicAuditLogger = (req: any, res: any, next: any) => {
 router.get(
     '/master/:model',
     checkPermission(RESOURCES.MASTER_DATA, ACTIONS.READ),
+    cacheMiddleware(3600),
     (req, res, next) => masterDataController.getAll(req, res, next)
 );
 

@@ -93,20 +93,51 @@ class EmployeeService {
         if (lokasi_kerja_id) where.lokasi_kerja_id = lokasi_kerja_id;
         if (tag_id) where.tag_id = tag_id;
 
-        // Optimization: Use separate count and findAll if needed, but findAndCountAll is convenient
-        const { count, rows } = await Employee.findAndCountAll({
+        // Optimization: Use separate count and findAll (faster for large datasets)
+        const count = await Employee.count({ where });
+
+        const rows = await Employee.findAll({
             where,
+            attributes: [
+                'id', 'nama_lengkap', 'nomor_induk_karyawan',
+                'foto_karyawan', 'email', 'nomor_hp'
+            ],
             include: [
-                { model: Divisi, as: 'divisi' },
-                { model: Department, as: 'department' },
-                { model: PosisiJabatan, as: 'posisi_jabatan' },
-                { model: StatusKaryawan, as: 'status_karyawan' },
-                { model: LokasiKerja, as: 'lokasi_kerja' },
-                { model: Tag, as: 'tag' },
+                {
+                    model: Divisi,
+                    as: 'divisi',
+                    attributes: ['id', 'nama']
+                },
+                {
+                    model: Department,
+                    as: 'department',
+                    attributes: ['id', 'nama']
+                },
+                {
+                    model: PosisiJabatan,
+                    as: 'posisi_jabatan',
+                    attributes: ['id', 'nama']
+                },
+                {
+                    model: StatusKaryawan,
+                    as: 'status_karyawan',
+                    attributes: ['id', 'nama']
+                },
+                {
+                    model: LokasiKerja,
+                    as: 'lokasi_kerja',
+                    attributes: ['id', 'nama']
+                },
+                {
+                    model: Tag,
+                    as: 'tag',
+                    attributes: ['id', 'nama', 'warna_tag']
+                },
             ],
             offset,
             limit: parseInt(limit),
-            order: [['createdAt', 'DESC']]
+            order: [['createdAt', 'DESC']],
+            subQuery: false // Optimize for large datasets with includes
         });
 
         return {

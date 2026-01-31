@@ -9,6 +9,8 @@ import './modules/hr/models/associations'; // Import associations
 const app = express();
 
 // Middleware
+import { performanceMonitor } from './shared/middleware/performance.middleware';
+app.use(performanceMonitor);
 app.use(helmet());
 app.use(cors({ origin: env.corsOrigin }));
 app.use(express.json());
@@ -57,8 +59,15 @@ const startServer = async () => {
             console.error('Failed to initialize scheduler:', schedErr);
         }
 
-        app.listen(env.port, () => {
+        app.listen(env.port, async () => {
             console.log(`Server is running on port ${env.port}`);
+            // Cache Warming
+            try {
+                const { default: cacheWarmingService } = await import('./shared/services/cache-warming.service');
+                await cacheWarmingService.warmMasterDataCache();
+            } catch (err) {
+                console.error('Cache warming failed:', err);
+            }
         });
     } catch (error) {
         console.error('Unable to connect to the database:', error);
