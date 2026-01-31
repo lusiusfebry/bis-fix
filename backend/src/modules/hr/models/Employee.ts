@@ -9,6 +9,8 @@ import Tag from './Tag';
 import EmployeePersonalInfo from './EmployeePersonalInfo';
 import EmployeeHRInfo from './EmployeeHRInfo';
 import EmployeeFamilyInfo from './EmployeeFamilyInfo';
+import Leave from './Leave';
+import Attendance from './Attendance';
 
 export interface EmployeeAttributes {
     id: number;
@@ -18,6 +20,9 @@ export interface EmployeeAttributes {
     divisi_id?: number;
     department_id?: number;
     manager_id?: number;
+    // ... existing attributes ...
+    leaves?: Leave[];
+    attendances?: Attendance[];
     atasan_langsung_id?: number;
     posisi_jabatan_id?: number;
     email_perusahaan?: string;

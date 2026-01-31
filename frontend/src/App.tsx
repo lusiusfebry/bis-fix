@@ -3,6 +3,8 @@ import MainLayout from './components/layout/MainLayout';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import EmployeeListPage from './pages/hr/EmployeeListPage';
 import EmployeeCreatePage from './pages/hr/EmployeeCreatePage';
+import EmployeeEditPage from './pages/hr/EmployeeEditPage';
+import EmployeeDetailPage from './pages/hr/EmployeeDetailPage';
 import LoginPage from './pages/auth/LoginPage';
 import WelcomePage from './pages/WelcomePage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
@@ -48,7 +50,8 @@ function App() {
                     <Route index element={<EmployeeListPage />} />
                     <Route path="employees" element={<EmployeeListPage />} />
                     <Route path="employees/create" element={<EmployeeCreatePage />} />
-                    <Route path="employees/:id" element={<div>Employee Detail Placeholder</div>} />
+                    <Route path="employees/:id" element={<EmployeeDetailPage />} />
+                    <Route path="employees/:id/edit" element={<EmployeeEditPage />} />
 
                     {/* Master Data Routes */}
                     <Route path="master-data">

@@ -2,7 +2,9 @@ import Employee from '../models/Employee';
 import Department from '../models/Department';
 import Divisi from '../models/Divisi';
 import StatusKaryawan from '../models/StatusKaryawan';
-import { Sequelize } from 'sequelize';
+import Leave from '../models/Leave';
+import Attendance from '../models/Attendance';
+import { Sequelize, Op } from 'sequelize';
 
 class DashboardService {
     async getDashboardStats() {
@@ -18,19 +20,32 @@ class DashboardService {
         // Total Active Departments
         const totalDepartments = await Department.count();
 
+        // Employees on Leave (Active Approved Leave today)
+        const employeesOnLeave = await Leave.count({
+            where: {
+                status: 'Approved',
+                tanggal_mulai: { [Op.lte]: new Date() },
+                tanggal_selesai: { [Op.gte]: new Date() }
+            }
+        });
+
+        // Attendance Rate (Present today / Total Active Employees)
+        const presentCount = await Attendance.count({
+            where: {
+                tanggal: new Date(),
+                status: 'Hadir'
+            }
+        });
+
+        const attendanceRate = totalEmployees > 0
+            ? Math.round((presentCount / totalEmployees) * 100)
+            : 0;
+
         return {
             totalEmployees,
             totalDepartments,
-            // TODO: Implement real queries when 'leaves' (Cuti/Izin) table is created.
-            // Example:
-            // employeesOnLeave: await Leave.count({ where: { status: 'Approved', date: today } }),
-            employeesOnLeave: 0,
-
-            // TODO: Implement real queries when 'attendance' (Absensi) table is created.
-            // Example:
-            // const present = await Attendance.count({ where: { date: today, status: 'Present' } });
-            // attendanceRate: (present / totalEmployees) * 100,
-            attendanceRate: 0
+            employeesOnLeave,
+            attendanceRate
         };
     }
 
@@ -85,11 +100,6 @@ class DashboardService {
             raw: true
         });
 
-        // Calculate percentages could be done here or frontend.
-        // Let's simple return the counts for now as requested format is simple stats.
-        // Plan says: "{ tetap_count, kontrak_count, tetap_percentage }"
-        // But dynamic grouping is safer. Queries above return generic distribution.
-
         let tetapCount = 0;
         let kontrakCount = 0;
         let total = 0;
@@ -98,7 +108,7 @@ class DashboardService {
             const count = parseInt(d.count);
             total += count;
             if (d.status_name === 'Tetap' || d.status_name === 'PKWTT') tetapCount += count;
-            else kontrakCount += count; // Simplification
+            else kontrakCount += count;
         });
 
         return {

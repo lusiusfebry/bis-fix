@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from '../common/Button';
 
 interface Employee {
@@ -19,6 +19,8 @@ interface EmployeeTableProps {
 }
 
 const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, isLoading, onDelete }) => {
+    const navigate = useNavigate();
+
     return (
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
             <div className="overflow-x-auto">
@@ -58,12 +60,24 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, isLoading, onD
                             </tr>
                         ) : (
                             employees.map((employee) => (
-                                <tr key={employee.id} className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors">
+                                <tr
+                                    key={employee.id}
+                                    className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                                    onClick={() => navigate(`/hr/employees/${employee.id}`)}
+                                >
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden shrink-0">
                                                 {employee.foto_karyawan ? (
-                                                    <img src={employee.foto_karyawan} alt={employee.nama_lengkap} className="h-full w-full object-cover" />
+                                                    <img
+                                                        src={employee.foto_karyawan}
+                                                        alt={employee.nama_lengkap}
+                                                        className="h-full w-full object-cover"
+                                                        onError={(e) => {
+                                                            (e.target as HTMLImageElement).src = '/default-avatar.png'; // Fallback or handling
+                                                            (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                                                        }}
+                                                    />
                                                 ) : (
                                                     <span className="text-sm font-bold text-gray-500 sticky">{employee.nama_lengkap.charAt(0)}</span>
                                                 )}
@@ -78,15 +92,15 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, isLoading, onD
                                     <td className="px-6 py-4">{employee.department?.nama || '-'}</td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${employee.status_karyawan?.nama === 'Tetap' || employee.status_karyawan?.nama === 'Aktif'
-                                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                                             }`}>
                                             {employee.status_karyawan?.nama || '-'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2">
-                                            <Link to={`/hr/employees/${employee.id}`}>
+                                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                            <Link to={`/hr/employees/${employee.id}/edit`}>
                                                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
                                                     <span className="material-symbols-outlined text-[18px]">edit</span>
                                                 </Button>
@@ -95,7 +109,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({ employees, isLoading, onD
                                                 variant="ghost"
                                                 size="sm"
                                                 className="h-8 w-8 p-0 rounded-full text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                onClick={() => onDelete(employee.id)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onDelete(employee.id);
+                                                }}
                                             >
                                                 <span className="material-symbols-outlined text-[18px]">delete</span>
                                             </Button>

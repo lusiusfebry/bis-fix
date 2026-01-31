@@ -32,61 +32,53 @@ export interface LokasiKerja extends MasterData {
 }
 export interface StatusKaryawan extends MasterData { }
 
+export interface EmployeePersonalInfo {
+    id: number;
+    employee_id: number;
+    tempat_lahir?: string;
+    tanggal_lahir?: string;
+    jenis_kelamin?: string;
+    agama?: string;
+    status_pernikahan?: string;
+    golongan_darah?: string;
+    nomor_ktp?: string;
+    nomor_npwp?: string;
+    email_pribadi?: string;
+    alamat_domisili?: string;
+    kota_domisili?: string;
+    provinsi_domisili?: string;
+    kode_pos?: string;
+    nomor_handphone?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface Employee {
     id: number;
-    nik: string;
-    name: string;
-    email: string;
-    phone?: string;
-    joinDate: string;
-    photo?: string;
+    nama_lengkap: string;
+    nomor_induk_karyawan: string;
+    foto_karyawan?: string;
 
-    // Foreign Keys to Master Data (Optional for now as we transition)
+    // Foreign Keys
     divisi_id?: number;
     department_id?: number;
     posisi_jabatan_id?: number;
-    kategori_pangkat_id?: number;
-    golongan_id?: number;
-    sub_golongan_id?: number;
-    jenis_hubungan_kerja_id?: number;
-    tag_id?: number;
-    lokasi_kerja_id?: number;
     status_karyawan_id?: number;
+    lokasi_kerja_id?: number;
+    tag_id?: number;
 
     // Relations
     divisi?: Divisi;
     department?: Department;
     posisi_jabatan?: PosisiJabatan;
-
-    // Legacy fields (to be deprecated or mapped)
-    position?: string;
-    // department: string; // Removing text-based department to enforce relation
-
-    // Personal Info
-    tempat_lahir?: string;
-    tanggal_lahir?: string;
-    jenis_kelamin?: 'L' | 'P';
-    agama?: string;
-    status_pernikahan?: string;
-    alamat_ktp?: string;
-    alamat_domisili?: string;
-
-    // Family Info
-    nama_pasangan?: string;
-    jumlah_anak?: number;
-
-    // Education & Others
-    pendidikan_terakhir?: string;
-    jurusan?: string;
-    nama_bank?: string;
-    nomor_rekening?: string;
-    npwp?: string;
-    bpjs_kesehatan?: string;
-    bpjs_ketenagakerjaan?: string;
+    status_karyawan?: StatusKaryawan;
+    lokasi_kerja?: LokasiKerja;
+    tag?: Tag;
+    personal_info?: EmployeePersonalInfo;
 
     createdAt: string;
     updatedAt: string;
 }
 
-export type CreateEmployeeInput = Omit<Employee, 'id' | 'createdAt' | 'updatedAt' | 'divisi' | 'department' | 'posisi_jabatan'>;
+export type CreateEmployeeInput = Omit<Employee, 'id' | 'createdAt' | 'updatedAt' | 'divisi' | 'department' | 'posisi_jabatan' | 'status_karyawan' | 'lokasi_kerja' | 'tag' | 'personal_info'>;
 export type UpdateEmployeeInput = Partial<CreateEmployeeInput>;

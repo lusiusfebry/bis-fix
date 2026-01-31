@@ -14,11 +14,14 @@ router.get('/dashboard/distribution', dashboardController.getEmployeeDistributio
 router.get('/dashboard/activities', dashboardController.getRecentActivities);
 router.get('/dashboard/employment-status', dashboardController.getEmploymentStatus);
 
+import { uploadEmployeePhoto } from '../../../shared/middleware/upload.middleware';
+import { validateEmployeeCreate, validateEmployeeUpdate } from '../../../shared/middleware/validateEmployee';
+
 // Employee Routes
 router.get('/employees', (req, res, next) => employeeController.getAll(req, res, next));
 router.get('/employees/:id', (req, res, next) => employeeController.getOne(req, res, next));
-router.post('/employees', (req, res, next) => employeeController.create(req, res, next));
-router.put('/employees/:id', (req, res, next) => employeeController.update(req, res, next));
+router.post('/employees', uploadEmployeePhoto.single('foto_karyawan'), validateEmployeeCreate, (req, res, next) => employeeController.create(req, res, next));
+router.put('/employees/:id', uploadEmployeePhoto.single('foto_karyawan'), validateEmployeeUpdate, (req, res, next) => employeeController.update(req, res, next));
 router.delete('/employees/:id', (req, res, next) => employeeController.delete(req, res, next));
 
 // Master Data Generic Routes
