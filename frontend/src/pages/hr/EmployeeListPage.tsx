@@ -75,10 +75,16 @@ const EmployeeListPage = () => {
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Manajemen Karyawan</h1>
                     <p className="text-gray-500 dark:text-gray-400">Kelola data karyawan, posisi, dan status kepegawaian.</p>
                 </div>
-                <Button onClick={() => navigate('/hr/employees/create')} className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[20px]">add</span>
-                    Tambah Karyawan
-                </Button>
+                <div className="flex gap-2">
+                    <Button onClick={() => navigate('/hr/import')} variant="secondary" className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[20px]">upload_file</span>
+                        Import Excel
+                    </Button>
+                    <Button onClick={() => navigate('/hr/employees/create')} className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[20px]">add</span>
+                        Tambah Karyawan
+                    </Button>
+                </div>
             </div>
 
             {/* Filters Section */}

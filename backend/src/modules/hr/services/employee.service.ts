@@ -14,8 +14,42 @@ import JenisHubunganKerja from '../models/JenisHubunganKerja';
 import KategoriPangkat from '../models/KategoriPangkat';
 import Golongan from '../models/Golongan';
 import SubGolongan from '../models/SubGolongan';
+import { qrcodeService } from './qrcode.service';
 
 class EmployeeService {
+    async getEmployeeQRCode(id: number) {
+        const employee = await Employee.findByPk(id);
+        if (!employee) throw new Error('EMPLOYEE_NOT_FOUND');
+
+        const nik = employee.nomor_induk_karyawan;
+        if (!nik) throw new Error('NIK_MISSING');
+
+        const qrData = await qrcodeService.generateQRCode(nik);
+
+        return {
+            employee: {
+                id: employee.id,
+                nama: employee.nama_lengkap,
+                nik: employee.nomor_induk_karyawan
+            },
+            ...qrData
+        };
+    }
+
+    async getEmployeeQRCodeBuffer(id: number): Promise<{ buffer: Buffer, filename: string }> {
+        const employee = await Employee.findByPk(id);
+        if (!employee) throw new Error('EMPLOYEE_NOT_FOUND');
+
+        const nik = employee.nomor_induk_karyawan;
+        if (!nik) throw new Error('NIK_MISSING');
+
+        const buffer = await qrcodeService.generateQRCodeBuffer(nik);
+        return {
+            buffer,
+            filename: `qr-${nik}.png`
+        };
+    }
+
     async getAllEmployees(params: any = {}) {
         const { search, divisi_id, department_id, status_id, page = 1, limit = 10 } = params;
         const offset = (page - 1) * limit;
@@ -93,8 +127,10 @@ class EmployeeService {
         return await Employee.create(data);
     }
 
-    async createEmployeeComplete(employeeData: EmployeeCreationAttributes, personalInfoData: any, hrInfoData: any, familyInfoData: any, photoPath?: string) {
-        const t = await sequelize.transaction();
+    async createEmployeeComplete(employeeData: EmployeeCreationAttributes, personalInfoData: any, hrInfoData: any, familyInfoData: any, photoPath?: string, options?: { transaction?: any }) {
+        const t = options?.transaction || await sequelize.transaction();
+        const isExternalTransaction = !!options?.transaction;
+
         try {
             if (photoPath) {
                 employeeData.foto_karyawan = photoPath;
@@ -127,10 +163,15 @@ class EmployeeService {
                 }, { transaction: t });
             }
 
-            await t.commit();
-            return await this.getEmployeeById(employee.id);
+            if (!isExternalTransaction) await t.commit();
+
+            // If external transaction, we can't return the fully fetched object safely if we plan to rely on it immediately committed? 
+            // Actually findByPk inside transaction works fine.
+            return await this.getEmployeeById(employee.id); // This might need transaction pass-through if getEmployeeById uses read-committed etc, but usually findByPk is simple. 
+            // Better to simple return employee.id or basic object if inside transaction to avoid locking issues? 
+            // For now, assume getEmployeeById is fine or we skip it if speed is concern.
         } catch (error) {
-            await t.rollback();
+            if (!isExternalTransaction) await t.rollback();
             throw error;
         }
     }

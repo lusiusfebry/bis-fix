@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import EmployeeListPage from './pages/hr/EmployeeListPage';
+import EmployeeImportPage from './pages/hr/EmployeeImportPage';
 import EmployeeCreatePage from './pages/hr/EmployeeCreatePage';
 import EmployeeEditPage from './pages/hr/EmployeeEditPage';
 import EmployeeDetailPage from './pages/hr/EmployeeDetailPage';
@@ -49,6 +50,7 @@ function App() {
                 <Route path="hr">
                     <Route index element={<EmployeeListPage />} />
                     <Route path="employees" element={<EmployeeListPage />} />
+                    <Route path="import" element={<EmployeeImportPage />} />
                     <Route path="employees/create" element={<EmployeeCreatePage />} />
                     <Route path="employees/:id" element={<EmployeeDetailPage />} />
                     <Route path="employees/:id/edit" element={<EmployeeEditPage />} />

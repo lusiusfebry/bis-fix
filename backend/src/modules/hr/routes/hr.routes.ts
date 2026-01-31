@@ -31,4 +31,21 @@ router.post('/master/:model', validateMasterData, (req, res, next) => masterData
 router.put('/master/:model/:id', validateMasterData, (req, res, next) => masterDataController.update(req, res, next));
 router.delete('/master/:model/:id', (req, res, next) => masterDataController.delete(req, res, next));
 
+// QR Code Routes
+// QR Code Routes
+import qrcodeController from '../controllers/qrcode.controller';
+router.get('/employees/:id/qrcode', (req, res, next) => employeeController.getQRCode(req, res, next));
+router.get('/employees/:id/qrcode/download', (req, res, next) => employeeController.downloadQRCode(req, res, next));
+router.get('/qrcode/generate', (req, res, next) => qrcodeController.generateQRCode(req, res, next)); // Generic NIK generation
+
+// Import Routes
+import importController from '../controllers/import.controller';
+import { uploadExcelFile } from '../../../shared/middleware/upload.middleware';
+
+router.post('/import/preview', uploadExcelFile.single('file'), (req, res, next) => importController.uploadAndPreview(req, res, next));
+router.post('/import/employees', (req, res, next) => importController.importEmployees(req, res, next));
+router.post('/import/master-data/:type', (req, res, next) => importController.importMasterData(req, res, next));
+router.post('/import/error-report', (req, res, next) => importController.downloadErrorReport(req, res, next));
+
+
 export default router;

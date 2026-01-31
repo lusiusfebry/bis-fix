@@ -96,6 +96,14 @@ export interface EmployeeFamilyInfo {
     updatedAt: string;
 }
 
+// QR Code Types
+export interface QRCodeData {
+    qrCode: string; // Base64 or URL
+    nik: string;
+    generatedAt?: string;
+    employee?: Partial<Employee>;
+}
+
 export interface Employee {
     id: number;
     nama_lengkap: string;

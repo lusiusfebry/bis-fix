@@ -7,8 +7,9 @@ import Button from '../../components/common/Button';
 import { UserCircleIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Employee } from '../../types/hr';
-import { EmployeeHRInfoView } from '../../components/hr/EmployeeHRInfoView';
 import { EmployeeFamilyInfoView } from '../../components/hr/EmployeeFamilyInfoView';
+import { EmployeeHRInfoView } from '../../components/hr/EmployeeHRInfoView';
+import { EmployeeQRCode } from '../../components/hr/EmployeeQRCode';
 
 const EmployeeDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -58,7 +59,7 @@ const EmployeeDetailPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Header */}
             <div className="bg-white shadow rounded-lg overflow-hidden mb-6">
-                <div className="px-6 py-5 sm:flex sm:items-center sm:justify-between">
+                <div className="px-6 py-5 sm:flex sm:items-start sm:justify-between">
                     <div className="flex items-center">
                         <div className="flex-shrink-0 h-20 w-20 relative">
                             {employee.foto_karyawan ? (
@@ -85,6 +86,21 @@ const EmployeeDetailPage: React.FC = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Desktop QR Code */}
+                    <div className="hidden sm:flex ml-auto mr-4">
+                        {employee.nomor_induk_karyawan && (
+                            <div className="scale-75 origin-top-right">
+                                <EmployeeQRCode
+                                    nik={employee.nomor_induk_karyawan}
+                                    employeeName={employee.nama_lengkap}
+                                    showDownload={true}
+                                    showPrint={true}
+                                />
+                            </div>
+                        )}
+                    </div>
+
                     <div className="mt-5 flex space-x-3 sm:mt-0">
                         <Button variant="outline" onClick={() => navigate(`/hr/employees/${id}/edit`)}>
                             <PencilIcon className="h-4 w-4 mr-2" />
@@ -95,6 +111,18 @@ const EmployeeDetailPage: React.FC = () => {
                             Hapus
                         </Button>
                     </div>
+                </div>
+
+                {/* Mobile QR Code */}
+                <div className="sm:hidden px-6 pb-5 flex justify-center">
+                    {employee.nomor_induk_karyawan && (
+                        <EmployeeQRCode
+                            nik={employee.nomor_induk_karyawan}
+                            employeeName={employee.nama_lengkap}
+                            showDownload={true}
+                            showPrint={true}
+                        />
+                    )}
                 </div>
             </div>
 

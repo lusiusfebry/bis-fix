@@ -36,7 +36,24 @@ class EmployeeController {
             }
 
             const employee = await employeeService.createEmployeeComplete(employeeData, personalInfoData, hrInfoData, familyInfoData, photoPath);
-            res.status(201).json({ data: employee });
+
+            // Generate QR Code for response (Verification Comment 1)
+            let qrCodeData = null;
+            if (employee && employee.nomor_induk_karyawan) {
+                try {
+                    const qrResult = await employeeService.getEmployeeQRCode(employee.id);
+                    qrCodeData = qrResult.qrCode;
+                } catch (e) {
+                    console.warn('Failed to generate QR code on create:', e);
+                }
+            }
+
+            res.status(201).json({
+                data: employee ? {
+                    ...employee.toJSON(),
+                    qrCode: qrCodeData
+                } : null
+            });
         } catch (error) {
             next(error);
         }
@@ -59,7 +76,24 @@ class EmployeeController {
             }
 
             const employee = await employeeService.updateEmployeeComplete(id, employeeData, personalInfoData, hrInfoData, familyInfoData, photoPath);
-            res.json({ data: employee });
+
+            // Generate QR Code for response (Verification Comment 1)
+            let qrCodeData = null;
+            if (employee && employee.nomor_induk_karyawan) {
+                try {
+                    const qrResult = await employeeService.getEmployeeQRCode(employee.id);
+                    qrCodeData = qrResult.qrCode;
+                } catch (e) {
+                    console.warn('Failed to generate QR code on update:', e);
+                }
+            }
+
+            res.json({
+                data: employee ? {
+                    ...employee.toJSON(),
+                    qrCode: qrCodeData
+                } : null
+            });
         } catch (error) {
             next(error);
         }
@@ -72,6 +106,44 @@ class EmployeeController {
             res.status(204).send();
         } catch (error) {
             next(error);
+        }
+    }
+
+    async getQRCode(req: Request, res: Response, next: NextFunction) {
+        try {
+            const id = parseInt(req.params.id);
+            const result = await employeeService.getEmployeeQRCode(id);
+            res.json({
+                success: true,
+                data: result
+            });
+        } catch (error: any) {
+            if (error.message === 'EMPLOYEE_NOT_FOUND') {
+                res.status(404).json({ success: false, message: 'Employee not found' });
+            } else if (error.message === 'NIK_MISSING') {
+                res.status(400).json({ success: false, message: 'Employee NIK is missing' });
+            } else {
+                next(error);
+            }
+        }
+    }
+
+    async downloadQRCode(req: Request, res: Response, next: NextFunction) {
+        try {
+            const id = parseInt(req.params.id);
+            const { buffer, filename } = await employeeService.getEmployeeQRCodeBuffer(id);
+
+            res.setHeader('Content-Type', 'image/png');
+            res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+            res.send(buffer);
+        } catch (error: any) {
+            if (error.message === 'EMPLOYEE_NOT_FOUND') {
+                res.status(404).json({ success: false, message: 'Employee not found' });
+            } else if (error.message === 'NIK_MISSING') {
+                res.status(400).json({ success: false, message: 'Employee NIK is missing' });
+            } else {
+                next(error);
+            }
         }
     }
 }
