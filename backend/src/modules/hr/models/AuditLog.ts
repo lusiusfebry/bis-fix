@@ -106,7 +106,4 @@ AuditLog.init({
     underscored: true
 });
 
-import User from '../../auth/models/User';
-AuditLog.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
-
 export default AuditLog;

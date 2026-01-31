@@ -5,13 +5,15 @@ const sequelize = new Sequelize(env.db.name, env.db.user, env.db.password, {
     host: env.db.host,
     port: env.db.port,
     dialect: 'postgres',
-    logging: env.nodeEnv === 'development'
-        ? (sql: string, timing?: number) => {
-            if (timing && timing > 1000) {
-                console.warn(`⚠️ Slow query (${timing}ms):`, sql);
+    logging: process.env.DEBUG_SQL === 'true'
+        ? console.log
+        : (env.nodeEnv === 'development'
+            ? (sql: string, timing?: number) => {
+                if (timing && timing > 1000) {
+                    console.warn(`⚠️ Slow query (${timing}ms):`, sql);
+                }
             }
-        }
-        : false,
+            : false),
     benchmark: true,
     pool: {
         max: 20,

@@ -1,10 +1,9 @@
-import { QueryInterface, DataTypes } from 'sequelize';
-import sequelize from '../../config/database';
+import { DataTypes } from 'sequelize';
+import { Migration } from '../umzug';
 
-export const up = async (queryInterface: QueryInterface): Promise<void> => {
-    const qi = sequelize.getQueryInterface();
+export const up: Migration = async ({ context: queryInterface }) => {
 
-    await qi.createTable('employee_hr_info', {
+    await queryInterface.createTable('employee_hr_info', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -214,12 +213,11 @@ export const up = async (queryInterface: QueryInterface): Promise<void> => {
     });
 
     // Add indexes
-    await qi.addIndex('employee_hr_info', ['employee_id']);
-    await qi.addIndex('employee_hr_info', ['jenis_hubungan_kerja_id']);
-    await qi.addIndex('employee_hr_info', ['kategori_pangkat_id']);
+    await queryInterface.addIndex('employee_hr_info', ['employee_id']);
+    await queryInterface.addIndex('employee_hr_info', ['jenis_hubungan_kerja_id']);
+    await queryInterface.addIndex('employee_hr_info', ['kategori_pangkat_id']);
 };
 
-export const down = async (queryInterface: QueryInterface): Promise<void> => {
-    const qi = sequelize.getQueryInterface();
-    await qi.dropTable('employee_hr_info');
+export const down: Migration = async ({ context: queryInterface }) => {
+    await queryInterface.dropTable('employee_hr_info');
 };

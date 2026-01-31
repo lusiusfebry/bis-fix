@@ -15,8 +15,7 @@ const customRefine = (validator: (val: string) => { valid: boolean; message?: st
 
 export const employeeHeadSchema = z.object({
     nama_lengkap: z.string().min(1, { message: 'Nama lengkap wajib diisi' }).max(200),
-    nomor_induk_karyawan: z.string().min(1).max(50)
-        .refine(customRefine(validateNIK), { message: ERROR_MESSAGES.NIK_INVALID_FORMAT }),
+    nomor_induk_karyawan: z.string().min(1).max(50),
     divisi_id: z.string().or(z.number()).optional().transform(val => val ? Number(val) : undefined),
     department_id: z.string().or(z.number()).optional().transform(val => val ? Number(val) : undefined),
     manager_id: z.string().or(z.number()).optional().transform(val => val ? Number(val) : undefined),

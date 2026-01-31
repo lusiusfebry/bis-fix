@@ -38,7 +38,7 @@ const LoginPage = () => {
     return (
         <div className="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display">
             {/* Top Navigation Bar */}
-            <header className="w-full bg-white dark:bg-slate-900 border-b border-solid border-[#e7ebf3] dark:border-gray-800 px-6 md:px-20 lg:px-40 py-4">
+            <header className="w-full bg-white dark:bg-background-dark border-b border-solid border-[#e7ebf3] dark:border-gray-800 px-6 md:px-20 lg:px-40 py-4">
                 <div className="max-w-[1280px] mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-3 text-primary">
                         <div className="size-8 text-primary">

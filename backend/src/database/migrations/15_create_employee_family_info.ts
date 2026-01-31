@@ -1,10 +1,9 @@
-import { QueryInterface, DataTypes } from 'sequelize';
-import sequelize from '../../config/database';
+import { DataTypes } from 'sequelize';
+import { Migration } from '../umzug';
 
-export const up = async (queryInterface: QueryInterface): Promise<void> => {
-    const qi = sequelize.getQueryInterface();
+export const up: Migration = async ({ context: queryInterface }) => {
 
-    await qi.createTable('employee_family_info', {
+    await queryInterface.createTable('employee_family_info', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -102,10 +101,9 @@ export const up = async (queryInterface: QueryInterface): Promise<void> => {
     });
 
     // Add indexes
-    await qi.addIndex('employee_family_info', ['employee_id']);
+    await queryInterface.addIndex('employee_family_info', ['employee_id']);
 };
 
-export const down = async (queryInterface: QueryInterface): Promise<void> => {
-    const qi = sequelize.getQueryInterface();
-    await qi.dropTable('employee_family_info');
+export const down: Migration = async ({ context: queryInterface }) => {
+    await queryInterface.dropTable('employee_family_info');
 };

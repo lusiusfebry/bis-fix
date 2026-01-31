@@ -100,7 +100,7 @@ class EmployeeService {
             where,
             attributes: [
                 'id', 'nama_lengkap', 'nomor_induk_karyawan',
-                'foto_karyawan', 'email', 'nomor_hp'
+                'foto_karyawan', 'email_perusahaan', 'nomor_handphone'
             ],
             include: [
                 {

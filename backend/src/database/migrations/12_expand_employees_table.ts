@@ -1,7 +1,8 @@
-import { QueryInterface, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
+import { Migration } from '../umzug';
 import sequelize from '../../config/database';
 
-export const up = async (queryInterface: QueryInterface): Promise<void> => {
+export const up: Migration = async ({ context: queryInterface }) => {
     // 1. Renames
     // Using raw queries because renameColumn function is reported missing in runtime
     await sequelize.query('ALTER TABLE "employees" RENAME COLUMN "name" TO "nama_lengkap";');
@@ -40,7 +41,7 @@ export const up = async (queryInterface: QueryInterface): Promise<void> => {
     await sequelize.query('CREATE INDEX IF NOT EXISTS "employees_status_karyawan_id_idx" ON "employees" ("status_karyawan_id");');
 };
 
-export const down = async (queryInterface: QueryInterface): Promise<void> => {
+export const down: Migration = async ({ context: queryInterface }) => {
     // Revert changes (simplified)
     await sequelize.query('DROP INDEX IF EXISTS "employees_divisi_id_idx";');
     await sequelize.query('DROP INDEX IF EXISTS "employees_department_id_idx";');

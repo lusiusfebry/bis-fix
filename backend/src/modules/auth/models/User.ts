@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 
 export class User extends Model {
     public id!: number;
+    public nama!: string;
     public nik!: string;
     public password!: string;
     public employee_id!: number | null;
@@ -28,6 +29,10 @@ User.init({
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
+    },
+    nama: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
     },
     nik: {
         type: DataTypes.STRING(20),
@@ -97,11 +102,6 @@ User.init({
 });
 
 // Define association
-User.belongsTo(Employee, { foreignKey: 'employee_id', as: 'employee' });
-Employee.hasOne(User, { foreignKey: 'employee_id', as: 'user' });
-
-// Role association
-User.belongsTo(Role, { foreignKey: 'role_id', as: 'roleDetails' });
-Role.hasMany(User, { foreignKey: 'role_id', as: 'users' });
+// Moved to associations.ts to avoid circular dependencies and duplicate alias errors
 
 export default User;

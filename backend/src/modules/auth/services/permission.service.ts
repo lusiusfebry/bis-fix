@@ -35,6 +35,15 @@ class PermissionService {
     }
 
     public async hasPermission(userId: number, resource: string, action: string): Promise<boolean> {
+        const user = await User.findByPk(userId, {
+            include: [{ model: Role, as: 'roleDetails' }]
+        });
+
+        // Superadmin bypass
+        if (user?.roleDetails?.name === 'superadmin') {
+            return true;
+        }
+
         const permissions = await this.getUserPermissions(userId);
         return permissions.some(p => p.resource === resource && p.action === action);
     }

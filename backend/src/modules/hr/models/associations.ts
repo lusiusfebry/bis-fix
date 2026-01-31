@@ -14,10 +14,36 @@ import EmployeeHRInfo from './EmployeeHRInfo';
 import EmployeeFamilyInfo from './EmployeeFamilyInfo';
 import AuditLog from './AuditLog';
 import User from '../../auth/models/User';
+import { Role } from '../../auth/models/Role';
+import { Permission } from '../../auth/models/Permission';
+
+// User & Employee
+User.belongsTo(Employee, { foreignKey: 'employee_id', as: 'employee' });
+Employee.hasOne(User, { foreignKey: 'employee_id', as: 'user' });
+
+// User & Role
+User.belongsTo(Role, { foreignKey: 'role_id', as: 'roleDetails' });
+Role.hasMany(User, { foreignKey: 'role_id', as: 'users' });
+
+// Role & Permission
+Role.belongsToMany(Permission, {
+    through: 'role_permissions',
+    foreignKey: 'role_id',
+    otherKey: 'permission_id',
+    as: 'permissions'
+});
+Permission.belongsToMany(Role, {
+    through: 'role_permissions',
+    foreignKey: 'permission_id',
+    otherKey: 'role_id',
+    as: 'roles'
+});
+
 
 // Audit Log Relations
 User.hasMany(AuditLog, { foreignKey: 'user_id', as: 'audit_logs' });
-AuditLog.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+AuditLog.belongsTo(User, { foreignKey: 'user_id', as: 'executor' }); // Renamed back to 'executor' or keep 'user' if unique. The error said 'user' was used twice.
+
 
 // Master Data Relationships
 Department.belongsTo(Divisi, { foreignKey: 'divisi_id', as: 'divisi' });

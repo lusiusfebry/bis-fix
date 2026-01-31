@@ -8,6 +8,10 @@ export const up: Migration = async ({ context: queryInterface }) => {
             autoIncrement: true,
             primaryKey: true,
         },
+        nama: {
+            type: DataTypes.STRING(100),
+            allowNull: false,
+        },
         nik: {
             type: DataTypes.STRING(20),
             allowNull: false,
