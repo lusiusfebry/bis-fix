@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Employee } from '../../types/hr';
 import { EmployeeStep1Form } from './EmployeeStep1Form';
 import { EmployeeStep2Form } from './EmployeeStep2Form';
+import { EmployeeStep3Form } from './EmployeeStep3Form';
 import { CheckIcon } from '@heroicons/react/24/solid';
 
 interface EmployeeWizardProps {
@@ -54,6 +55,31 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
 
     const handleStep2Back = () => {
         setCurrentStep(1);
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleStep3Next = (data: any) => {
+        const finalData = { ...formData, ...data };
+        setFormData(finalData);
+
+        // Construct FormData for submission
+        const payload = new FormData();
+        Object.keys(finalData).forEach(key => {
+            if (key === 'foto_karyawan' && finalData[key] instanceof File) {
+                payload.append('foto_karyawan', finalData[key]);
+            } else if (key === 'data_anak' || key === 'data_saudara_kandung') {
+                // Serialize JSON arrays
+                payload.append(key, JSON.stringify(finalData[key]));
+            } else if (finalData[key] !== undefined && finalData[key] !== null) {
+                payload.append(key, String(finalData[key]));
+            }
+        });
+
+        onComplete(payload);
+    };
+
+    const handleStep3Back = () => {
+        setCurrentStep(2);
     };
 
     // Placeholder for final submission (temporary until step 2/3 built)
@@ -125,30 +151,12 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
                     />
                 )}
                 {currentStep === 3 && (
-                    <div className="text-center py-10">
-                        <p className="text-gray-500">Step 3 (Data Keluarga) Coming Soon...</p>
-                        <div className="mt-4 flex justify-center space-x-4">
-                            <button onClick={() => setCurrentStep(2)} className="px-4 py-2 border rounded">Back</button>
-                            <button
-                                onClick={() => {
-                                    // Construct FormData
-                                    const payload = new FormData();
-                                    // Append all fields manually or flatten
-                                    Object.keys(formData).forEach(key => {
-                                        if (key === 'foto_karyawan' && formData[key] instanceof File) {
-                                            payload.append('foto_karyawan', formData[key]);
-                                        } else if (formData[key] !== undefined && formData[key] !== null) {
-                                            payload.append(key, String(formData[key]));
-                                        }
-                                    });
-                                    onComplete(payload);
-                                }}
-                                className="px-4 py-2 bg-green-600 text-white rounded"
-                            >
-                                Submit
-                            </button>
-                        </div>
-                    </div>
+                    <EmployeeStep3Form
+                        initialData={formData}
+                        headData={formData}
+                        onNext={handleStep3Next}
+                        onBack={handleStep3Back}
+                    />
                 )}
             </div>
         </div>

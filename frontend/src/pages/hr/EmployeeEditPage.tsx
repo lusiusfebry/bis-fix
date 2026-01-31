@@ -41,7 +41,8 @@ const EmployeeEditPage: React.FC = () => {
                 const flatData = {
                     ...data,
                     ...data.personal_info,
-                    ...data.hr_info
+                    ...data.hr_info,
+                    ...data.family_info
                 };
 
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any

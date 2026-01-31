@@ -137,3 +137,64 @@ export const employeeStep2Schema = z.object({
 });
 
 export type EmployeeStep2FormValues = z.infer<typeof employeeStep2Schema>;
+
+
+export const dataAnakSchema = z.object({
+    nama: z.string().min(1, 'Nama anak wajib diisi'),
+    jenis_kelamin: z.enum(['Laki-laki', 'Perempuan']),
+    tanggal_lahir: z.string().min(1, 'Tanggal lahir wajib diisi'),
+    keterangan: z.string().optional()
+});
+
+export const dataSaudaraKandungSchema = z.object({
+    nama: z.string().min(1, 'Nama saudara wajib diisi'),
+    jenis_kelamin: z.enum(['Laki-laki', 'Perempuan']),
+    tanggal_lahir: z.string().min(1, 'Tanggal lahir wajib diisi'),
+    pendidikan_terakhir: z.string().optional(),
+    pekerjaan: z.string().optional(),
+    keterangan: z.string().optional()
+});
+
+export const employeeStep3Schema = z.object({
+    // Pasangan
+    tanggal_lahir_pasangan: z.string().optional(),
+    pendidikan_terakhir_pasangan: z.string().optional(),
+    keterangan_pasangan: z.string().optional(),
+
+    // Saudara Kandung
+    anak_ke: z.coerce.number().optional(),
+    jumlah_saudara_kandung: z.coerce.number().max(5, 'Maksimal 5 saudara kandung').optional(),
+
+    // Orang Tua Kandung
+    nama_ayah_kandung: z.string().optional(),
+    nama_ibu_kandung: z.string().optional(),
+    alamat_orang_tua: z.string().optional(),
+
+    // Mertua
+    nama_ayah_mertua: z.string().optional(),
+    tanggal_lahir_ayah_mertua: z.string().optional(),
+    pendidikan_terakhir_ayah_mertua: z.string().optional(),
+    keterangan_ayah_mertua: z.string().optional(),
+    nama_ibu_mertua: z.string().optional(),
+    tanggal_lahir_ibu_mertua: z.string().optional(),
+    pendidikan_terakhir_ibu_mertua: z.string().optional(),
+    keterangan_ibu_mertua: z.string().optional(),
+
+    // Repeatable Fields
+    data_anak: z.array(dataAnakSchema).optional(),
+    data_saudara_kandung: z.array(dataSaudaraKandungSchema).max(5, 'Maksimal 5 saudara kandung').optional(),
+    // Hidden field to cross-validate with Step 1 data
+    jumlah_anak_step1: z.coerce.number().optional(),
+}).superRefine((data, ctx) => {
+    if (data.jumlah_anak_step1 !== undefined && data.jumlah_anak_step1 !== null) {
+        if (data.data_anak && data.data_anak.length > data.jumlah_anak_step1) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: `Jumlah data anak (${data.data_anak.length}) tidak boleh melebihi jumlah anak yang diisi (${data.jumlah_anak_step1})`,
+                path: ["data_anak"]
+            });
+        }
+    }
+});
+
+export type EmployeeStep3FormValues = z.infer<typeof employeeStep3Schema>;

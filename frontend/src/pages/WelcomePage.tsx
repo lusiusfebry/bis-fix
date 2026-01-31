@@ -67,7 +67,7 @@ const WelcomePage = () => {
                         </button>
                         <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-700 pl-4">
                             <div className="hidden sm:flex flex-col items-end">
-                                <span className="text-xs font-bold dark:text-white">{user?.employee?.name || user?.nik}</span>
+                                <span className="text-xs font-bold dark:text-white">{user?.employee?.nama_lengkap || user?.nik}</span>
                                 <span className="text-[10px] text-[#4c669a] capitalize">{user?.role}</span>
                             </div>
                             <UserProfileDropdown />
@@ -93,7 +93,7 @@ const WelcomePage = () => {
                     <div className="flex flex-wrap justify-between items-end gap-4 mb-8">
                         <div className="flex flex-col gap-1">
                             <h1 className="text-[#0d121b] dark:text-white text-3xl lg:text-4xl font-black leading-tight tracking-tight">
-                                Selamat Datang, {user?.employee?.name ? user.employee.name.split(' ')[0] : 'User'}
+                                Selamat Datang, {user?.employee?.nama_lengkap ? user.employee.nama_lengkap.split(' ')[0] : 'User'}
                             </h1>
                             <p className="text-[#4c669a] dark:text-slate-400 text-base font-medium">
                                 Enterprise Resource Planning & Integrated Management System

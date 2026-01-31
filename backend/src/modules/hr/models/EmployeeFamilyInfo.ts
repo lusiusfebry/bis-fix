@@ -23,25 +23,29 @@ export interface EmployeeFamilyInfoAttributes {
     id: number;
     employee_id: number;
     // Pasangan
-    tanggal_lahir_pasangan?: string;
-    pendidikan_terakhir_pasangan?: string;
-    keterangan_pasangan?: string;
+    tanggal_lahir_pasangan?: string | null;
+    pendidikan_terakhir_pasangan?: string | null;
+    keterangan_pasangan?: string | null;
     // Saudara Kandung
-    anak_ke?: number;
+    anak_ke?: number | null;
     jumlah_saudara_kandung?: number;
     // Orang Tua Mertua (Ayah)
-    nama_ayah_mertua?: string;
-    tanggal_lahir_ayah_mertua?: string;
-    pendidikan_terakhir_ayah_mertua?: string;
-    keterangan_ayah_mertua?: string;
+    nama_ayah_mertua?: string | null;
+    tanggal_lahir_ayah_mertua?: string | null;
+    pendidikan_terakhir_ayah_mertua?: string | null;
+    keterangan_ayah_mertua?: string | null;
     // Orang Tua Mertua (Ibu)
-    nama_ibu_mertua?: string;
-    tanggal_lahir_ibu_mertua?: string;
-    pendidikan_terakhir_ibu_mertua?: string;
-    keterangan_ibu_mertua?: string;
+    nama_ibu_mertua?: string | null;
+    tanggal_lahir_ibu_mertua?: string | null;
+    pendidikan_terakhir_ibu_mertua?: string | null;
+    keterangan_ibu_mertua?: string | null;
+    // Orang Tua Kandung
+    nama_ayah_kandung?: string | null;
+    nama_ibu_kandung?: string | null;
+    alamat_orang_tua?: string | null;
     // Repeatable Fields
-    data_anak?: DataAnak[];
-    data_saudara_kandung?: DataSaudaraKandung[];
+    data_anak?: DataAnak[] | null;
+    data_saudara_kandung?: DataSaudaraKandung[] | null;
 
     created_at?: Date;
     updated_at?: Date;
@@ -55,21 +59,24 @@ export interface EmployeeFamilyInfoCreationAttributes extends Optional<EmployeeF
 export class EmployeeFamilyInfo extends Model<EmployeeFamilyInfoAttributes, EmployeeFamilyInfoCreationAttributes> implements EmployeeFamilyInfoAttributes {
     public id!: number;
     public employee_id!: number;
-    public tanggal_lahir_pasangan?: string;
-    public pendidikan_terakhir_pasangan?: string;
-    public keterangan_pasangan?: string;
-    public anak_ke?: number;
-    public jumlah_saudara_kandung?: number;
-    public nama_ayah_mertua?: string;
-    public tanggal_lahir_ayah_mertua?: string;
-    public pendidikan_terakhir_ayah_mertua?: string;
-    public keterangan_ayah_mertua?: string;
-    public nama_ibu_mertua?: string;
-    public tanggal_lahir_ibu_mertua?: string;
-    public pendidikan_terakhir_ibu_mertua?: string;
-    public keterangan_ibu_mertua?: string;
-    public data_anak?: DataAnak[];
-    public data_saudara_kandung?: DataSaudaraKandung[];
+    public tanggal_lahir_pasangan?: string | null;
+    public pendidikan_terakhir_pasangan?: string | null;
+    public keterangan_pasangan?: string | null;
+    public anak_ke?: number | null;
+    public jumlah_saudara_kandung!: number;
+    public nama_ayah_mertua?: string | null;
+    public tanggal_lahir_ayah_mertua?: string | null;
+    public pendidikan_terakhir_ayah_mertua?: string | null;
+    public keterangan_ayah_mertua?: string | null;
+    public nama_ibu_mertua?: string | null;
+    public tanggal_lahir_ibu_mertua?: string | null;
+    public pendidikan_terakhir_ibu_mertua?: string | null;
+    public keterangan_ibu_mertua?: string | null;
+    public nama_ayah_kandung?: string | null;
+    public nama_ibu_kandung?: string | null;
+    public alamat_orang_tua?: string | null;
+    public data_anak?: DataAnak[] | null;
+    public data_saudara_kandung?: DataSaudaraKandung[] | null;
 
     public readonly created_at!: Date;
     public readonly updated_at!: Date;

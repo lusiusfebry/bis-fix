@@ -48,7 +48,50 @@ export interface EmployeePersonalInfo {
     kota_domisili?: string;
     provinsi_domisili?: string;
     kode_pos?: string;
-    nomor_handphone?: string;
+    nama_pasangan?: string;
+    pekerjaan_pasangan?: string;
+    jumlah_anak?: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface DataAnak {
+    nama: string;
+    jenis_kelamin: 'Laki-laki' | 'Perempuan';
+    tanggal_lahir: string;
+    keterangan?: string;
+}
+
+export interface DataSaudaraKandung {
+    nama: string;
+    jenis_kelamin: 'Laki-laki' | 'Perempuan';
+    tanggal_lahir: string;
+    pendidikan_terakhir?: string;
+    pekerjaan?: string;
+    keterangan?: string;
+}
+
+export interface EmployeeFamilyInfo {
+    id: number;
+    employee_id: number;
+    tanggal_lahir_pasangan?: string;
+    pendidikan_terakhir_pasangan?: string;
+    keterangan_pasangan?: string;
+    anak_ke?: number;
+    jumlah_saudara_kandung?: number;
+    nama_ayah_kandung?: string;
+    nama_ibu_kandung?: string;
+    alamat_orang_tua?: string;
+    nama_ayah_mertua?: string;
+    tanggal_lahir_ayah_mertua?: string;
+    pendidikan_terakhir_ayah_mertua?: string;
+    keterangan_ayah_mertua?: string;
+    nama_ibu_mertua?: string;
+    tanggal_lahir_ibu_mertua?: string;
+    pendidikan_terakhir_ibu_mertua?: string;
+    keterangan_ibu_mertua?: string;
+    data_anak?: DataAnak[];
+    data_saudara_kandung?: DataSaudaraKandung[];
     createdAt: string;
     updatedAt: string;
 }
@@ -79,6 +122,7 @@ export interface Employee {
     lokasi_kerja?: LokasiKerja;
     tag?: Tag;
     personal_info?: EmployeePersonalInfo;
+    family_info?: EmployeeFamilyInfo;
 
     createdAt: string;
     updatedAt: string;

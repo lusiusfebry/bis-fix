@@ -27,6 +27,7 @@ class EmployeeController {
             const employeeData = req.body; // Multer parses body including non-file fields
             const personalInfoData = req.body; // Assuming flat structure or specialized handling
             const hrInfoData = req.body; // Same here, extract relevant fields or assume flat
+            const familyInfoData = req.body;
             const photoPath = req.file ? `/uploads/employees/photos/${req.file.filename}` : undefined;
 
             const isUnique = await employeeService.validateNIKUnique(employeeData.nomor_induk_karyawan);
@@ -34,7 +35,7 @@ class EmployeeController {
                 return res.status(400).json({ message: 'NIK already exists' });
             }
 
-            const employee = await employeeService.createEmployeeComplete(employeeData, personalInfoData, hrInfoData, photoPath);
+            const employee = await employeeService.createEmployeeComplete(employeeData, personalInfoData, hrInfoData, familyInfoData, photoPath);
             res.status(201).json({ data: employee });
         } catch (error) {
             next(error);
@@ -47,6 +48,7 @@ class EmployeeController {
             const employeeData = req.body;
             const personalInfoData = req.body;
             const hrInfoData = req.body;
+            const familyInfoData = req.body;
             const photoPath = req.file ? `/uploads/employees/photos/${req.file.filename}` : undefined;
 
             if (employeeData.nomor_induk_karyawan) {
@@ -56,7 +58,7 @@ class EmployeeController {
                 }
             }
 
-            const employee = await employeeService.updateEmployeeComplete(id, employeeData, personalInfoData, hrInfoData, photoPath);
+            const employee = await employeeService.updateEmployeeComplete(id, employeeData, personalInfoData, hrInfoData, familyInfoData, photoPath);
             res.json({ data: employee });
         } catch (error) {
             next(error);

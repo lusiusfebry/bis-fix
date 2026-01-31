@@ -8,6 +8,7 @@ import { UserCircleIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outli
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Employee } from '../../types/hr';
 import { EmployeeHRInfoView } from '../../components/hr/EmployeeHRInfoView';
+import { EmployeeFamilyInfoView } from '../../components/hr/EmployeeFamilyInfoView';
 
 const EmployeeDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -135,7 +136,7 @@ const EmployeeDetailPage: React.FC = () => {
                         <EmployeeHRInfoView employee={employee} />
                     )}
                     {activeTab === 'family' && (
-                        <div className="text-gray-500 text-center py-10">Informasi Keluarga Content Coming Soon</div>
+                        <EmployeeFamilyInfoView employee={employee} />
                     )}
                 </div>
             </div>

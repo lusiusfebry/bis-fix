@@ -29,6 +29,11 @@ export interface CreateEmployeeDTO {
     department_id?: number;
     manager_id?: number;
     atasan_langsung_id?: number;
+    jumlah_saudara_kandung?: number;
+    nama_ayah_kandung?: string;
+    nama_ibu_kandung?: string;
+    alamat_orang_tua?: string;
+    nama_ayah_mertua?: string;
     posisi_jabatan_id?: number;
     email_perusahaan?: string;
     nomor_handphone?: string;

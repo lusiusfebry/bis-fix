@@ -79,7 +79,8 @@ class EmployeeService {
                         { model: SubGolongan, as: 'sub_golongan' },
                         { model: LokasiKerja, as: 'lokasi_sebelumnya' }
                     ]
-                }
+                },
+                { model: EmployeeFamilyInfo, as: 'family_info' }
             ]
         });
     }
@@ -92,7 +93,7 @@ class EmployeeService {
         return await Employee.create(data);
     }
 
-    async createEmployeeComplete(employeeData: EmployeeCreationAttributes, personalInfoData: any, hrInfoData: any, photoPath?: string) {
+    async createEmployeeComplete(employeeData: EmployeeCreationAttributes, personalInfoData: any, hrInfoData: any, familyInfoData: any, photoPath?: string) {
         const t = await sequelize.transaction();
         try {
             if (photoPath) {
@@ -115,6 +116,17 @@ class EmployeeService {
                 }, { transaction: t });
             }
 
+            if (familyInfoData) {
+                // Parse if string (from FormData)
+                if (typeof familyInfoData.data_anak === 'string') familyInfoData.data_anak = JSON.parse(familyInfoData.data_anak);
+                if (typeof familyInfoData.data_saudara_kandung === 'string') familyInfoData.data_saudara_kandung = JSON.parse(familyInfoData.data_saudara_kandung);
+
+                await EmployeeFamilyInfo.create({
+                    ...familyInfoData,
+                    employee_id: employee.id
+                }, { transaction: t });
+            }
+
             await t.commit();
             return await this.getEmployeeById(employee.id);
         } catch (error) {
@@ -129,7 +141,7 @@ class EmployeeService {
         return await employee.update(data);
     }
 
-    async updateEmployeeComplete(id: number, employeeData: Partial<Employee>, personalInfoData: any, hrInfoData: any, photoPath?: string) {
+    async updateEmployeeComplete(id: number, employeeData: Partial<Employee>, personalInfoData: any, hrInfoData: any, familyInfoData: any, photoPath?: string) {
         const t = await sequelize.transaction();
         try {
             const employee = await Employee.findByPk(id);
@@ -149,6 +161,23 @@ class EmployeeService {
                 } else {
                     await EmployeePersonalInfo.create({
                         ...personalInfoData,
+                        employee_id: id
+                    }, { transaction: t });
+                }
+            }
+
+            if (familyInfoData) {
+                // Parse if string (from FormData)
+                if (typeof familyInfoData.data_anak === 'string') familyInfoData.data_anak = JSON.parse(familyInfoData.data_anak);
+                if (typeof familyInfoData.data_saudara_kandung === 'string') familyInfoData.data_saudara_kandung = JSON.parse(familyInfoData.data_saudara_kandung);
+
+                // Upsert family info
+                const existingFamilyInfo = await EmployeeFamilyInfo.findOne({ where: { employee_id: id } });
+                if (existingFamilyInfo) {
+                    await existingFamilyInfo.update(familyInfoData, { transaction: t });
+                } else {
+                    await EmployeeFamilyInfo.create({
+                        ...familyInfoData,
                         employee_id: id
                     }, { transaction: t });
                 }
