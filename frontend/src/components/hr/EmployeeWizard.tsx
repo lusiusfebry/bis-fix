@@ -138,6 +138,7 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
                 {currentStep === 1 && (
                     <EmployeeStep1Form
                         initialData={formData}
+                        employeeId={initialData?.id}
                         onNext={handleStep1Next}
                         onCancel={onCancel}
                     />
@@ -146,6 +147,7 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
                     <EmployeeStep2Form
                         initialData={formData}
                         headData={formData} // Pass collected data to populate read-only fields
+                        employeeId={initialData?.id}
                         onNext={handleStep2Next}
                         onBack={handleStep2Back}
                     />

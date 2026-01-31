@@ -16,14 +16,17 @@ import {
     useEmployeeList
 } from '../../hooks/useMasterData';
 
+import { DocumentUpload } from './DocumentUpload';
+
 interface EmployeeStep1FormProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     initialData?: any;
+    employeeId?: number;
     onNext: (data: EmployeeStep1FormValues) => void;
     onCancel: () => void;
 }
 
-export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialData, onNext, onCancel }) => {
+export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialData, employeeId, onNext, onCancel }) => {
     const {
         register,
         control,
@@ -211,6 +214,47 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                     </div>
                 </div>
             </div>
+
+            {/* Section 1.5: Dokumen Identitas */}
+            {employeeId && (
+                <div className="bg-white border rounded-lg p-6 shadow-sm">
+                    <h4 className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                        <span className="mr-2">📂</span> Dokumen Identitas
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <DocumentUpload
+                            employeeId={employeeId}
+                            documentType="foto_ktp"
+                            label="Foto KTP"
+                            maxFiles={1}
+                        />
+                        <DocumentUpload
+                            employeeId={employeeId}
+                            documentType="foto_npwp"
+                            label="Foto NPWP"
+                            maxFiles={1}
+                        />
+                        <DocumentUpload
+                            employeeId={employeeId}
+                            documentType="foto_kartu_keluarga"
+                            label="Foto Kartu Keluarga"
+                            maxFiles={1}
+                        />
+                        <DocumentUpload
+                            employeeId={employeeId}
+                            documentType="foto_bpjs_kesehatan"
+                            label="Foto BPJS Kesehatan"
+                            maxFiles={1}
+                        />
+                        <DocumentUpload
+                            employeeId={employeeId}
+                            documentType="foto_bpjs_ketenagakerjaan"
+                            label="Foto BPJS Ketenagakerjaan"
+                            maxFiles={1}
+                        />
+                    </div>
+                </div>
+            )}
 
             {/* Section 2: Personal Information Details */}
             <div className="bg-white border rounded-lg p-6 shadow-sm">

@@ -10,6 +10,18 @@ export interface MasterData {
 export interface Divisi extends MasterData {
     departments?: Department[];
 }
+export interface EmployeeFilterParams {
+    search?: string;
+    divisi_id?: number;
+    department_id?: number;
+    posisi_jabatan_id?: number;
+    status_karyawan_id?: number;
+    lokasi_kerja_id?: number;
+    tag_id?: number;
+    page?: number;
+    limit?: number;
+}
+
 export interface Department extends MasterData {
     divisi_id: number;
     manager_id?: number | null;
@@ -70,6 +82,30 @@ export interface DataSaudaraKandung {
     pekerjaan?: string;
     keterangan?: string;
 }
+
+export interface EmployeeDocument {
+    id: number;
+    employee_id: number;
+    document_type: DocumentType;
+    file_name: string;
+    file_path: string;
+    file_size: number;
+    mime_type: string;
+    description?: string;
+    uploaded_by: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export type DocumentType =
+    | 'foto_ktp'
+    | 'foto_npwp'
+    | 'foto_bpjs_kesehatan'
+    | 'foto_bpjs_ketenagakerjaan'
+    | 'foto_kartu_keluarga'
+    | 'surat_kontrak'
+    | 'sertifikat'
+    | 'dokumen_lainnya';
 
 export interface EmployeeFamilyInfo {
     id: number;

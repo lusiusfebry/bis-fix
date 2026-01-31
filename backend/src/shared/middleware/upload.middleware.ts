@@ -75,3 +75,50 @@ export const uploadExcelFile = multer({
     },
     fileFilter: excelFileFilter
 });
+
+// Document Upload Middleware
+const docUploadDir = path.join(process.cwd(), 'uploads/employees/documents');
+if (!fs.existsSync(docUploadDir)) {
+    fs.mkdirSync(docUploadDir, { recursive: true });
+}
+
+const documentStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        // Multer parsing order: query > body (if parsed)
+        // We rely on 'type' query param as a stable source if body isn't parsed yet.
+        const docType = (req.query.type as string) || req.body.document_type || 'others';
+        const employeeId = req.params.id || 'temp';
+        const targetDir = path.join(docUploadDir, docType, employeeId);
+
+        if (!fs.existsSync(targetDir)) {
+            fs.mkdirSync(targetDir, { recursive: true });
+        }
+
+        cb(null, targetDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const nik = req.body.nomor_induk_karyawan || 'unknown';
+        // Clean filename
+        const cleanName = file.originalname.replace(/[^a-zA-Z0-9.]/g, '-');
+        cb(null, `${uniqueSuffix}-${nik}-${cleanName}`);
+    }
+});
+
+const documentFileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Invalid file type. Only JPG, PNG, and PDF are allowed.'));
+    }
+};
+
+export const uploadMultipleDocuments = multer({
+    storage: documentStorage,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB
+    },
+    fileFilter: documentFileFilter
+}).array('documents', 10);
+

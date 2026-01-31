@@ -9,8 +9,9 @@ import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Employee } from '../../types/hr';
 import { EmployeeFamilyInfoView } from '../../components/hr/EmployeeFamilyInfoView';
 import { EmployeeHRInfoView } from '../../components/hr/EmployeeHRInfoView';
+import { EmployeeDocumentsSection } from '../../components/hr/EmployeeDocumentsSection';
+import { ExportButton } from '../../components/hr/ExportButton';
 import { EmployeeQRCode } from '../../components/hr/EmployeeQRCode';
-
 const EmployeeDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
@@ -52,7 +53,8 @@ const EmployeeDetailPage: React.FC = () => {
     const tabs = [
         { id: 'personal', label: 'Personal Information' },
         { id: 'hr', label: 'Informasi HR' },
-        { id: 'family', label: 'Informasi Keluarga' }
+        { id: 'family', label: 'Informasi Keluarga' },
+        { id: 'documents', label: 'Dokumen' }
     ];
 
     return (
@@ -102,6 +104,12 @@ const EmployeeDetailPage: React.FC = () => {
                     </div>
 
                     <div className="mt-5 flex space-x-3 sm:mt-0">
+                        {employee.id && (
+                            <ExportButton
+                                selectedEmployeeId={employee.id}
+                                showExcel={false}
+                            />
+                        )}
                         <Button variant="outline" onClick={() => navigate(`/hr/employees/${id}/edit`)}>
                             <PencilIcon className="h-4 w-4 mr-2" />
                             Edit
@@ -165,6 +173,9 @@ const EmployeeDetailPage: React.FC = () => {
                     )}
                     {activeTab === 'family' && (
                         <EmployeeFamilyInfoView employee={employee} />
+                    )}
+                    {activeTab === 'documents' && (
+                        <EmployeeDocumentsSection employeeId={employee.id} />
                     )}
                 </div>
             </div>

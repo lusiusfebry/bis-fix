@@ -51,7 +51,7 @@ class EmployeeService {
     }
 
     async getAllEmployees(params: any = {}) {
-        const { search, divisi_id, department_id, status_id, page = 1, limit = 10 } = params;
+        const { search, divisi_id, department_id, status_id, posisi_jabatan_id, lokasi_kerja_id, tag_id, page = 1, limit = 10 } = params;
         const offset = (page - 1) * limit;
 
         const where: any = {};
@@ -68,7 +68,11 @@ class EmployeeService {
         if (divisi_id) where.divisi_id = divisi_id;
         if (department_id) where.department_id = department_id;
         if (status_id) where.status_karyawan_id = status_id;
+        if (posisi_jabatan_id) where.posisi_jabatan_id = posisi_jabatan_id;
+        if (lokasi_kerja_id) where.lokasi_kerja_id = lokasi_kerja_id;
+        if (tag_id) where.tag_id = tag_id;
 
+        // Optimization: Use separate count and findAll if needed, but findAndCountAll is convenient
         const { count, rows } = await Employee.findAndCountAll({
             where,
             include: [
@@ -77,6 +81,7 @@ class EmployeeService {
                 { model: PosisiJabatan, as: 'posisi_jabatan' },
                 { model: StatusKaryawan, as: 'status_karyawan' },
                 { model: LokasiKerja, as: 'lokasi_kerja' },
+                { model: Tag, as: 'tag' },
             ],
             offset,
             limit: parseInt(limit),

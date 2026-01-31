@@ -64,4 +64,9 @@ EmployeeHRInfo.belongsTo(LokasiKerja, { foreignKey: 'lokasi_sebelumnya_id', as: 
 JenisHubunganKerja.hasMany(EmployeeHRInfo, { foreignKey: 'jenis_hubungan_kerja_id', as: 'employee_hr_infos' });
 KategoriPangkat.hasMany(EmployeeHRInfo, { foreignKey: 'kategori_pangkat_id', as: 'employee_hr_infos' });
 Golongan.hasMany(EmployeeHRInfo, { foreignKey: 'golongan_pangkat_id', as: 'employee_hr_infos' });
-SubGolongan.hasMany(EmployeeHRInfo, { foreignKey: 'sub_golongan_pangkat_id', as: 'employee_hr_infos' });
+
+// Employee Documents
+import EmployeeDocument from './EmployeeDocument';
+Employee.hasMany(EmployeeDocument, { foreignKey: 'employee_id', as: 'documents' });
+EmployeeDocument.belongsTo(Employee, { foreignKey: 'employee_id', as: 'employee' });
+

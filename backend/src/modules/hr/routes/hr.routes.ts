@@ -3,6 +3,8 @@ import { validateMasterData } from '../../../shared/middleware/validateMasterDat
 import employeeController from '../controllers/employee.controller';
 import masterDataController from '../controllers/master-data.controller';
 import dashboardController from '../controllers/dashboard.controller';
+import documentController from '../controllers/document.controller';
+import { uploadMultipleDocuments } from '../../../shared/middleware/upload.middleware';
 
 const router = Router();
 
@@ -45,5 +47,23 @@ router.post('/import/employees', (req, res, next) => importController.importEmpl
 router.post('/import/master-data/:type', (req, res, next) => importController.importMasterData(req, res, next));
 router.post('/import/error-report', (req, res, next) => importController.downloadErrorReport(req, res, next));
 
+// Export Routes
+import exportController from '../controllers/export.controller';
+
+router.get('/employees/export/excel', (req, res, next) => exportController.exportToExcel(req, res, next));
+router.get('/employees/:id/export/pdf', (req, res, next) => exportController.exportEmployeeToPDF(req, res, next));
+
+
+
+// Document Management
+router.post(
+    '/employees/:id/documents',
+    uploadMultipleDocuments,
+    documentController.uploadDocuments
+);
+router.get('/employees/:id/documents', documentController.getEmployeeDocuments);
+router.delete('/employees/:id/documents/:docId', documentController.deleteDocument);
+router.get('/employees/:id/documents/:docId/download', documentController.downloadDocument);
+router.get('/employees/:id/documents/:docId/preview', documentController.getDocumentPreview);
 
 export default router;

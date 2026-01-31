@@ -25,16 +25,19 @@ import {
     BanknotesIcon
 } from '@heroicons/react/24/outline';
 
+import { DocumentUpload } from './DocumentUpload';
+
 interface EmployeeStep2FormProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     initialData?: any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     headData?: any;
+    employeeId?: number;
     onNext: (data: EmployeeStep2FormValues) => void;
     onBack: () => void;
 }
 
-export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialData, headData, onNext, onBack }) => {
+export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialData, headData, employeeId, onNext, onBack }) => {
     const {
         register,
         control,
@@ -170,6 +173,30 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
                     <Input label="Tanggal Berhenti" type="date" {...register('tanggal_berhenti')} error={errors.tanggal_berhenti?.message} />
                 </div>
             </div>
+
+            {/* Section 2.5: Dokumen Kontrak */}
+            {employeeId && (
+                <div className="bg-white border rounded-lg p-6 shadow-sm">
+                    <h4 className="flex items-center text-lg font-medium text-gray-900 mb-4 border-b pb-2">
+                        <DocumentTextIcon className="w-5 h-5 mr-2 text-primary-600" />
+                        Dokumen Kontrak
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <DocumentUpload
+                            employeeId={employeeId}
+                            documentType="surat_kontrak"
+                            label="Surat Kontrak"
+                            maxFiles={5}
+                        />
+                        <DocumentUpload
+                            employeeId={employeeId}
+                            documentType="dokumen_lainnya"
+                            label="Dokumen Pendukung Lainnya"
+                            maxFiles={5}
+                        />
+                    </div>
+                </div>
+            )}
 
             {/* Section 3: Education */}
             <div className="bg-white border rounded-lg p-6 shadow-sm">
@@ -365,6 +392,6 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
                 </Button>
             </div>
 
-        </form>
+        </form >
     );
 };

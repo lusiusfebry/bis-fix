@@ -5,7 +5,7 @@ class EmployeeController {
     async getAll(req: Request, res: Response, next: NextFunction) {
         try {
             const employees = await employeeService.getAllEmployees(req.query);
-            res.json({ data: employees });
+            res.json(employees);
         } catch (error) {
             next(error);
         }
