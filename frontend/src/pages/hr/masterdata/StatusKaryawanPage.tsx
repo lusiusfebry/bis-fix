@@ -35,7 +35,7 @@ const StatusKaryawanPage: React.FC = () => {
     const isDeleting = deleteMutation.isPending;
 
     const columns: Column<StatusKaryawan>[] = [
-        { header: 'No', accessor: (item) => item.id, className: 'w-16' },
+        { header: 'No', accessor: (_, index) => (page - 1) * 10 + index + 1, className: 'w-16' },
         { header: 'Status Karyawan', accessor: 'nama' },
         { header: 'Keterangan', accessor: 'keterangan' },
         { header: 'Status', accessor: 'status' },

@@ -19,7 +19,9 @@ class MasterDataController {
             'status-karyawan': 'StatusKaryawan'
         };
 
-        const key = map[modelName];
+        // Normalize hyphen and underscore
+        const normalizedKey = modelName.replace(/_/g, '-');
+        const key = map[normalizedKey];
         return key ? (models as any)[key] : null;
     }
 

@@ -41,7 +41,7 @@ const LoginPage = () => {
             <header className="w-full bg-white dark:bg-background-dark border-b border-solid border-[#e7ebf3] dark:border-gray-800 px-6 md:px-20 lg:px-40 py-4">
                 <div className="max-w-[1280px] mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-3 text-primary">
-                        <div className="size-8 text-primary">
+                        <div className="w-8 h-8 text-primary">
                             <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z"
@@ -93,7 +93,7 @@ const LoginPage = () => {
                             }}
                         >
                             <div className="bg-white/90 dark:bg-gray-900/90 p-4 rounded-full shadow-lg">
-                                <div className="size-10 text-primary">
+                                <div className="w-10 h-10 text-primary">
                                     <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                                         <path
                                             d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z"

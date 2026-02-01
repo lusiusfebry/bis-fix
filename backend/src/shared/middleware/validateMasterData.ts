@@ -51,7 +51,7 @@ const schemaMap: Record<string, z.ZodSchema> = {
 };
 
 export const validateMasterData = (req: Request, res: Response, next: NextFunction) => {
-    const modelParams = req.params.model;
+    const modelParams = req.params.model.replace(/_/g, '-');
     const schema = schemaMap[modelParams];
 
     if (!schema) {

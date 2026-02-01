@@ -35,7 +35,7 @@ const LokasiKerjaPage: React.FC = () => {
     const isDeleting = deleteMutation.isPending;
 
     const columns: Column<LokasiKerja>[] = [
-        { header: 'No', accessor: (item) => item.id, className: 'w-16' },
+        { header: 'No', accessor: (_, index) => (page - 1) * 10 + index + 1, className: 'w-16' },
         { header: 'Nama Lokasi', accessor: 'nama' },
         { header: 'Alamat', accessor: 'alamat' },
         { header: 'Status', accessor: 'status' },

@@ -40,7 +40,7 @@ const DepartmentPage: React.FC = () => {
 
     // Columns
     const columns: Column<Department>[] = [
-        { header: 'No', accessor: (item) => item.id, className: 'w-16' },
+        { header: 'No', accessor: (_, index) => (page - 1) * 10 + index + 1, className: 'w-16' },
         { header: 'Nama Department', accessor: 'nama' },
         {
             header: 'Manager',

@@ -18,7 +18,7 @@ interface NavItem {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
-    const [openMenus, setOpenMenus] = useState<string[]>(['Master Data', 'Pengaturan']);
+    const [openMenus, setOpenMenus] = useState<string[]>(['Manajemen Karyawan', 'Master Data', 'Pengaturan']);
     const { can } = usePermission();
 
     const toggleMenu = (name: string) => {
@@ -37,9 +37,16 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
             },
             {
                 name: 'Manajemen Karyawan',
-                path: '/hr/employees',
                 icon: 'groups',
-                permission: { resource: RESOURCES.EMPLOYEES, action: ACTIONS.READ }
+                permission: { resource: RESOURCES.EMPLOYEES, action: ACTIONS.READ },
+                subItems: [
+                    {
+                        name: 'Karyawan',
+                        path: '/hr/employees',
+                        icon: 'person',
+                        permission: { resource: RESOURCES.EMPLOYEES, action: ACTIONS.READ }
+                    }
+                ]
             },
             {
                 name: 'Master Data',

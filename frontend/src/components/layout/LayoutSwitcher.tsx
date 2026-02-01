@@ -18,13 +18,13 @@ const LayoutSwitcher: React.FC<LayoutSwitcherProps> = ({ currentLayout, onLayout
     }, [currentLayout]);
 
     const buttons = [
-        { view: LayoutView.VIEW_1, label: '1', title: 'Default (Expanded, Standard)' },
-        { view: LayoutView.VIEW_2, label: '2', title: 'Compact (Collapsed, Compact)' },
-        { view: LayoutView.VIEW_3, label: '3', title: 'Modern (Floating Filters)' },
-        { view: LayoutView.VIEW_4, label: '4', title: 'Grid (Kanban/Cards)' },
-        { view: LayoutView.VIEW_5, label: '5', title: 'Focus (Hidden Sidebar)' },
-        { view: LayoutView.VIEW_6, label: '6', title: 'Dense (Borders, Compact)' },
-        { view: LayoutView.VIEW_7, label: '7', title: 'Split (Detailed)' },
+        { view: LayoutView.VIEW_1, icon: 'list', title: 'Default (Expanded, Standard)' },
+        { view: LayoutView.VIEW_2, icon: 'view_list', title: 'Compact (Collapsed, Compact)' },
+        { view: LayoutView.VIEW_3, icon: 'view_headline', title: 'Modern (Floating Filters)' },
+        { view: LayoutView.VIEW_4, icon: 'grid_view', title: 'Grid (Kanban/Cards)' },
+        { view: LayoutView.VIEW_5, icon: 'fullscreen', title: 'Focus (Hidden Sidebar)' },
+        { view: LayoutView.VIEW_6, icon: 'table_rows', title: 'Dense (Borders, Compact)' },
+        { view: LayoutView.VIEW_7, icon: 'vertical_split', title: 'Split (Detailed)' },
     ];
 
     return (
@@ -33,13 +33,13 @@ const LayoutSwitcher: React.FC<LayoutSwitcherProps> = ({ currentLayout, onLayout
                 <button
                     key={btn.view}
                     onClick={() => onLayoutChange(btn.view)}
-                    className={`w-8 h-8 flex items-center justify-center rounded-md text-sm font-medium transition-all ${currentLayout === btn.view
-                            ? 'bg-white shadow-sm text-primary ring-1 ring-black/5'
-                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                    className={`w-8 h-8 flex items-center justify-center rounded-md text-sm transition-all ${currentLayout === btn.view
+                        ? 'bg-white shadow-sm text-primary ring-1 ring-black/5'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
                         }`}
                     title={btn.title}
                 >
-                    {btn.label}
+                    <span className="material-symbols-outlined text-[20px]">{btn.icon}</span>
                 </button>
             ))}
         </div>

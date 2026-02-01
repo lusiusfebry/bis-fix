@@ -7,7 +7,7 @@ import { LayoutView, LAYOUT_CONFIGS } from '../../types/layout';
 
 export interface Column<T> {
     header: string;
-    accessor: keyof T | ((item: T) => React.ReactNode);
+    accessor: keyof T | ((item: T, index: number) => React.ReactNode);
     className?: string;
 }
 
@@ -64,7 +64,7 @@ const MasterDataTable = <T extends { id: number | string; status?: string }>({
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {data.length > 0 ? (
-                    data.map((item) => (
+                    data.map((item, rowIndex) => (
                         <div key={item.id} className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all p-5 flex flex-col justify-between group">
                             <div>
                                 <div className="flex justify-between items-start mb-2">
@@ -84,7 +84,7 @@ const MasterDataTable = <T extends { id: number | string; status?: string }>({
                                                 <span className="text-gray-400">{col.header}:</span>
                                                 <span className="font-medium text-gray-700 text-right">
                                                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                                    {typeof col.accessor === 'function' ? col.accessor(item) : (item[col.accessor] as any)}
+                                                    {typeof col.accessor === 'function' ? col.accessor(item, rowIndex) : (item[col.accessor] as any)}
                                                 </span>
                                             </div>
                                         )
@@ -141,12 +141,12 @@ const MasterDataTable = <T extends { id: number | string; status?: string }>({
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                         {data.length > 0 ? (
-                            data.map((item) => (
+                            data.map((item, rowIndex) => (
                                 <tr key={item.id} className="hover:bg-gray-50 transition-colors group">
                                     {columns.map((col, colIdx) => (
                                         <td key={colIdx} className={`px-6 ${isCompact ? 'py-2' : 'py-4'} text-gray-700 ${showBorders ? 'border-r border-gray-100' : ''}`}>
                                             {typeof col.accessor === 'function'
-                                                ? col.accessor(item)
+                                                ? col.accessor(item, rowIndex)
                                                 : (item[col.accessor] as React.ReactNode)}
                                         </td>
                                     ))}
