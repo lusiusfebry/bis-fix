@@ -5,21 +5,38 @@ test.describe('Authentication Flow', () => {
         await page.goto('/login');
     });
 
-    test('should allow user to login', async ({ page }) => {
-        // Assume seeding or mock handlers for backend
-        // We will just test the UI interaction and assume backend works if we were to run this
-        await page.fill('input[placeholder="NIK"]', '123456'); // Adjust selector
-        await page.fill('input[placeholder="Password"]', 'password');
+    test('should allow user to login with valid credentials', async ({ page }) => {
+        // Superadmin NIK from seed data
+        await page.fill('input[name="nik"]', '111111');
+        await page.fill('input[name="password"]', 'password123'); // Default seed password
         await page.click('button[type="submit"]');
 
-        await expect(page).toHaveURL('/dashboard');
+        // Should redirect to welcome or dashboard
+        await expect(page).toHaveURL(/.*welcome/);
+        await expect(page.locator('text=Selamat Datang')).toBeVisible();
     });
 
     test('should show error on invalid credentials', async ({ page }) => {
-        await page.fill('input[placeholder="NIK"]', 'wrong');
-        await page.fill('input[placeholder="Password"]', 'wrong');
+        await page.fill('input[name="nik"]', '999999');
+        await page.fill('input[name="password"]', 'wrongpassword');
         await page.click('button[type="submit"]');
 
-        await expect(page.locator('text=Login Gagal')).toBeVisible(); // Adjust error message
+        // Check for error message
+        await expect(page.locator('text=NIK atau password salah')).toBeVisible();
+    });
+
+    test('should logout successfully', async ({ page }) => {
+        // Login first
+        await page.fill('input[name="nik"]', '111111');
+        await page.fill('input[name="password"]', 'password123');
+        await page.click('button[type="submit"]');
+        await page.waitForURL(/.*welcome/);
+
+        // Click logout in sidebar or header (assume Sidebar has it)
+        // Check for logout button - usually a button with logout text or icon
+        await page.goto('/hr/dashboard'); // Go to a page with sidebar
+        await page.click('text=Logout'); // Or selector for logout button
+
+        await expect(page).toHaveURL(/.*login/);
     });
 });

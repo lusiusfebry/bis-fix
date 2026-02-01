@@ -2,7 +2,6 @@ import request from 'supertest';
 import { app } from '../../../../index'; // Ensure app is exported from index.ts or create a test server setup
 import sequelize from '../../../../config/database';
 import User from '../../models/User';
-import bcrypt from 'bcryptjs';
 
 describe('Auth API Integration', () => {
     let testUser: any;

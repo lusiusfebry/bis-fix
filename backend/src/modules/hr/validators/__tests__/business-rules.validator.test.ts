@@ -5,7 +5,7 @@ import {
     validatePosisiJabatanBelongsToDepartment,
     validateContractDates
 } from '../business-rules.validator';
-import { Employee, PosisiJabatan, Department, StatusKaryawan } from '../../models';
+import { Employee, PosisiJabatan, Department } from '../../models';
 import { ERROR_MESSAGES } from '../../../../shared/constants/error-messages';
 
 // Mock dependencies
@@ -19,7 +19,6 @@ jest.mock('../../models', () => ({
     PosisiJabatan: {
         findByPk: jest.fn()
     },
-    StatusKaryawan: {},
     Divisi: {}
 }));
 

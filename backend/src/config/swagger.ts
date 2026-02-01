@@ -1,5 +1,6 @@
 import swaggerJsdoc from 'swagger-jsdoc';
 import { env } from './env';
+import { swaggerSchemas } from '../shared/schemas/swagger-schemas';
 
 const options: swaggerJsdoc.Options = {
     definition: {
@@ -23,6 +24,7 @@ const options: swaggerJsdoc.Options = {
                     bearerFormat: 'JWT',
                 },
             },
+            schemas: swaggerSchemas,
         },
         security: [
             {

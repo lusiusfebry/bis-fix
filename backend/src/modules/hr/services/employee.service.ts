@@ -167,8 +167,8 @@ class EmployeeService {
                     include: [
                         { model: JenisHubunganKerja, as: 'jenis_hubungan_kerja' },
                         { model: KategoriPangkat, as: 'kategori_pangkat' },
-                        { model: Golongan, as: 'golongan' },
-                        { model: SubGolongan, as: 'sub_golongan' },
+                        { model: Golongan, as: 'golongan_pangkat' },
+                        { model: SubGolongan, as: 'sub_golongan_pangkat' },
                         { model: LokasiKerja, as: 'lokasi_sebelumnya' }
                     ]
                 },
@@ -212,8 +212,8 @@ class EmployeeService {
                     include: [
                         { model: JenisHubunganKerja, as: 'jenis_hubungan_kerja' },
                         { model: KategoriPangkat, as: 'kategori_pangkat' },
-                        { model: Golongan, as: 'golongan' },
-                        { model: SubGolongan, as: 'sub_golongan' },
+                        { model: Golongan, as: 'golongan_pangkat' },
+                        { model: SubGolongan, as: 'sub_golongan_pangkat' },
                         { model: LokasiKerja, as: 'lokasi_sebelumnya' }
                     ]
                 }
@@ -293,12 +293,13 @@ class EmployeeService {
         const t = options?.transaction || await sequelize.transaction();
         const isExternalTransaction = !!options?.transaction;
 
+        let employee: Employee;
         try {
             if (photoPath) {
                 employeeData.foto_karyawan = photoPath;
             }
 
-            const employee = await Employee.create(employeeData, { transaction: t });
+            employee = await Employee.create(employeeData, { transaction: t });
 
             if (personalInfoData) {
                 await EmployeePersonalInfo.create({
@@ -326,12 +327,18 @@ class EmployeeService {
             }
 
             if (!isExternalTransaction) await t.commit();
-
-            return await this.getEmployeeById(employee.id);
         } catch (error) {
-            if (!isExternalTransaction) await t.rollback();
+            if (!isExternalTransaction) {
+                try {
+                    await t.rollback();
+                } catch {
+                    // Ignore rollback errors if transaction already finished
+                }
+            }
             throw error;
         }
+
+        return await this.getEmployeeById(employee.id);
     }
 
     async updateEmployeeComplete(id: number, employeeData: Partial<Employee>, personalInfoData: any, hrInfoData: any, familyInfoData: any, photoPath?: string) {

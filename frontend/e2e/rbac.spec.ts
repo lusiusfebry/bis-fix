@@ -1,18 +1,29 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('RBAC', () => {
-    test('should restrict access for non-admin', async ({ page }) => {
-        // Login as User
+test.describe('Role Based Access Control', () => {
+    test('superadmin should see user management', async ({ page }) => {
         await page.goto('/login');
-        await page.fill('input[placeholder="NIK"]', 'user123'); // Assume user
-        await page.fill('input[placeholder="Password"]', 'password');
-        await page.click('button[type="submit"]');
-        await page.waitForURL('/dashboard');
+        await page.fill('input[name="nik"]', '111111'); // Superadmin
+        await page.fill('input[name="password"]', 'password123');
+        await page.click('button:has-text("Masuk")');
+        await page.waitForURL(/.*welcome/);
 
-        // Try access admin route
-        await page.goto('/admin/users');
-        // Expect redirect or 403
-        // await expect(page).toHaveURL('/403'); 
-        // Or check "Access Denied" text
+        // Sidebar should have User Management
+        await expect(page.locator('text=Kelola User')).toBeVisible();
+        await expect(page.locator('text=Role & Permission')).toBeVisible();
+    });
+
+    test('regular employee should NOT see user management', async ({ page }) => {
+        // Login as someone else (employee)
+        // Assume NIK 123456 is a regular employee in seed
+        await page.goto('/login');
+        await page.fill('input[name="nik"]', '123456');
+        await page.fill('input[name="password"]', 'password123');
+        await page.click('button:has-text("Masuk")');
+        await page.waitForURL(/.*welcome/);
+
+        // Sidebar should NOT have User Management
+        await expect(page.locator('text=Kelola User')).not.toBeVisible();
+        await expect(page.locator('text=Role & Permission')).not.toBeVisible();
     });
 });

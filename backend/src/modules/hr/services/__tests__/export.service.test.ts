@@ -1,7 +1,7 @@
 import ExportService from '../export.service';
 import { Employee } from '../../models';
-import ExcelJS from 'exceljs';
 import puppeteer from 'puppeteer';
+import employeeService from '../employee.service';
 
 // Mock dependencies
 jest.mock('exceljs', () => {
@@ -76,8 +76,7 @@ describe('ExportService', () => {
             // Mock getEmployeeById from service import
             // Note: circular dependency mocking might be tricky if not careful, 
             // but here we mock the whole module in jest.mock above.
-            const employeeService = require('../employee.service');
-            employeeService.getEmployeeById.mockResolvedValue(mockEmployee);
+            (employeeService.getEmployeeById as jest.Mock).mockResolvedValue(mockEmployee);
 
             const buffer = await ExportService.exportEmployeeProfileToPDF(1);
             expect(buffer).toBeInstanceOf(Buffer);

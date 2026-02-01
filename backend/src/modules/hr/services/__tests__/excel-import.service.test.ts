@@ -1,7 +1,6 @@
 import ExcelImportService from '../excel-import.service';
 import ExcelJS from 'exceljs';
-import { Employee, Divisi, Department, PosisiJabatan, StatusKaryawan, LokasiKerja } from '../../models';
-import employeeService from '../employee.service';
+import { Divisi } from '../../models';
 
 // Mock ExcelJS
 jest.mock('exceljs', () => {

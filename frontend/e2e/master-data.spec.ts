@@ -2,28 +2,26 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Master Data Management', () => {
     test.beforeEach(async ({ page }) => {
-        // Login as Admin
         await page.goto('/login');
-        await page.fill('input[placeholder="NIK"]', '123456');
-        await page.fill('input[placeholder="Password"]', 'password');
+        await page.fill('input[name="nik"]', '111111');
+        await page.fill('input[name="password"]', 'password123');
         await page.click('button[type="submit"]');
-        await page.waitForURL('/dashboard');
+        await page.waitForURL(/.*welcome/);
+        await page.goto('/hr/master/divisi');
     });
 
-    test('should CRUD department', async ({ page }) => {
-        await page.goto('/master/department'); // Adjust route
+    test('should display master data table', async ({ page }) => {
+        await expect(page.locator('table')).toBeVisible();
+        await expect(page.locator('text=Daftar Divisi')).toBeVisible();
+    });
 
-        // Create
-        await page.click('button:has-text("Tambah Data")');
-        await page.fill('input[name="nama"]', 'New Dept E2E');
-        await page.click('button:has-text("Simpan")');
-        await expect(page.locator('text=New Dept E2E')).toBeVisible();
+    test('should allow creating new master data', async ({ page }) => {
+        await page.click('text=Tambah');
+        await page.fill('input[name="nama"]', 'E2E New Divisi');
+        await page.fill('input[name="keterangan"]', 'E2E Test Description');
+        await page.click('button[type="submit"]');
 
-        // Edit
-        // Find row with 'New Dept E2E' and click edit
-        // await page.click('...'); 
-
-        // Delete
-        // await page.click('...');
+        await expect(page.locator('text=Data berhasil disimpan')).toBeVisible();
+        await expect(page.locator('text=E2E New Divisi')).toBeVisible();
     });
 });

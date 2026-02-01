@@ -1,5 +1,5 @@
 import { render, screen } from '../../../test/utils';
-import MasterDataTable from '../MasterDataTable';
+import MasterDataTable, { Column } from '../MasterDataTable';
 import { describe, it, expect, vi } from 'vitest';
 
 // Mock dependencies
@@ -11,12 +11,17 @@ vi.mock('react-router-dom', async () => {
     };
 });
 
+interface TestData {
+    id: number;
+    nama: string;
+}
+
 describe('MasterDataTable', () => {
-    const mockColumns = [
+    const mockColumns: Column<TestData>[] = [
         { accessor: 'nama', header: 'Nama' }
     ];
 
-    const mockData = [
+    const mockData: TestData[] = [
         { id: 1, nama: 'Item 1' },
         { id: 2, nama: 'Item 2' }
     ];

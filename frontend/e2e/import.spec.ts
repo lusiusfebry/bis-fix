@@ -1,34 +1,30 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import process from 'process';
 
-test.describe('Excel Import', () => {
+test.describe('Import Management', () => {
     test.beforeEach(async ({ page }) => {
+        // Login as superadmin
         await page.goto('/login');
-        await page.fill('input[placeholder="NIK"]', '123456');
-        await page.fill('input[placeholder="Password"]', 'password');
+        await page.fill('input[name="nik"]', '111111');
+        await page.fill('input[name="password"]', 'password123');
         await page.click('button[type="submit"]');
-        await page.waitForURL('/dashboard');
+        await page.waitForURL(/.*welcome/);
+        await page.goto('/hr/import');
     });
 
-    test('should upload employee excel file', async ({ page }) => {
-        await page.goto('/import/employees'); // Adjust route
+    test('should upload and preview excel file', async ({ page }) => {
+        // Use path relative to project root (process.cwd())
+        const filePath = path.join(process.cwd(), 'e2e/fixtures/BMI-kosong.xlsx');
 
-        // Ensure file input exists
         const fileInput = page.locator('input[type="file"]');
-        await expect(fileInput).toBeVisible();
+        await fileInput.setInputFiles(filePath);
 
-        // Create dummy buffer (or use existing file if environment has one)
-        // Playwright allows buffer upload
-        await fileInput.setInputFiles({
-            name: 'employees.xlsx',
-            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            buffer: Buffer.from('dummy-content') // This won't parse on backend but frontend upload logic can be tested
-        });
+        // Click upload/preview button
+        await page.click('button:has-text("Upload & Preview")');
 
-        // Click upload/preview
-        await page.click('button:has-text("Upload")');
-
-        // Verify response or preview table visible
-        // await expect(page.locator('table')).toBeVisible(); 
+        // Verify preview table visible (assuming it contains data or header)
+        await expect(page.locator('table')).toBeVisible();
+        await expect(page.locator('text=Preview Data')).toBeVisible();
     });
 });

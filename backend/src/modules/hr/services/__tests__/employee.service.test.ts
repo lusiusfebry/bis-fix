@@ -1,6 +1,5 @@
 import EmployeeService from '../employee.service';
 import { Employee } from '../../models';
-import { ERROR_MESSAGES } from '../../../../shared/constants/error-messages';
 import { Op } from 'sequelize';
 
 // Mock models and dependencies

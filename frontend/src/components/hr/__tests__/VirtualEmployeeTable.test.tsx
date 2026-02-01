@@ -4,17 +4,17 @@ import { describe, it, expect, vi } from 'vitest';
 
 // Mock react-window and related libraries
 vi.mock('react-virtualized-auto-sizer', () => ({
-    default: ({ children }: any) => children({ height: 600, width: 800 }),
-    AutoSizer: ({ children }: any) => children({ height: 600, width: 800 })
+    default: ({ children }: { children: (props: { height: number, width: number }) => React.ReactNode }) => children({ height: 600, width: 800 }),
+    AutoSizer: ({ children }: { children: (props: { height: number, width: number }) => React.ReactNode }) => children({ height: 600, width: 800 })
 }));
 
 vi.mock('react-window-infinite-loader', () => ({
-    default: ({ children }: any) => children({ onItemsRendered: vi.fn(), ref: vi.fn() }),
-    InfiniteLoader: ({ children }: any) => children({ onItemsRendered: vi.fn(), ref: vi.fn() })
+    default: ({ children }: { children: (props: { onItemsRendered: (info: unknown) => void, ref: (ref: unknown) => void }) => React.ReactNode }) => children({ onItemsRendered: vi.fn(), ref: vi.fn() }),
+    InfiniteLoader: ({ children }: { children: (props: { onItemsRendered: (info: unknown) => void, ref: (ref: unknown) => void }) => React.ReactNode }) => children({ onItemsRendered: vi.fn(), ref: vi.fn() })
 }));
 
 vi.mock('react-window', () => ({
-    FixedSizeList: ({ children, itemCount }: any) => (
+    FixedSizeList: ({ children, itemCount }: { children: (props: { index: number, style: React.CSSProperties }) => React.ReactNode, itemCount: number }) => (
         <div>
             {Array.from({ length: itemCount }).map((_, index) => (
                 <div key={index}>

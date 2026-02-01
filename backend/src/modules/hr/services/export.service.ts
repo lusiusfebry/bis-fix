@@ -50,7 +50,7 @@ class ExportService {
                 {
                     model: EmployeeHRInfo,
                     as: 'hr_info',
-                    include: ['jenis_hubungan_kerja', 'kategori_pangkat', 'golongan', 'sub_golongan', 'lokasi_sebelumnya']
+                    include: ['jenis_hubungan_kerja', 'kategori_pangkat', 'golongan_pangkat', 'sub_golongan_pangkat', 'lokasi_sebelumnya']
                 },
                 { model: EmployeeFamilyInfo, as: 'family_info' }
             ],
@@ -149,14 +149,14 @@ class ExportService {
             // Sheet 1
             sheet1.addRow({
                 ...common,
-                email: emp.email_kantor,
-                phone: emp.nomor_hp,
-                divisi: emp.divisi?.nama_divisi || '-',
-                department: emp.department?.nama_department || '-',
-                posisi: emp.posisi_jabatan?.nama_posisi || '-',
-                status: emp.status_karyawan?.nama_status || '-',
-                lokasi: emp.lokasi_kerja?.nama_lokasi || '-',
-                tag: emp.tag?.nama_tag || '-'
+                email: emp.email_perusahaan,
+                phone: emp.nomor_handphone,
+                divisi: emp.divisi?.nama || '-',
+                department: emp.department?.nama || '-',
+                posisi: emp.posisi_jabatan?.nama || '-',
+                status: emp.status_karyawan?.nama || '-',
+                lokasi: emp.lokasi_kerja?.nama || '-',
+                tag: emp.tag?.nama || '-'
             });
 
             // Sheet 2
@@ -170,9 +170,9 @@ class ExportService {
                 religion: personal?.agama || '-',
                 blood_type: personal?.golongan_darah || '-',
                 nik_ktp: personal?.nik_ktp || '-',
-                npwp: personal?.npwp || '-',
-                address_ktp: personal?.alamat_ktp_jalan || '-',
-                address_domicile: personal?.alamat_domisili_jalan || '-'
+                npwp: personal?.nomor_npwp || '-',
+                address_ktp: personal?.alamat_ktp || '-',
+                address_domicile: personal?.alamat_domisili || '-'
             });
 
             // Sheet 3
@@ -188,7 +188,7 @@ class ExportService {
                 jurusan: hr?.bidang_studi || '-',
                 sekolah: hr?.nama_sekolah || '-',
                 kategori_pangkat: hr?.kategori_pangkat?.nama || '-',
-                golongan: hr?.golongan?.nama || '-',
+                golongan: hr?.golongan_pangkat?.nama || '-',
                 kontak_darurat: hr?.nama_kontak_darurat_1 || '-',
                 telp_darurat: hr?.nomor_telepon_kontak_darurat_1 || '-'
             });
@@ -282,8 +282,8 @@ class ExportService {
             <div class="header">
                 ${employee.foto_karyawan ? `<img src="file://${employee.foto_karyawan}" class="profile-img" />` : ''} 
                 <h1>${employee.nama_lengkap}</h1>
-                <p>NIK: ${employee.nomor_induk_karyawan} | ${employee.posisi_jabatan?.nama_posisi || '-'}</p>
-                <p>${employee.divisi?.nama_divisi || '-'} - ${employee.department?.nama_department || '-'}</p>
+                <p>NIK: ${employee.nomor_induk_karyawan} | ${employee.posisi_jabatan?.nama || '-'}</p>
+                <p>${employee.divisi?.nama || '-'} - ${employee.department?.nama || '-'}</p>
             </div>
 
             <!-- Profile Overview (Basic Info) -->
@@ -291,16 +291,16 @@ class ExportService {
                 <div class="section-title">Informasi Dasar</div>
                 <div class="grid">
                     <div class="row">
-                        <div class="col"><span class="label">Lokasi Kerja:</span> <span class="value">${employee.lokasi_kerja?.nama_lokasi || '-'}</span></div>
-                        <div class="col"><span class="label">Status Karyawan:</span> <span class="value">${employee.status_karyawan?.nama_status || '-'}</span></div>
+                        <div class="col"><span class="label">Lokasi Kerja:</span> <span class="value">${employee.lokasi_kerja?.nama || '-'}</span></div>
+                        <div class="col"><span class="label">Status Karyawan:</span> <span class="value">${employee.status_karyawan?.nama || '-'}</span></div>
                     </div>
                     <div class="row">
-                        <div class="col"><span class="label">Tanggal Masuk:</span> <span class="value">${formatDate(employee.tanggal_masuk)}</span></div>
-                        <div class="col"><span class="label">Email Kantor:</span> <span class="value">${employee.email_kantor || '-'}</span></div>
+                        <div class="col"><span class="label">Tanggal Masuk:</span> <span class="value">${formatDate(hr?.tanggal_masuk)}</span></div>
+                        <div class="col"><span class="label">Email Kantor:</span> <span class="value">${employee.email_perusahaan || '-'}</span></div>
                     </div>
-                     <div class="row">
-                        <div class="col"><span class="label">No HP:</span> <span class="value">${employee.nomor_hp || '-'}</span></div>
-                        <div class="col"><span class="label">Tag:</span> <span class="value">${employee.tag?.nama_tag || '-'}</span></div>
+                    <div class="row">
+                        <div class="col"><span class="label">No HP:</span> <span class="value">${employee.nomor_handphone || '-'}</span></div>
+                        <div class="col"><span class="label">Tag:</span> <span class="value">${employee.tag?.nama || '-'}</span></div>
                     </div>
                 </div>
             </div>
@@ -322,7 +322,7 @@ class ExportService {
                         <div class="col"><span class="label">NIK KTP:</span> <span class="value">${employee.personal_info?.nik_ktp || '-'}</span></div>
                     </div>
                     <div class="row">
-                         <div class="col"><span class="label">Alamat Domisili:</span> <span class="value">${employee.personal_info?.alamat_domisili_jalan || '-'}</span></div>
+                         <div class="col"><span class="label">Alamat Domisili:</span> <span class="value">${employee.personal_info?.alamat_domisili || '-'}</span></div>
                     </div>
                 </div>
             </div>
@@ -337,7 +337,7 @@ class ExportService {
                     </div>
                     <div class="row">
                         <div class="col"><span class="label">Tgl Permanent:</span> <span class="value">${formatDate(hr?.tanggal_permanent)}</span></div>
-                         <div class="col"><span class="label">Pangkat/Gol:</span> <span class="value">${hr?.kategori_pangkat?.nama || '-'} (${hr?.golongan?.nama || '-'})</span></div>
+                         <div class="col"><span class="label">Pangkat/Gol:</span> <span class="value">${hr?.kategori_pangkat?.nama || '-'} (${hr?.golongan_pangkat?.nama || '-'})</span></div>
                     </div>
                     <div class="row">
                         <div class="col"><span class="label">Pendidikan:</span> <span class="value">${hr?.tingkat_pendidikan || '-'} - ${hr?.bidang_studi || '-'} (${hr?.nama_sekolah || '-'})</span></div>
