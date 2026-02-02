@@ -10,14 +10,12 @@ import {
     useDivisiList,
     useStatusKaryawanList,
     useLokasiKerjaList,
-    useTagList
-} from '../../hooks/useMasterData';
-import {
-    useDepartmentByDivisi,
-    usePosisiByDepartment,
+    useTagList,
+    useDeptByDivisi,
+    usePosisiByDept,
     useManagerList,
     useActiveEmployees
-} from '../../hooks/useCascadeDropdown';
+} from '../../hooks/useMasterData';
 import { validationService } from '../../services/validation.service';
 import { formatNPWP, formatPhoneNumber } from '../../utils/validators';
 
@@ -43,7 +41,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
         formState: { errors }
     } = useForm<EmployeeStep1FormValues>({
         resolver: zodResolver(employeeStep1Schema),
-        defaultValues: initialData,
+        defaultValues: initialData || {},
         mode: 'onChange'
     });
 
@@ -84,9 +82,8 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
     const { data: lokasiList, isLoading: isLokasiLoading } = useLokasiKerjaList();
     const { data: tagList, isLoading: isTagLoading } = useTagList();
 
-    // Cascading Hooks
-    const { data: departmentList, isLoading: isDeptLoading } = useDepartmentByDivisi(selectedDivisi);
-    const { data: posisiList, isLoading: isPosisiLoading } = usePosisiByDepartment(selectedDepartment);
+    const { data: departmentList, isLoading: isDeptLoading } = useDeptByDivisi(selectedDivisi);
+    const { data: posisiList, isLoading: isPosisiLoading } = usePosisiByDept(selectedDepartment);
     const { data: managerList, isLoading: isManagerLoading } = useManagerList();
     const { data: activeEmployeeList, isLoading: isActiveEmpLoading } = useActiveEmployees();
 
@@ -101,7 +98,15 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
 
     // Map options for selects
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mapOptions = (list: any[]) => list?.map(item => ({ value: item.id, label: item.nama || item.nama_lengkap || item.nama_posisi || item.nama_status || item.nama_divisi || item.nama_department || item.nama_lokasi || item.nama_tag })) || [];
+    const mapOptions = (list: any[]) => {
+        console.log('[DEBUG] mapOptions input:', list);
+        const mapped = list?.map(item => ({
+            value: item.id,
+            label: item.nama || item.nama_lengkap || item.nama_posisi || item.nama_status || item.nama_divisi || item.nama_department || item.nama_lokasi || item.nama_tag || `ID: ${item.id}`
+        })) || [];
+        console.log('[DEBUG] mapOptions output:', mapped);
+        return mapped;
+    };
 
     // Helper for Manager/Atasan options (uses nama_lengkap)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -171,7 +176,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             render={({ field }) => (
                                 <SearchableSelect
                                     label="Departemen"
-                                    options={mapOptions(departmentList || [])}
+                                    options={mapOptions(departmentList?.data || [])}
                                     value={field.value}
                                     onChange={(val) => {
                                         field.onChange(val);
@@ -179,7 +184,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                         setValue('posisi_jabatan_id', undefined);
                                     }}
                                     error={errors.department_id?.message}
-                                    disabled={!selectedDivisi}
+                                    placeholder={!selectedDivisi ? "Pilih Divisi terlebih dahulu" : "Pilih Departemen..."}
                                     loading={isDeptLoading}
                                 />
                             )}
@@ -190,11 +195,11 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             render={({ field }) => (
                                 <SearchableSelect
                                     label="Posisi Jabatan"
-                                    options={mapOptions(posisiList || [])}
+                                    options={mapOptions(posisiList?.data || [])}
                                     value={field.value}
                                     onChange={field.onChange}
                                     error={errors.posisi_jabatan_id?.message}
-                                    disabled={!selectedDepartment}
+                                    placeholder={!selectedDepartment ? "Pilih Departemen terlebih dahulu" : "Pilih Posisi..."}
                                     loading={isPosisiLoading}
                                 />
                             )}
@@ -271,7 +276,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             render={({ field }) => (
                                 <SearchableSelect
                                     label="Manager"
-                                    options={mapEmployeeOptions(managerList || [])}
+                                    options={mapEmployeeOptions(managerList?.data || [])}
                                     value={field.value}
                                     onChange={field.onChange}
                                     error={errors.manager_id?.message}
@@ -285,7 +290,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             render={({ field }) => (
                                 <SearchableSelect
                                     label="Atasan Langsung"
-                                    options={mapEmployeeOptions(activeEmployeeList || [])}
+                                    options={mapEmployeeOptions(activeEmployeeList?.data || [])}
                                     value={field.value}
                                     onChange={field.onChange}
                                     error={errors.atasan_langsung_id?.message}
@@ -431,6 +436,18 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                 />
                             )}
                         />
+                        <Input
+                            label="NIK KK"
+                            {...register('no_nik_kk')}
+                            error={errors.no_nik_kk?.message}
+                            placeholder="NIK sesuai Kartu Keluarga"
+                        />
+                        <Input
+                            label="Status Pajak"
+                            {...register('status_pajak')}
+                            error={errors.status_pajak?.message}
+                            placeholder="Contoh: TK/0, K/1"
+                        />
                     </div>
                 </div>
 
@@ -457,6 +474,46 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                 type="date"
                                 {...register('tanggal_menikah')}
                                 error={errors.tanggal_menikah?.message}
+                            />
+                        </div>
+                    </div>
+                )}
+                {statusPernikahan === 'Cerai Hidup' && (
+                    <div className="mb-6 border-t pt-4">
+                        <h4 className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                            <span className="mr-2">👨‍👩‍👧‍👦</span> Informasi Pasangan (Cerai)
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <Input
+                                label="Nama Pasangan (Mantan)"
+                                {...register('nama_pasangan')}
+                                error={errors.nama_pasangan?.message}
+                            />
+                            <Input
+                                label="Tanggal Cerai"
+                                type="date"
+                                {...register('tanggal_cerai')}
+                                error={errors.tanggal_cerai?.message}
+                            />
+                        </div>
+                    </div>
+                )}
+                {statusPernikahan === 'Cerai Mati' && (
+                    <div className="mb-6 border-t pt-4">
+                        <h4 className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                            <span className="mr-2">👨‍👩‍👧‍👦</span> Informasi Pasangan (Wafat)
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <Input
+                                label="Nama Pasangan"
+                                {...register('nama_pasangan')}
+                                error={errors.nama_pasangan?.message}
+                            />
+                            <Input
+                                label="Tanggal Wafat Pasangan"
+                                type="date"
+                                {...register('tanggal_wafat_pasangan')}
+                                error={errors.tanggal_wafat_pasangan?.message}
                             />
                         </div>
                     </div>
@@ -519,6 +576,12 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             {...register('nomor_ktp')}
                             error={errors.nomor_ktp?.message}
                         />
+                        <Input
+                            label="Nomor Kartu Keluarga (KK)"
+                            {...register('nomor_kartu_keluarga')}
+                            error={errors.nomor_kartu_keluarga?.message}
+                            placeholder="Nomor KK (16 digit)"
+                        />
                         <Controller
                             control={control}
                             name="nomor_npwp"
@@ -564,6 +627,18 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                     value={field.value || ''}
                                     onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
                                     error={errors.nomor_telepon_rumah_1?.message}
+                                />
+                            )}
+                        />
+                        <Controller
+                            control={control}
+                            name="nomor_telepon_rumah_2"
+                            render={({ field }) => (
+                                <Input
+                                    label="Telp Rumah 2"
+                                    value={field.value || ''}
+                                    onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                                    error={errors.nomor_telepon_rumah_2?.message}
                                 />
                             )}
                         />
@@ -662,10 +737,10 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* Footer Action Bar */}
-            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 -mx-6 -mb-6 flex justify-end space-x-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 transition-transform">
+            < div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 -mx-6 -mb-6 flex justify-end space-x-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 transition-transform" >
                 <Button variant="outline" type="button" onClick={onCancel}>
                     Batal
                 </Button>
@@ -675,7 +750,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                         <path fillRule="evenodd" d="M16.72 7.72a.75.75 0 011.06 0l3.75 3.75a.75.75 0 010 1.06l-3.75 3.75a.75.75 0 11-1.06-1.06l2.47-2.47H3a.75.75 0 010-1.5h16.19l-2.47-2.47a.75.75 0 010-1.06z" clipRule="evenodd" />
                     </svg>
                 </Button>
-            </div>
-        </form>
+            </div >
+        </form >
     );
 };

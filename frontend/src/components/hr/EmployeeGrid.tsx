@@ -34,11 +34,12 @@ const EmployeeGrid: React.FC<EmployeeGridProps> = ({
             className="h-full overflow-y-auto pr-2 custom-scrollbar"
             onScroll={handleScroll}
         >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-8">
-                {employees.map((employee) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-8 p-2">
+                {employees.map((employee, index) => (
                     <EmployeeCard
                         key={employee.id}
                         employee={employee}
+                        index={index + 1}
                         onClick={onRowClick}
                         onDelete={onDelete}
                     />

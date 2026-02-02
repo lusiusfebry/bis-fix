@@ -23,12 +23,14 @@ export const useDepartmentByDivisi = (divisiId?: number): UseListResult<Departme
         const fetchDepartments = async () => {
             setIsLoading(true);
             try {
+                console.log(`[DEBUG] Hook: Fetching departments for divisiId: ${divisiId}`);
                 // Assuming new endpoint: /hr/departments/by-divisi/:divisiId
                 const response = await api.get(`/hr/departments/by-divisi/${divisiId}`);
+                console.log('[DEBUG] Hook: Department response:', response.data);
                 setData(response.data.data);
             } catch (err) {
                 setError(err);
-                console.error('Failed to fetch departments by divisi', err);
+                console.error('[DEBUG] Hook: Failed to fetch departments', err);
             } finally {
                 setIsLoading(false);
             }
@@ -54,11 +56,13 @@ export const usePosisiByDepartment = (departmentId?: number): UseListResult<Posi
         const fetchPosisi = async () => {
             setIsLoading(true);
             try {
+                console.log(`[DEBUG] Hook: Fetching posisi for departmentId: ${departmentId}`);
                 const response = await api.get(`/hr/posisi-jabatan/by-department/${departmentId}`);
+                console.log('[DEBUG] Hook: Posisi response:', response.data);
                 setData(response.data.data);
             } catch (err) {
                 setError(err);
-                console.error('Failed to fetch posisi by department', err);
+                console.error('[DEBUG] Hook: Failed to fetch posisi', err);
             } finally {
                 setIsLoading(false);
             }

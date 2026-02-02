@@ -41,6 +41,9 @@ const Row = ({ index, style, data }: ListChildComponentProps) => {
             className="flex items-center px-6 py-4 border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer transition-colors"
             onClick={() => onRowClick(employee)}
         >
+            <div className="w-12 shrink-0 text-xs font-bold text-gray-400 dark:text-gray-500">
+                {index + 1}
+            </div>
             <div className="flex items-center gap-3 flex-[2] min-w-0">
                 <img
                     src={employee.foto_karyawan ? `http://localhost:3000${employee.foto_karyawan}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.nama_lengkap)}&background=random`}
@@ -98,6 +101,7 @@ const VirtualEmployeeTable: React.FC<VirtualEmployeeTableProps> = ({
     return (
         <div className="w-full bg-white dark:bg-slate-800 rounded-lg shadow border border-gray-200 dark:border-slate-700 h-[600px] flex flex-col">
             <div className="flex px-6 py-3 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 rounded-t-lg font-medium text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <div className="w-12 shrink-0">No</div>
                 <div className="flex-[2]">Nama / NIK</div>
                 <div className="flex-1 px-2">Posisi</div>
                 <div className="flex-1 px-2">Department</div>

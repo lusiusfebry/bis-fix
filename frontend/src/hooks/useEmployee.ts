@@ -12,7 +12,7 @@ import client from '../services/api/client';
 
 export interface EmployeeOption {
     id: number;
-    name: string;
+    nama_lengkap: string;
 }
 
 export const useEmployeeList = () => {

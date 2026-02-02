@@ -40,6 +40,7 @@ export const EmployeeHRInfoView: React.FC<EmployeeHRInfoViewProps> = ({ employee
                     <DetailItem label="Divisi" value={employee.divisi?.nama} />
                     <DetailItem label="Departemen" value={employee.department?.nama} />
                     <DetailItem label="Posisi" value={employee.posisi_jabatan?.nama} />
+                    <DetailItem label="Status Karyawan" value={employee.status_karyawan?.nama} />
                     <DetailItem label="Manager" value={employee.manager?.nama_lengkap} />
                     <DetailItem label="Atasan Langsung" value={employee.atasan_langsung?.nama_lengkap} />
                 </div>

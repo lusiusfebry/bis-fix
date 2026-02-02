@@ -123,9 +123,17 @@ class EmployeeController {
                 nomor_npwp: body.nomor_npwp,
                 nomor_bpjs: body.nomor_bpjs,
                 nomor_ktp: body.nomor_ktp,
+                nomor_kartu_keluarga: body.nomor_kartu_keluarga,
                 email_pribadi: body.email_pribadi,
                 nomor_handphone_2: body.nomor_handphone_2,
                 nomor_telepon_rumah_1: body.nomor_telepon_rumah_1,
+                nomor_telepon_rumah_2: body.nomor_telepon_rumah_2,
+                nomor_wa: body.nomor_wa,
+                akun_sosmed: body.akun_sosmed,
+                no_nik_kk: body.no_nik_kk,
+                status_pajak: body.status_pajak,
+                tanggal_cerai: body.tanggal_cerai,
+                tanggal_wafat_pasangan: body.tanggal_wafat_pasangan,
             };
 
             // 3. Map to HR Info Attributes

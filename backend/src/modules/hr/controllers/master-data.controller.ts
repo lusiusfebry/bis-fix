@@ -151,11 +151,14 @@ class MasterDataController {
     async getDepartmentsByDivisi(req: Request, res: Response, next: NextFunction) {
         try {
             const divisiId = parseInt(req.params.divisiId);
+            console.log(`[DEBUG] Fetching departments for divisi_id: ${divisiId}`);
             const departments = await (models as any).Department.findAll({
                 where: { divisi_id: divisiId }
             });
+            console.log(`[DEBUG] Found ${departments.length} departments`);
             res.json({ status: 'success', data: departments });
         } catch (error) {
+            console.error('[DEBUG] getDepartmentsByDivisi error:', error);
             next(error);
         }
     }
@@ -163,33 +166,39 @@ class MasterDataController {
     async getPosisiByDepartment(req: Request, res: Response, next: NextFunction) {
         try {
             const departmentId = parseInt(req.params.departmentId);
+            console.log(`[DEBUG] Fetching positions for department_id: ${departmentId}`);
             const posisi = await (models as any).PosisiJabatan.findAll({
                 where: { department_id: departmentId }
             });
+            console.log(`[DEBUG] Found ${posisi.length} positions`);
             res.json({ status: 'success', data: posisi });
         } catch (error) {
+            console.error('[DEBUG] getPosisiByDepartment error:', error);
             next(error);
         }
     }
 
     async getManagers(req: Request, res: Response, next: NextFunction) {
         try {
-            // Find employees with position containing "head", "manager", "kepala"
-            // We need to join with PosisiJabatan
-
             const managers = await (models as any).Employee.findAll({
-                include: [{
-                    model: (models as any).PosisiJabatan,
-                    as: 'posisi_jabatan',
-                    where: {
-                        nama_posisi: {
-                            [Op.iLike]: { [Op.any]: ['%head%', '%manager%', '%kepala%', '%direktur%', '%chief%'] }
+                include: [
+                    {
+                        model: (models as any).PosisiJabatan,
+                        as: 'posisi_jabatan',
+                        where: {
+                            nama: {
+                                [Op.iLike]: { [Op.any]: ['%head%', '%manager%', '%kepala%', '%direktur%', '%chief%'] }
+                            }
+                        }
+                    },
+                    {
+                        model: (models as any).StatusKaryawan,
+                        as: 'status_karyawan',
+                        where: {
+                            nama: { [Op.iLike]: 'aktif' }
                         }
                     }
-                }],
-                where: {
-                    status_karyawan_id: { [Op.ne]: null } // Assuming active means having a status, usually we check StatusKaryawan 'Aktif'
-                }
+                ]
             });
             res.json({ status: 'success', data: managers });
         } catch (error) {
@@ -199,16 +208,12 @@ class MasterDataController {
 
     async getActiveEmployees(req: Request, res: Response, next: NextFunction) {
         try {
-            // Fetch employees with 'Aktif' status
-            // We need to find the StatusKaryawan ID for 'Aktif' first OR join it.
-            // Let's join.
-
             const employees = await (models as any).Employee.findAll({
                 include: [{
                     model: (models as any).StatusKaryawan,
                     as: 'status_karyawan',
                     where: {
-                        nama_status: { [Op.iLike]: 'aktif' }
+                        nama: { [Op.iLike]: 'aktif' }
                     }
                 }]
             });

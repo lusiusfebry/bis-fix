@@ -85,8 +85,9 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
     // Determine if contract dates should be shown
     const selectedJenisKontrakId = watch('jenis_hubungan_kerja_id');
     const isContract = React.useMemo(() => {
-        if (!jenisKontrakList?.data || !selectedJenisKontrakId) return false;
-        const selected = jenisKontrakList.data.find(item => item.id === selectedJenisKontrakId);
+        const list = jenisKontrakList?.data;
+        if (!list || !selectedJenisKontrakId) return false;
+        const selected = list.find(item => item.id === selectedJenisKontrakId);
         if (!selected) return false;
         const name = selected.nama.toLowerCase();
         return name.includes('kontrak') || name.includes('pkwt') || name.includes('magang') || name.includes('intern');

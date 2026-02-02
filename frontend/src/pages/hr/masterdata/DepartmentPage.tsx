@@ -44,7 +44,7 @@ const DepartmentPage: React.FC = () => {
         { header: 'Nama Department', accessor: 'nama' },
         {
             header: 'Manager',
-            accessor: (item: Department) => item.manager?.name || '-'
+            accessor: (item: Department) => item.manager?.nama_lengkap || '-'
         },
         {
             header: 'Divisi',
@@ -69,7 +69,7 @@ const DepartmentPage: React.FC = () => {
             label: 'Manager',
             type: 'select' as const,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            options: employeeData?.data.map((e: any) => ({ label: e.name, value: e.id })) || []
+            options: employeeData?.data.map((e: any) => ({ label: e.nama_lengkap, value: e.id })) || []
         },
         { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const },
         { name: 'status', label: 'Status', type: 'toggle' as const },

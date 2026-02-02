@@ -115,6 +115,7 @@ const EmployeeDetailPage: React.FC = () => {
     const tabs = [
         { id: 'personal', label: 'Data Personal' },
         { id: 'hr', label: 'Informasi HR' },
+        { id: 'family', label: 'Data Keluarga' },
         { id: 'payroll', label: 'Payroll' },
         { id: 'attendance', label: 'Cuti & Izin' },
         { id: 'assets', label: 'Aset' },
@@ -181,6 +182,12 @@ const EmployeeDetailPage: React.FC = () => {
                                 </span>
                                 <span className="px-3 py-1.5 bg-gray-100 dark:bg-white/5 text-[#4c669a] dark:text-gray-400 text-[11px] font-extrabold rounded-lg uppercase tracking-[0.15em] border border-gray-200 dark:border-white/5 shadow-sm">
                                     {employee.lokasi_kerja?.nama || '-'}
+                                </span>
+                                <span className={`px-3 py-1.5 text-[11px] font-extrabold rounded-lg uppercase tracking-[0.15em] border shadow-sm ${employee.status_karyawan?.nama === 'Aktif'
+                                    ? 'bg-green-500/10 text-green-600 border-green-500/20'
+                                    : 'bg-gray-100 dark:bg-white/5 text-[#4c669a] dark:text-gray-400 border-gray-200 dark:border-white/5'
+                                    }`}>
+                                    {employee.status_karyawan?.nama || '-'}
                                 </span>
                             </div>
                         </div>
@@ -322,6 +329,8 @@ const EmployeeDetailPage: React.FC = () => {
                                         <DetailItem label="Status Marital" value={employee.personal_info?.status_pernikahan} />
                                         <DetailItem label="Nama Pasangan" value={employee.personal_info?.nama_pasangan} fullWidth={true} />
                                         <DetailItem label="Tgl Menikah" value={employee.personal_info?.tanggal_menikah} />
+                                        <DetailItem label="Tgl Cerai" value={employee.personal_info?.tanggal_cerai} />
+                                        <DetailItem label="Tgl Wafat Pasangan" value={employee.personal_info?.tanggal_wafat_pasangan} />
                                         <DetailItem label="Pekerjaan Pasangan" value={employee.personal_info?.pekerjaan_pasangan} />
                                         <DetailItem label="Jumlah Anak" value={employee.personal_info?.jumlah_anak?.toString()} />
                                     </div>

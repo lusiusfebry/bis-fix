@@ -26,7 +26,7 @@ export interface Department extends MasterData {
     divisi_id: number;
     manager_id?: number | null;
     divisi?: Divisi;
-    manager?: { name: string };
+    manager?: { nama_lengkap: string };
 }
 export interface PosisiJabatan extends MasterData {
     department_id: number;

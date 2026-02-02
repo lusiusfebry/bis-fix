@@ -51,6 +51,10 @@ export const employeeStep1Schema = z.object({
         .refine(customRefine(validateNPWP), { message: ERROR_MESSAGES.NPWP_INVALID_FORMAT }),
     nomor_bpjs: z.string().optional()
         .refine(customRefine(validateBPJS), { message: ERROR_MESSAGES.BPJS_INVALID_FORMAT }),
+    nomor_kartu_keluarga: z.string().max(50).optional().or(z.literal(''))
+        .refine(customRefine(validateNIK), { message: 'Nomor KK harus 16 digit angka' }),
+    no_nik_kk: z.string().optional(),
+    status_pajak: z.string().optional(),
     email_pribadi: z.string().email(ERROR_MESSAGES.EMAIL_INVALID_FORMAT).optional().or(z.literal('')),
     nomor_handphone_2: z.string().max(20).optional().or(z.literal(''))
         .refine(customRefine(validatePhoneNumber), { message: ERROR_MESSAGES.PHONE_INVALID_FORMAT }),

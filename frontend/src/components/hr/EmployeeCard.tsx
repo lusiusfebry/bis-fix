@@ -3,11 +3,12 @@ import { Employee } from '../../types/hr';
 
 interface EmployeeCardProps {
     employee: Employee;
+    index?: number;
     onClick: (employee: Employee) => void;
     onDelete?: (id: number) => void;
 }
 
-const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onClick, onDelete }) => {
+const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, index, onClick, onDelete }) => {
     // Determine status color
     const getStatusStyles = (status: string | undefined) => {
         const s = status?.toLowerCase() || '';
@@ -33,6 +34,11 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onClick, onDelete
             onClick={() => onClick(employee)}
             className="group relative flex cursor-pointer flex-col gap-3 rounded-xl bg-white dark:bg-slate-800 p-4 shadow-sm ring-1 ring-gray-900/5 hover:shadow-md transition-all hover:-translate-y-1 dark:ring-slate-700"
         >
+            {index && (
+                <div className="absolute -top-2 -left-2 size-6 rounded-lg bg-primary text-white text-[10px] font-bold flex items-center justify-center shadow-lg z-10 border-2 border-white dark:border-slate-800">
+                    {index}
+                </div>
+            )}
             <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <img
