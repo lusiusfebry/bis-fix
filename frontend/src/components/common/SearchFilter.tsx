@@ -9,6 +9,7 @@ interface SearchFilterProps {
     onAdd?: () => void;
     addButtonText?: string;
     filterOptions?: { label: string; value: string }[];
+    transparent?: boolean;
 }
 
 const SearchFilter: React.FC<SearchFilterProps> = ({
@@ -17,6 +18,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
     onFilterChange,
     onAdd,
     addButtonText = "Tambah",
+    transparent = false,
     filterOptions = [
         { label: 'Semua Status', value: '' },
         { label: 'Aktif', value: 'true' },
@@ -33,7 +35,10 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
     }, [searchTerm, onSearchChange]);
 
     return (
-        <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+        <div className={`flex flex-col md:flex-row gap-4 mb-4 justify-between items-center ${transparent
+            ? 'bg-transparent p-0 border-0 shadow-none'
+            : 'bg-white p-4 rounded-xl border border-gray-100 shadow-sm'
+            }`}>
             <div className="flex flex-1 w-full gap-4">
                 <div className="relative flex-1">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

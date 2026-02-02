@@ -84,7 +84,7 @@ const JenisHubunganKerjaPage: React.FC = () => {
                         <p className="text-gray-500 dark:text-gray-400 mt-1">Kelola data jenis hubungan kerja</p>
                     </div>
                 </div>
-                <SearchFilter onSearchChange={setSearch} onFilterChange={setStatus} onAdd={handleAdd} addButtonText="Tambah Jenis" />
+                <SearchFilter onSearchChange={setSearch} onFilterChange={setStatus} onAdd={handleAdd} addButtonText="Tambah Jenis" transparent={true} />
                 <div className="mb-4 flex justify-end">
                     <LayoutSwitcher currentLayout={layout} onLayoutChange={setLayout} />
                 </div>
@@ -101,6 +101,7 @@ const JenisHubunganKerjaPage: React.FC = () => {
                     }}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    transparent={true}
                 />
                 <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalMode === 'create' ? 'Tambah Jenis' : 'Edit Jenis'} >
                     <MasterDataForm

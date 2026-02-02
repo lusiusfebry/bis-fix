@@ -7,25 +7,19 @@ const MainLayoutContent = () => {
     const { sidebarCollapsed } = useLayout();
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-            <div className={`fixed top-0 left-0 h-full z-30 transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-72'}`}>
+        <div className="flex h-screen bg-[#f6f6f8] dark:bg-[#101622] overflow-hidden transition-colors duration-300">
+            {/* Sidebar */}
+            <div className={`flex-shrink-0 transition-all duration-300 ${sidebarCollapsed ? 'w-20' : 'w-64'}`}>
                 <Sidebar collapsed={sidebarCollapsed} />
             </div>
 
-            <div className={`flex flex-col min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'pl-20' : 'pl-72'}`}>
-                {/* Header usually needs to span full width or offset? 
-                    In original specific design `layout_sistem...code.html`:
-                    Header is flex-1 (inside main wrapper).
-                    
-                    Here, Header is imported. Let's assume Header logic.
-                    If Header is fixed, it needs adjustment. If Header is static, it flows.
-                    Original MainLayout had <Header /> then <Sidebar /> then <main>.
-                    
-                    Let's stick to original structure but dynamic padding.
-                */}
+            {/* Main Content Area */}
+            <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
                 <Header />
-                <main className="flex-1 p-4 md:p-8 overflow-x-hidden">
-                    <Outlet />
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#f6f6f8] dark:bg-[#101622] p-4 md:p-8">
+                    <div className="mx-auto w-full">
+                        <Outlet />
+                    </div>
                 </main>
             </div>
         </div>

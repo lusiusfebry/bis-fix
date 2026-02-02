@@ -140,6 +140,7 @@ const DivisiPage = () => {
                     onFilterChange={setStatus}
                     onAdd={handleAdd}
                     addButtonText="Tambah Divisi"
+                    transparent={true}
                 />
 
                 <div className="mb-4 flex justify-end">
@@ -159,6 +160,7 @@ const DivisiPage = () => {
                     }}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    transparent={true}
                 />
 
                 {/* Modals ... */}

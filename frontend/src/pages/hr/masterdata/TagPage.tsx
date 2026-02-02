@@ -97,7 +97,7 @@ const TagPage: React.FC = () => {
                     </div>
                 </div>
 
-                <SearchFilter onSearchChange={setSearch} onFilterChange={setStatus} onAdd={handleAdd} addButtonText="Tambah Tag" />
+                <SearchFilter onSearchChange={setSearch} onFilterChange={setStatus} onAdd={handleAdd} addButtonText="Tambah Tag" transparent={true} />
 
                 <div className="mb-4 flex justify-end">
                     <LayoutSwitcher currentLayout={layout} onLayoutChange={setLayout} />
@@ -116,6 +116,7 @@ const TagPage: React.FC = () => {
                     }}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    transparent={true}
                 />
 
                 <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalMode === 'create' ? 'Tambah Tag' : 'Edit Tag'} >

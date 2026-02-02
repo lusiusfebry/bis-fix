@@ -86,7 +86,7 @@ const LokasiKerjaPage: React.FC = () => {
                     </div>
                 </div>
 
-                <SearchFilter onSearchChange={setSearch} onFilterChange={setStatus} onAdd={handleAdd} addButtonText="Tambah Lokasi" />
+                <SearchFilter onSearchChange={setSearch} onFilterChange={setStatus} onAdd={handleAdd} addButtonText="Tambah Lokasi" transparent={true} />
 
                 <div className="mb-4 flex justify-end">
                     <LayoutSwitcher currentLayout={layout} onLayoutChange={setLayout} />
@@ -105,6 +105,7 @@ const LokasiKerjaPage: React.FC = () => {
                     }}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    transparent={true}
                 />
 
                 <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalMode === 'create' ? 'Tambah Lokasi' : 'Edit Lokasi'} >

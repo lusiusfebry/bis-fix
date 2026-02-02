@@ -1,6 +1,5 @@
 import React from 'react';
 import { Employee, EmployeeFamilyInfo } from '../../types/hr';
-import { HeartIcon, UsersIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
 
@@ -17,24 +16,17 @@ const formatDate = (dateString?: string) => {
     }
 };
 
-const SectionHeader: React.FC<{ title: string; icon: React.ReactNode }> = ({ title, icon }) => (
-    <h4 className="flex items-center text-lg font-medium text-gray-900 mb-4 border-b pb-2">
-        <span className="mr-2 text-primary-600">{icon}</span>
-        {title}
-    </h4>
-);
-
-const DetailItem: React.FC<{ label: string; value: string | number | undefined }> = ({ label, value }) => (
-    <div className="col-span-1">
-        <dt className="text-sm font-medium text-gray-500">{label}</dt>
-        <dd className="mt-1 text-sm text-gray-900">{value !== undefined && value !== null && value !== '' ? value : '-'}</dd>
+const CardHeader: React.FC<{ title: string; icon: string }> = ({ title, icon }) => (
+    <div className="px-6 py-4 border-b border-[#e7ebf3] dark:border-[#2a3447] flex items-center gap-2 bg-[#fbfbfc] dark:bg-[#1c2638]">
+        <span className="material-symbols-outlined text-primary text-xl">{icon}</span>
+        <h4 className="text-base font-bold text-[#0d121b] dark:text-white">{title}</h4>
     </div>
 );
 
-const FullWidthDetailItem: React.FC<{ label: string; value: string | undefined }> = ({ label, value }) => (
-    <div className="col-span-full">
-        <dt className="text-sm font-medium text-gray-500">{label}</dt>
-        <dd className="mt-1 text-sm text-gray-900">{value || '-'}</dd>
+const DetailItem: React.FC<{ label: string; value: string | number | undefined | null; fullWidth?: boolean }> = ({ label, value, fullWidth }) => (
+    <div className={`${fullWidth ? 'col-span-full' : 'col-span-1'}`}>
+        <p className="text-[10px] font-bold text-[#4c669a] dark:text-gray-400 uppercase tracking-widest mb-1.5">{label}</p>
+        <p className="text-sm font-semibold text-[#0d121b] dark:text-white leading-relaxed">{value !== undefined && value !== null && value !== '' ? value : '-'}</p>
     </div>
 );
 
@@ -47,89 +39,95 @@ export const EmployeeFamilyInfoView: React.FC<EmployeeFamilyInfoViewProps> = ({ 
     const saudaraList = familyInfo.data_saudara_kandung || [];
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             {/* Pasangan */}
-            <div className="bg-white border rounded-lg p-6 shadow-sm">
-                <SectionHeader title="Pasangan (Istri / Suami)" icon={<HeartIcon className="w-5 h-5" />} />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                <CardHeader title="Pasangan (Istri / Suami)" icon="favorite" />
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <DetailItem label="Nama Pasangan" value={employee.personal_info?.nama_pasangan} />
                     <DetailItem label="Tanggal Lahir" value={formatDate(familyInfo.tanggal_lahir_pasangan)} />
                     <DetailItem label="Pendidikan Terakhir" value={familyInfo.pendidikan_terakhir_pasangan} />
                     <DetailItem label="Pekerjaan" value={employee.personal_info?.pekerjaan_pasangan} />
                     <DetailItem label="Jumlah Anak (KK)" value={employee.personal_info?.jumlah_anak} />
-                    <FullWidthDetailItem label="Keterangan" value={familyInfo.keterangan_pasangan} />
+                    <DetailItem label="Keterangan" value={familyInfo.keterangan_pasangan} fullWidth />
                 </div>
             </div>
 
             {/* Data Anak */}
-            <div className="bg-white border rounded-lg p-6 shadow-sm">
-                <SectionHeader title={`Data Anak (${anakList.length})`} icon={<UsersIcon className="w-5 h-5" />} />
-                {anakList.length > 0 ? (
-                    <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-                        <table className="min-w-full divide-y divide-gray-300">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">No</th>
-                                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Nama</th>
-                                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Jenis Kelamin</th>
-                                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Tanggal Lahir</th>
-                                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Keterangan</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 bg-white">
-                                {anakList.map((anak, idx) => (
-                                    <tr key={idx}>
-                                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{idx + 1}</td>
-                                        <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{anak.nama}</td>
-                                        <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{anak.jenis_kelamin}</td>
-                                        <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{formatDate(anak.tanggal_lahir)}</td>
-                                        <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{anak.keterangan || '-'}</td>
+            <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                <CardHeader title={`Data Anak (${anakList.length})`} icon="family_restroom" />
+                <div className="p-6">
+                    {anakList.length > 0 ? (
+                        <div className="overflow-hidden border border-[#e7ebf3] dark:border-[#2a3447] rounded-xl">
+                            <table className="min-w-full divide-y divide-[#e7ebf3] dark:divide-[#2a3447]">
+                                <thead className="bg-[#fbfbfc] dark:bg-[#1c2638]">
+                                    <tr>
+                                        <th className="py-4 pl-6 pr-3 text-left text-[11px] font-extrabold text-[#4c669a] uppercase tracking-widest">No</th>
+                                        <th className="py-4 px-3 text-left text-[11px] font-extrabold text-[#4c669a] uppercase tracking-widest">Nama</th>
+                                        <th className="py-4 px-3 text-left text-[11px] font-extrabold text-[#4c669a] uppercase tracking-widest">Jenis Kelamin</th>
+                                        <th className="py-4 px-3 text-left text-[11px] font-extrabold text-[#4c669a] uppercase tracking-widest">Tanggal Lahir</th>
+                                        <th className="py-4 px-6 text-left text-[11px] font-extrabold text-[#4c669a] uppercase tracking-widest">Keterangan</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                ) : (
-                    <p className="text-gray-500 text-sm italic">Tidak ada data anak.</p>
-                )}
+                                </thead>
+                                <tbody className="divide-y divide-[#e7ebf3] dark:divide-[#2a3447] bg-white dark:bg-[#161e2e]">
+                                    {anakList.map((anak, idx) => (
+                                        <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                                            <td className="whitespace-nowrap py-4 pl-6 pr-3 text-sm font-bold text-[#0d121b] dark:text-white">{idx + 1}</td>
+                                            <td className="whitespace-nowrap py-4 px-3 text-sm font-semibold text-[#0d121b] dark:text-white">{anak.nama}</td>
+                                            <td className="whitespace-nowrap py-4 px-3 text-sm text-[#4c669a] dark:text-gray-400">{anak.jenis_kelamin}</td>
+                                            <td className="whitespace-nowrap py-4 px-3 text-sm text-[#4c669a] dark:text-gray-400">{formatDate(anak.tanggal_lahir)}</td>
+                                            <td className="whitespace-nowrap py-4 px-6 text-sm text-[#4c669a] dark:text-gray-400">{anak.keterangan || '-'}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="text-center py-10 bg-[#f6f6f8] dark:bg-[#1c2638] rounded-xl border border-dashed border-[#e7ebf3] dark:border-[#2a3447]">
+                            <span className="material-symbols-outlined text-4xl text-[#cfd7e7] mb-2">child_care</span>
+                            <p className="text-sm text-[#4c669a] italic">Tidak ada data anak.</p>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Orang Tua & Mertua */}
-            <div className="bg-white border rounded-lg p-6 shadow-sm">
-                <SectionHeader title="Orang Tua & Mertua" icon={<UsersIcon className="w-5 h-5" />} />
-
-                <div className="mb-6">
-                    <h5 className="font-medium text-gray-700 mb-3 bg-gray-50 p-2 rounded inline-block">Orang Tua Kandung</h5>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <DetailItem label="Nama Ayah" value={familyInfo.nama_ayah_kandung} />
-                        <DetailItem label="Nama Ibu" value={familyInfo.nama_ibu_kandung} />
-                        <FullWidthDetailItem label="Alamat Orang Tua" value={familyInfo.alamat_orang_tua} />
-                    </div>
-                </div>
-
-                <hr className="my-6 border-gray-100" />
-
-                <div>
-                    <h5 className="font-medium text-gray-700 mb-3 bg-gray-50 p-2 rounded inline-block">Mertua</h5>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Ayah Mertua */}
-                        <div className="space-y-4">
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Ayah Mertua</p>
-                            <div className="grid grid-cols-1 gap-4">
-                                <DetailItem label="Nama" value={familyInfo.nama_ayah_mertua} />
-                                <DetailItem label="Tgl Lahir" value={formatDate(familyInfo.tanggal_lahir_ayah_mertua)} />
-                                <DetailItem label="Pendidikan" value={familyInfo.pendidikan_terakhir_ayah_mertua} />
-                                <DetailItem label="Keterangan" value={familyInfo.keterangan_ayah_mertua} />
-                            </div>
+            <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                <CardHeader title="Orang Tua & Mertua" icon="supervisor_account" />
+                <div className="p-6 space-y-8">
+                    <div>
+                        <h5 className="text-[10px] font-extrabold text-primary mb-4 uppercase tracking-widest flex items-center gap-2">
+                            <span className="size-1.5 rounded-full bg-primary"></span>
+                            Orang Tua Kandung
+                        </h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <DetailItem label="Nama Ayah" value={familyInfo.nama_ayah_kandung} />
+                            <DetailItem label="Nama Ibu" value={familyInfo.nama_ibu_kandung} />
+                            <DetailItem label="Alamat Orang Tua" value={familyInfo.alamat_orang_tua} fullWidth />
                         </div>
-                        {/* Ibu Mertua */}
-                        <div className="space-y-4 border-l pl-0 md:pl-8 border-gray-100">
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Ibu Mertua</p>
-                            <div className="grid grid-cols-1 gap-4">
-                                <DetailItem label="Nama" value={familyInfo.nama_ibu_mertua} />
-                                <DetailItem label="Tgl Lahir" value={formatDate(familyInfo.tanggal_lahir_ibu_mertua)} />
-                                <DetailItem label="Pendidikan" value={familyInfo.pendidikan_terakhir_ibu_mertua} />
-                                <DetailItem label="Keterangan" value={familyInfo.keterangan_ibu_mertua} />
+                    </div>
+
+                    <div className="pt-8 border-t border-dashed border-[#e7ebf3] dark:border-[#2a3447]">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            {/* Ayah Mertua */}
+                            <div className="space-y-6">
+                                <h5 className="text-[10px] font-extrabold text-[#4c669a] mb-4 uppercase tracking-widest">Ayah Mertua</h5>
+                                <div className="grid grid-cols-1 gap-4">
+                                    <DetailItem label="Nama" value={familyInfo.nama_ayah_mertua} />
+                                    <DetailItem label="Tgl Lahir" value={formatDate(familyInfo.tanggal_lahir_ayah_mertua)} />
+                                    <DetailItem label="Pendidikan" value={familyInfo.pendidikan_terakhir_ayah_mertua} />
+                                    <DetailItem label="Keterangan" value={familyInfo.keterangan_ayah_mertua} />
+                                </div>
+                            </div>
+                            {/* Ibu Mertua */}
+                            <div className="space-y-6 md:border-l md:pl-12 border-[#e7ebf3] dark:border-[#2a3447]">
+                                <h5 className="text-[10px] font-extrabold text-[#4c669a] mb-4 uppercase tracking-widest">Ibu Mertua</h5>
+                                <div className="grid grid-cols-1 gap-4">
+                                    <DetailItem label="Nama" value={familyInfo.nama_ibu_mertua} />
+                                    <DetailItem label="Tgl Lahir" value={formatDate(familyInfo.tanggal_lahir_ibu_mertua)} />
+                                    <DetailItem label="Pendidikan" value={familyInfo.pendidikan_terakhir_ibu_mertua} />
+                                    <DetailItem label="Keterangan" value={familyInfo.keterangan_ibu_mertua} />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -137,45 +135,52 @@ export const EmployeeFamilyInfoView: React.FC<EmployeeFamilyInfoViewProps> = ({ 
             </div>
 
             {/* Saudara Kandung */}
-            <div className="bg-white border rounded-lg p-6 shadow-sm">
-                <SectionHeader title="Saudara Kandung" icon={<UserGroupIcon className="w-5 h-5" />} />
-                <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <DetailItem label="Anak Ke-" value={familyInfo.anak_ke} />
-                    <DetailItem label="Jumlah Saudara" value={familyInfo.jumlah_saudara_kandung} />
-                </div>
-
-                {saudaraList.length > 0 ? (
-                    <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-                        <table className="min-w-full divide-y divide-gray-300">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">No</th>
-                                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Nama</th>
-                                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">L/P</th>
-                                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Tanggal Lahir</th>
-                                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Pendidikan</th>
-                                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Pekerjaan</th>
-                                    <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">Keterangan</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 bg-white">
-                                {saudaraList.map((saudara, idx) => (
-                                    <tr key={idx}>
-                                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{idx + 1}</td>
-                                        <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{saudara.nama}</td>
-                                        <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{saudara.jenis_kelamin === 'Laki-laki' ? 'L' : 'P'}</td>
-                                        <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{formatDate(saudara.tanggal_lahir)}</td>
-                                        <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{saudara.pendidikan_terakhir || '-'}</td>
-                                        <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{saudara.pekerjaan || '-'}</td>
-                                        <td className="whitespace-nowrap py-4 px-3 text-sm text-gray-500">{saudara.keterangan || '-'}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+            <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                <CardHeader title="Saudara Kandung" icon="group" />
+                <div className="p-6">
+                    <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#f6f6f8] dark:bg-[#1c2638] p-5 rounded-2xl border border-[#e7ebf3] dark:border-[#2a3447]">
+                        <DetailItem label="Anak Ke-" value={familyInfo.anak_ke} />
+                        <DetailItem label="Jumlah Saudara" value={familyInfo.jumlah_saudara_kandung} />
                     </div>
-                ) : (
-                    <p className="text-gray-500 text-sm italic">Tidak ada data saudara kandung.</p>
-                )}
+
+                    {saudaraList.length > 0 ? (
+                        <div className="overflow-hidden border border-[#e7ebf3] dark:border-[#2a3447] rounded-xl">
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-[#e7ebf3] dark:divide-[#2a3447]">
+                                    <thead className="bg-[#fbfbfc] dark:bg-[#1c2638]">
+                                        <tr>
+                                            <th className="py-4 pl-6 pr-3 text-left text-[11px] font-extrabold text-[#4c669a] uppercase tracking-widest">No</th>
+                                            <th className="py-4 px-3 text-left text-[11px] font-extrabold text-[#4c669a] uppercase tracking-widest">Nama</th>
+                                            <th className="py-4 px-3 text-left text-[11px] font-extrabold text-[#4c669a] uppercase tracking-widest">L/P</th>
+                                            <th className="py-4 px-3 text-left text-[11px] font-extrabold text-[#4c669a] uppercase tracking-widest">Tanggal Lahir</th>
+                                            <th className="py-4 px-3 text-left text-[11px] font-extrabold text-[#4c669a] uppercase tracking-widest">Pendidikan</th>
+                                            <th className="py-4 px-3 text-left text-[11px] font-extrabold text-[#4c669a] uppercase tracking-widest">Pekerjaan</th>
+                                            <th className="py-4 px-6 text-left text-[11px] font-extrabold text-[#4c669a] uppercase tracking-widest">Keterangan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-[#e7ebf3] dark:divide-[#2a3447] bg-white dark:bg-[#161e2e]">
+                                        {saudaraList.map((saudara, idx) => (
+                                            <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                                                <td className="whitespace-nowrap py-4 pl-6 pr-3 text-sm font-bold text-[#0d121b] dark:text-white">{idx + 1}</td>
+                                                <td className="whitespace-nowrap py-4 px-3 text-sm font-semibold text-[#0d121b] dark:text-white">{saudara.nama}</td>
+                                                <td className="whitespace-nowrap py-4 px-3 text-sm text-[#4c669a] dark:text-gray-400">{saudara.jenis_kelamin === 'Laki-laki' ? 'L' : 'P'}</td>
+                                                <td className="whitespace-nowrap py-4 px-3 text-sm text-[#4c669a] dark:text-gray-400">{formatDate(saudara.tanggal_lahir)}</td>
+                                                <td className="whitespace-nowrap py-4 px-3 text-sm text-[#4c669a] dark:text-gray-400">{saudara.pendidikan_terakhir || '-'}</td>
+                                                <td className="whitespace-nowrap py-4 px-3 text-sm text-[#4c669a] dark:text-gray-400">{saudara.pekerjaan || '-'}</td>
+                                                <td className="whitespace-nowrap py-4 px-6 text-sm text-[#4c669a] dark:text-gray-400">{saudara.keterangan || '-'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-center py-10 bg-[#f6f6f8] dark:bg-[#1c2638] rounded-xl border border-dashed border-[#e7ebf3] dark:border-[#2a3447]">
+                            <span className="material-symbols-outlined text-4xl text-[#cfd7e7] mb-2">groups</span>
+                            <p className="text-sm text-[#4c669a] italic">Tidak ada data saudara kandung.</p>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

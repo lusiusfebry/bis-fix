@@ -126,73 +126,109 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
 
     return (
         <aside className={clsx(
-            "fixed left-0 top-16 z-20 hidden h-[calc(100vh-4rem)] border-r border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 md:block overflow-y-auto transition-all duration-300",
+            "h-full border-r border-[#e7ebf3] bg-white dark:bg-[#161e2e] dark:border-[#2a3447] flex flex-col transition-all duration-300",
             collapsed ? "w-20" : "w-64"
         )}>
-            <nav className="flex flex-col gap-2 p-4">
-                {navItems.map((item) => (
-                    <div key={item.name}>
-                        {item.subItems && !collapsed ? (
-                            <>
-                                <button
-                                    onClick={() => toggleMenu(item.name)}
-                                    className={clsx(
-                                        'flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm font-medium transition-colors text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700',
-                                        openMenus.includes(item.name) && 'bg-gray-50 dark:bg-gray-700/50'
-                                    )}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-                                        {item.name}
-                                    </div>
-                                    {openMenus.includes(item.name) ? (
-                                        <ChevronUpIcon className="h-4 w-4" />
-                                    ) : (
-                                        <ChevronDownIcon className="h-4 w-4" />
-                                    )}
-                                </button>
-                                {openMenus.includes(item.name) && (
-                                    <div className="mt-1 flex flex-col gap-1 pl-4 border-l-2 border-gray-100 ml-4">
-                                        {item.subItems.map((sub) => (
-                                            <NavLink
-                                                key={sub.name}
-                                                to={sub.path || '#'}
-                                                className={({ isActive }) =>
-                                                    clsx(
-                                                        'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-colors',
-                                                        isActive
-                                                            ? 'bg-primary/10 text-primary'
-                                                            : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800'
-                                                    )
-                                                }
-                                            >
-                                                <span className="material-symbols-outlined text-[18px] opacity-70">{sub.icon}</span>
-                                                {sub.name}
-                                            </NavLink>
-                                        ))}
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <NavLink
-                                to={item.path || '#'}
-                                className={({ isActive }) =>
-                                    clsx(
-                                        'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors',
-                                        isActive
-                                            ? 'bg-primary text-white shadow-sm'
-                                            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700',
-                                        collapsed && 'justify-center px-0'
-                                    )
-                                }
-                            >
-                                <span className="material-symbols-outlined text-[20px] shrink-0">{item.icon}</span>
-                                {!collapsed && item.name}
-                            </NavLink>
-                        )}
+            <div className="p-6 flex flex-col gap-8 h-full">
+                {/* Logo Section */}
+                {!collapsed && (
+                    <div className="flex items-center gap-3">
+                        <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white shrink-0">
+                            <span className="material-symbols-outlined text-2xl">corporate_fare</span>
+                        </div>
+                        <div className="flex flex-col overflow-hidden">
+                            <h1 className="text-[#0d121b] dark:text-white text-base font-bold leading-none truncate">PSG HRMS</h1>
+                            <p className="text-[#4c669a] text-xs font-normal mt-1 truncate">Enterprise System</p>
+                        </div>
                     </div>
-                ))}
-            </nav>
+                )}
+                {collapsed && (
+                    <div className="flex justify-center">
+                        <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white shrink-0">
+                            <span className="material-symbols-outlined text-2xl">corporate_fare</span>
+                        </div>
+                    </div>
+                )}
+
+                <nav className="flex flex-col gap-1 overflow-y-auto pr-1 custom-scrollbar">
+                    {navItems.map((item) => (
+                        <div key={item.name}>
+                            {item.subItems && !collapsed ? (
+                                <>
+                                    <button
+                                        onClick={() => toggleMenu(item.name)}
+                                        className={clsx(
+                                            'flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm font-medium transition-colors text-gray-700 hover:bg-[#e7ebf3] dark:text-gray-200 dark:hover:bg-[#2a3447]',
+                                            openMenus.includes(item.name) && 'bg-[#e7ebf3] dark:bg-[#2a3447]'
+                                        )}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                                            {item.name}
+                                        </div>
+                                        {openMenus.includes(item.name) ? (
+                                            <ChevronUpIcon className="h-4 w-4" />
+                                        ) : (
+                                            <ChevronDownIcon className="h-4 w-4" />
+                                        )}
+                                    </button>
+                                    {openMenus.includes(item.name) && (
+                                        <div className="mt-1 flex flex-col gap-1 pl-4 border-l-2 border-[#e7ebf3] dark:border-[#2a3447] ml-4">
+                                            {item.subItems.map((sub) => (
+                                                <NavLink
+                                                    key={sub.name}
+                                                    to={sub.path || '#'}
+                                                    className={({ isActive }) =>
+                                                        clsx(
+                                                            'flex items-center gap-3 rounded-xl px-4 py-2.5 text-[13px] font-bold transition-all',
+                                                            isActive
+                                                                ? 'bg-primary/10 text-primary'
+                                                                : 'text-[#4c669a] hover:bg-[#f6f6f8] dark:text-gray-400 dark:hover:bg-[#2a3447]'
+                                                        )
+                                                    }
+                                                >
+                                                    <span
+                                                        className="material-symbols-outlined text-[20px] opacity-80"
+                                                        style={{ fontVariationSettings: "'FILL' 0, 'wght' 400" }}
+                                                    >
+                                                        {sub.icon}
+                                                    </span>
+                                                    {sub.name}
+                                                </NavLink>
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <NavLink
+                                    to={item.path || '#'}
+                                    className={({ isActive }) =>
+                                        clsx(
+                                            'flex items-center gap-3 rounded-xl px-4 py-3 text-[13px] font-bold transition-all',
+                                            isActive
+                                                ? 'bg-primary/10 text-primary'
+                                                : 'text-[#4c669a] hover:bg-[#f6f6f8] dark:text-gray-400 dark:hover:bg-[#2a3447]',
+                                            collapsed && 'justify-center px-0'
+                                        )
+                                    }
+                                >
+                                    {({ isActive }) => (
+                                        <>
+                                            <span
+                                                className="material-symbols-outlined text-[22px]"
+                                                style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 400" : "'FILL' 0, 'wght' 400" }}
+                                            >
+                                                {item.icon}
+                                            </span>
+                                            {!collapsed && item.name}
+                                        </>
+                                    )}
+                                </NavLink>
+                            )}
+                        </div>
+                    ))}
+                </nav>
+            </div>
         </aside>
     );
 };

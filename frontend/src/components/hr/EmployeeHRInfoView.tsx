@@ -1,28 +1,17 @@
 import React from 'react';
 import { Employee } from '../../types/hr';
-import {
-    BriefcaseIcon,
-    DocumentTextIcon,
-    AcademicCapIcon,
-    StarIcon,
-    PhoneIcon,
-    MapPinIcon,
-    TagIcon,
-    ArrowsRightLeftIcon,
-    BanknotesIcon
-} from '@heroicons/react/24/outline';
 
-const SectionHeader: React.FC<{ title: string; icon: React.ReactNode }> = ({ title, icon }) => (
-    <h4 className="flex items-center text-lg font-medium text-gray-900 mb-4 border-b pb-2">
-        <span className="mr-2 text-primary-600">{icon}</span>
-        {title}
-    </h4>
+const CardHeader: React.FC<{ title: string; icon: string }> = ({ title, icon }) => (
+    <div className="px-6 py-4 border-b border-[#e7ebf3] dark:border-[#2a3447] flex items-center gap-2 bg-[#fbfbfc] dark:bg-[#1c2638]">
+        <span className="material-symbols-outlined text-primary text-xl">{icon}</span>
+        <h4 className="text-base font-bold text-[#0d121b] dark:text-white">{title}</h4>
+    </div>
 );
 
-const DetailItem: React.FC<{ label: string; value: string | number | undefined | null }> = ({ label, value }) => (
-    <div className="col-span-1">
-        <dt className="text-sm font-medium text-gray-500">{label}</dt>
-        <dd className="mt-1 text-sm text-gray-900">{value ? value : '-'}</dd>
+const DetailItem: React.FC<{ label: string; value: string | number | undefined | null; fullWidth?: boolean }> = ({ label, value, fullWidth }) => (
+    <div className={`${fullWidth ? 'col-span-full' : 'col-span-1'}`}>
+        <p className="text-[10px] font-bold text-[#4c669a] dark:text-gray-400 uppercase tracking-widest mb-1.5">{label}</p>
+        <p className="text-sm font-semibold text-[#0d121b] dark:text-white leading-relaxed">{value !== undefined && value !== null && value !== '' ? value : '-'}</p>
     </div>
 );
 
@@ -43,30 +32,25 @@ export const EmployeeHRInfoView: React.FC<EmployeeHRInfoViewProps> = ({ employee
     const hrInfo = (employee as any).hr_info || {};
 
     return (
-        <div className="space-y-8">
-            {/* Section 1: Kepegawaian (From Head mainly) */}
-            <div className="bg-white border rounded-lg p-6 shadow-sm">
-                <SectionHeader title="Kepegawaian" icon={<BriefcaseIcon className="w-5 h-5" />} />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-6">
+            {/* Section 1: Kepegawaian */}
+            <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                <CardHeader title="Kepegawaian" icon="work" />
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <DetailItem label="NIK" value={employee.nomor_induk_karyawan} />
                     <DetailItem label="Email Perusahaan" value={employee.email_perusahaan} />
                     <DetailItem label="Divisi" value={employee.divisi?.nama} />
                     <DetailItem label="Departemen" value={employee.department?.nama} />
                     <DetailItem label="Posisi" value={employee.posisi_jabatan?.nama} />
-                    {/* Assuming Manager/Atasan names are available or populated via ID if needed. For now showing ID relation if name not preloaded. 
-                        Ideally backend populates 'manager' relation object.
-                    */}
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    <DetailItem label="Manager" value={(employee as any).manager?.nama_lengkap || '-'} />
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    <DetailItem label="Atasan Langsung" value={(employee as any).atasan_langsung?.nama_lengkap || '-'} />
+                    <DetailItem label="Manager" value={(employee as any).manager?.nama_lengkap} />
+                    <DetailItem label="Atasan Langsung" value={(employee as any).atasan_langsung?.nama_lengkap} />
                 </div>
             </div>
 
             {/* Section 2: Kontrak */}
-            <div className="bg-white border rounded-lg p-6 shadow-sm">
-                <SectionHeader title="Kontrak & Tanggal" icon={<DocumentTextIcon className="w-5 h-5" />} />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                <CardHeader title="Kontrak & Tanggal" icon="description" />
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <DetailItem label="Jenis Hubungan Kerja" value={hrInfo.jenis_hubungan_kerja?.nama} />
                     <DetailItem label="Tgl Masuk Group" value={formatDate(hrInfo.tanggal_masuk_group)} />
                     <DetailItem label="Tgl Masuk" value={formatDate(hrInfo.tanggal_masuk)} />
@@ -78,25 +62,22 @@ export const EmployeeHRInfoView: React.FC<EmployeeHRInfoViewProps> = ({ employee
             </div>
 
             {/* Section 3: Education */}
-            <div className="bg-white border rounded-lg p-6 shadow-sm">
-                <SectionHeader title="Pendidikan" icon={<AcademicCapIcon className="w-5 h-5" />} />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                <CardHeader title="Pendidikan" icon="school" />
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <DetailItem label="Tingkat Pendidikan" value={hrInfo.tingkat_pendidikan} />
                     <DetailItem label="Bidang Studi" value={hrInfo.bidang_studi} />
                     <DetailItem label="Nama Sekolah" value={hrInfo.nama_sekolah} />
                     <DetailItem label="Kota Sekolah" value={hrInfo.kota_sekolah} />
                     <DetailItem label="Status Kelulusan" value={hrInfo.status_kelulusan} />
-                    <div className="col-span-full">
-                        <dt className="text-sm font-medium text-gray-500">Keterangan Pendidikan</dt>
-                        <dd className="mt-1 text-sm text-gray-900">{hrInfo.keterangan_pendidikan || '-'}</dd>
-                    </div>
+                    <DetailItem label="Keterangan Pendidikan" value={hrInfo.keterangan_pendidikan} fullWidth />
                 </div>
             </div>
 
             {/* Section 4: Pangkat */}
-            <div className="bg-white border rounded-lg p-6 shadow-sm">
-                <SectionHeader title="Pangkat & Golongan" icon={<StarIcon className="w-5 h-5" />} />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                <CardHeader title="Pangkat & Golongan" icon="stars" />
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <DetailItem label="Kategori Pangkat" value={hrInfo.kategori_pangkat?.nama} />
                     <DetailItem label="Golongan" value={hrInfo.golongan?.nama} />
                     <DetailItem label="Sub Golongan" value={hrInfo.sub_golongan?.nama} />
@@ -105,13 +86,16 @@ export const EmployeeHRInfoView: React.FC<EmployeeHRInfoViewProps> = ({ employee
             </div>
 
             {/* Section 5: Kontak Darurat */}
-            <div className="bg-white border rounded-lg p-6 shadow-sm">
-                <SectionHeader title="Kontak Darurat" icon={<PhoneIcon className="w-5 h-5" />} />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                <CardHeader title="Kontak Darurat" icon="contact_emergency" />
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* KD 1 */}
-                    <div className="bg-gray-50 p-4 rounded-md">
-                        <h5 className="font-semibold text-gray-700 border-b pb-2 mb-3">Kontak 1</h5>
-                        <div className="space-y-3">
+                    <div className="bg-[#f6f6f8] dark:bg-[#1c2638] p-5 rounded-2xl border border-[#e7ebf3] dark:border-[#2a3447]">
+                        <h5 className="text-[10px] font-extrabold text-[#4c669a] dark:text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span className="size-1.5 rounded-full bg-primary"></span>
+                            Kontak Utama
+                        </h5>
+                        <div className="space-y-4">
                             <DetailItem label="Nama" value={hrInfo.nama_kontak_darurat_1} />
                             <DetailItem label="Telepon" value={hrInfo.nomor_telepon_kontak_darurat_1} />
                             <DetailItem label="Hubungan" value={hrInfo.hubungan_kontak_darurat_1} />
@@ -119,9 +103,12 @@ export const EmployeeHRInfoView: React.FC<EmployeeHRInfoViewProps> = ({ employee
                         </div>
                     </div>
                     {/* KD 2 */}
-                    <div className="bg-gray-50 p-4 rounded-md">
-                        <h5 className="font-semibold text-gray-700 border-b pb-2 mb-3">Kontak 2</h5>
-                        <div className="space-y-3">
+                    <div className="bg-[#f6f6f8] dark:bg-[#1c2638] p-5 rounded-2xl border border-[#e7ebf3] dark:border-[#2a3447]">
+                        <h5 className="text-[10px] font-extrabold text-[#4c669a] dark:text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span className="size-1.5 rounded-full bg-gray-400"></span>
+                            Kontak Cadangan
+                        </h5>
+                        <div className="space-y-4">
                             <DetailItem label="Nama" value={hrInfo.nama_kontak_darurat_2} />
                             <DetailItem label="Telepon" value={hrInfo.nomor_telepon_kontak_darurat_2} />
                             <DetailItem label="Hubungan" value={hrInfo.hubungan_kontak_darurat_2} />
@@ -132,43 +119,42 @@ export const EmployeeHRInfoView: React.FC<EmployeeHRInfoViewProps> = ({ employee
             </div>
 
             {/* Section 6: POO/POH */}
-            <div className="bg-white border rounded-lg p-6 shadow-sm">
-                <SectionHeader title="Point of Origin / Hire" icon={<MapPinIcon className="w-5 h-5" />} />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                <CardHeader title="Point Of Origin / Hire" icon="distance" />
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <DetailItem label="Point of Origin" value={hrInfo.point_of_original} />
                     <DetailItem label="Point of Hire" value={hrInfo.point_of_hire} />
                 </div>
             </div>
 
             {/* Section 7: Seragam */}
-            <div className="bg-white border rounded-lg p-6 shadow-sm">
-                <SectionHeader title="Seragam & Sepatu" icon={<TagIcon className="w-5 h-5" />} />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                <CardHeader title="Seragam & Sepatu" icon="checkroom" />
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <DetailItem label="Ukuran Seragam" value={hrInfo.ukuran_seragam_kerja} />
                     <DetailItem label="Ukuran Sepatu" value={hrInfo.ukuran_sepatu_kerja} />
                 </div>
             </div>
 
             {/* Section 8: Pergerakan */}
-            <div className="bg-white border rounded-lg p-6 shadow-sm">
-                <SectionHeader title="Pergerakan Karyawan" icon={<ArrowsRightLeftIcon className="w-5 h-5" />} />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                <CardHeader title="Pergerakan Karyawan" icon="swap_horiz" />
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <DetailItem label="Lokasi Sebelumnya" value={hrInfo.lokasi_sebelumnya?.nama} />
                     <DetailItem label="Tgl Mutasi" value={formatDate(hrInfo.tanggal_mutasi)} />
                 </div>
             </div>
 
             {/* Section 9: Costing */}
-            <div className="bg-white border rounded-lg p-6 shadow-sm">
-                <SectionHeader title="Costing" icon={<BanknotesIcon className="w-5 h-5" />} />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                <CardHeader title="Costing" icon="payments" />
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <DetailItem label="Siklus Gaji" value={hrInfo.siklus_pembayaran_gaji} />
                     <DetailItem label="Costing" value={hrInfo.costing} />
                     <DetailItem label="Assign" value={hrInfo.assign} />
                     <DetailItem label="Actual" value={hrInfo.actual} />
                 </div>
             </div>
-
         </div>
     );
 };

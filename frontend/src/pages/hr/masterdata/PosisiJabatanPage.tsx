@@ -130,6 +130,7 @@ const PosisiJabatanPage: React.FC = () => {
                     onFilterChange={setStatus}
                     onAdd={handleAdd}
                     addButtonText="Tambah Posisi"
+                    transparent={true}
                 />
 
                 <div className="mb-4 flex justify-end">
@@ -149,6 +150,7 @@ const PosisiJabatanPage: React.FC = () => {
                     }}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    transparent={true}
                 />
 
                 <Modal

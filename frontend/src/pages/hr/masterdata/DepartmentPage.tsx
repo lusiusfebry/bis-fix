@@ -129,6 +129,7 @@ const DepartmentPage: React.FC = () => {
                     onFilterChange={setStatus}
                     onAdd={handleAdd}
                     addButtonText="Tambah Department"
+                    transparent={true}
                 />
 
                 <div className="mb-4 flex justify-end">
@@ -148,6 +149,7 @@ const DepartmentPage: React.FC = () => {
                     }}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    transparent={true}
                 />
 
                 <Modal

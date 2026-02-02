@@ -85,7 +85,7 @@ const GolonganPage: React.FC = () => {
                         <p className="text-gray-500 dark:text-gray-400 mt-1">Kelola data golongan karyawan</p>
                     </div>
                 </div>
-                <SearchFilter onSearchChange={setSearch} onFilterChange={setStatus} onAdd={handleAdd} addButtonText="Tambah Golongan" />
+                <SearchFilter onSearchChange={setSearch} onFilterChange={setStatus} onAdd={handleAdd} addButtonText="Tambah Golongan" transparent={true} />
                 <div className="mb-4 flex justify-end">
                     <LayoutSwitcher currentLayout={layout} onLayoutChange={setLayout} />
                 </div>
@@ -102,6 +102,7 @@ const GolonganPage: React.FC = () => {
                     }}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    transparent={true}
                 />
                 <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalMode === 'create' ? 'Tambah Golongan' : 'Edit Golongan'}>
                     <MasterDataForm

@@ -83,7 +83,7 @@ const KategoriPangkatPage: React.FC = () => {
                         <p className="text-gray-500 dark:text-gray-400 mt-1">Kelola kategori pangkat karyawan</p>
                     </div>
                 </div>
-                <SearchFilter onSearchChange={setSearch} onFilterChange={setStatus} onAdd={handleAdd} addButtonText="Tambah Kategori" />
+                <SearchFilter onSearchChange={setSearch} onFilterChange={setStatus} onAdd={handleAdd} addButtonText="Tambah Kategori" transparent={true} />
                 <div className="mb-4 flex justify-end">
                     <LayoutSwitcher currentLayout={layout} onLayoutChange={setLayout} />
                 </div>
@@ -100,6 +100,7 @@ const KategoriPangkatPage: React.FC = () => {
                     }}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    transparent={true}
                 />
                 <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalMode === 'create' ? 'Tambah Kategori' : 'Edit Kategori'}>
                     <MasterDataForm

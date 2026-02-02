@@ -3,16 +3,38 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { employeeService } from '../../services/api/employee.service';
 import toast from 'react-hot-toast';
 import LoadingSkeleton from '../../components/common/LoadingSkeleton';
-import Button from '../../components/common/Button';
-import { UserCircleIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { UserCircleIcon } from '@heroicons/react/24/outline';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Employee } from '../../types/hr';
 import { EmployeeFamilyInfoView } from '../../components/hr/EmployeeFamilyInfoView';
 import { EmployeeHRInfoView } from '../../components/hr/EmployeeHRInfoView';
 import { EmployeeDocumentsSection } from '../../components/hr/EmployeeDocumentsSection';
-import { ExportButton } from '../../components/hr/ExportButton';
 import { EmployeeQRCode } from '../../components/hr/EmployeeQRCode';
 import EntityHistoryTimeline from '../../components/hr/EntityHistoryTimeline';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const containerVariants: any = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+            delayChildren: 0.2
+        }
+    }
+};
+
+const itemVariants: any = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+        y: 0,
+        opacity: 1,
+        transition: {
+            duration: 0.5,
+            ease: "easeOut"
+        }
+    }
+};
 
 const EmployeeDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -50,13 +72,13 @@ const EmployeeDetailPage: React.FC = () => {
 
                 if (activeTab === 'personal' && !employee.personal_info) {
                     const personalData = await employeeService.getEmployeePersonal(empId);
-                    setEmployee(prev => prev ? { ...prev, personal_info: personalData } : null);
+                    setEmployee((prev: Employee | null) => prev ? { ...prev, personal_info: personalData } : null);
                 } else if (activeTab === 'hr' && !employee.hr_info) {
                     const hrData = await employeeService.getEmployeeEmployment(empId);
-                    setEmployee(prev => prev ? { ...prev, hr_info: hrData } : null);
+                    setEmployee((prev: Employee | null) => prev ? { ...prev, hr_info: hrData } : null);
                 } else if (activeTab === 'family' && !employee.family_info) {
                     const familyData = await employeeService.getEmployeeFamily(empId);
-                    setEmployee(prev => prev ? { ...prev, family_info: familyData } : null);
+                    setEmployee((prev: Employee | null) => prev ? { ...prev, family_info: familyData } : null);
                 }
                 // Documents and history are handled by their own components usually, 
                 // but if using Employee object, check structure. 
@@ -91,122 +113,234 @@ const EmployeeDetailPage: React.FC = () => {
     if (!employee) return <div>Employee not found</div>;
 
     const tabs = [
-        { id: 'personal', label: 'Personal Information' },
+        { id: 'personal', label: 'Data Personal' },
         { id: 'hr', label: 'Informasi HR' },
-        { id: 'family', label: 'Informasi Keluarga' },
+        { id: 'payroll', label: 'Payroll' },
+        { id: 'attendance', label: 'Cuti & Izin' },
+        { id: 'assets', label: 'Aset' },
         { id: 'documents', label: 'Dokumen' },
-        { id: 'history', label: 'Riwayat Perubahan' }
+        { id: 'history', label: 'Riwayat' }
     ];
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-6xl mx-auto py-8">
             {/* Header */}
-            <div className="bg-white shadow rounded-lg overflow-hidden mb-6">
-                <div className="px-6 py-5 sm:flex sm:items-start sm:justify-between">
-                    <div className="flex items-center">
-                        <div className="flex-shrink-0 h-20 w-20 relative">
-                            {employee.foto_karyawan ? (
-                                <img
-                                    className="h-20 w-20 rounded-full object-cover border-2 border-white shadow-sm"
-                                    src={`http://localhost:3000${employee.foto_karyawan}`}
-                                    alt={employee.nama_lengkap}
-                                />
-                            ) : (
-                                <UserCircleIcon className="h-20 w-20 text-gray-400" />
-                            )}
+            {/* Header Profil V2 - Tech Luxury */}
+            <motion.div
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="premium-card p-6 mb-8 relative overflow-hidden"
+            >
+                {/* Decorative Elements */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none"></div>
+
+                <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between relative z-10">
+                    <div className="flex gap-8 items-center">
+                        <div className="relative group">
+                            {/* Glowing Ring */}
+                            <div className="absolute -inset-1 bg-gradient-to-tr from-primary via-blue-400 to-cyan-300 rounded-[1.4rem] opacity-40 blur-sm group-hover:opacity-75 transition duration-500"></div>
+
+                            <div className="relative bg-white dark:bg-[#161e2e] rounded-2xl size-28 border border-[#e7ebf3]/50 dark:border-white/10 overflow-hidden shrink-0 shadow-lg p-1.5 backdrop-blur-sm">
+                                {employee.foto_karyawan ? (
+                                    <img
+                                        src={`http://localhost:3000${employee.foto_karyawan}`}
+                                        alt={employee.nama_lengkap}
+                                        className="h-full w-full object-cover rounded-xl"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gray-50/50 dark:bg-slate-800/50 flex items-center justify-center rounded-xl backdrop-blur-sm">
+                                        <UserCircleIcon className="h-20 w-20 text-gray-200 dark:text-gray-700" />
+                                    </div>
+                                )}
+                            </div>
+                            <div
+                                className={`absolute -bottom-1.5 -right-1.5 border-4 border-white dark:border-[#161e2e] size-7 rounded-full shadow-md z-20 ${employee.status_karyawan?.nama === 'Aktif' ? 'bg-green-500' : 'bg-gray-400'}`}
+                                title={`Status: ${employee.status_karyawan?.nama || 'Unknown'}`}
+                            >
+                                <div className="absolute inset-0 rounded-full animate-ping bg-green-500 opacity-20"></div>
+                            </div>
                         </div>
-                        <div className="ml-5">
-                            <h1 className="text-2xl font-bold text-gray-900">{employee.nama_lengkap}</h1>
-                            <div className="flex items-center text-sm text-gray-500 mt-1">
-                                <span className="mr-3">{employee.nomor_induk_karyawan}</span>
-                                <span className="mx-2">•</span>
-                                <span>{employee.posisi_jabatan?.nama || '-'}</span>
-                                <span className="mx-2">•</span>
-                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${employee.status_karyawan?.nama === 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                                    }`}>
-                                    {employee.status_karyawan?.nama || 'Unknown'}
+                        <div className="flex flex-col">
+                            <h3 className="text-4xl font-extrabold text-[#0d121b] dark:text-white tracking-tighter leading-none mb-2 drop-shadow-sm">
+                                {employee.nama_lengkap}
+                            </h3>
+                            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-1">
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100/50 dark:bg-white/5 rounded-full border border-gray-200/50 dark:border-white/5 backdrop-blur-sm transition-all hover:border-primary/30">
+                                    <span className="material-symbols-outlined text-primary text-lg">id_card</span>
+                                    <span className="text-[11px] font-bold text-[#4c669a] dark:text-gray-400 uppercase tracking-widest whitespace-nowrap">NIK: {employee.nomor_induk_karyawan}</span>
+                                </div>
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100/50 dark:bg-white/5 rounded-full border border-gray-200/50 dark:border-white/5 backdrop-blur-sm transition-all hover:border-primary/30">
+                                    <span className="material-symbols-outlined text-primary text-lg">call</span>
+                                    <span className="text-[11px] font-bold text-[#4c669a] dark:text-gray-400 uppercase tracking-widest whitespace-nowrap">{employee.nomor_handphone || '-'}</span>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 mt-4">
+                                <span className="px-3 py-1.5 bg-primary/10 text-primary text-[11px] font-extrabold rounded-lg uppercase tracking-[0.15em] border border-primary/20 shadow-sm shadow-primary/5">
+                                    {employee.department?.nama || '-'}
+                                </span>
+                                <span className="px-3 py-1.5 bg-gray-100 dark:bg-white/5 text-[#4c669a] dark:text-gray-400 text-[11px] font-extrabold rounded-lg uppercase tracking-[0.15em] border border-gray-200 dark:border-white/5 shadow-sm">
+                                    {employee.lokasi_kerja?.nama || '-'}
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Desktop QR Code */}
-                    <div className="hidden sm:flex ml-auto mr-4">
-                        {employee.nomor_induk_karyawan && (
-                            <div className="scale-75 origin-top-right">
-                                <EmployeeQRCode
-                                    nik={employee.nomor_induk_karyawan}
-                                    employeeName={employee.nama_lengkap}
-                                    showDownload={true}
-                                    showPrint={true}
-                                />
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="mt-5 flex space-x-3 sm:mt-0">
-                        {employee.id && (
-                            <ExportButton
-                                selectedEmployeeId={employee.id}
-                                showExcel={false}
-                            />
-                        )}
-                        <Button variant="outline" onClick={() => navigate(`/hr/employees/${id}/edit`)}>
-                            <PencilIcon className="h-4 w-4 mr-2" />
-                            Edit
-                        </Button>
-                        <Button variant="danger" onClick={() => setShowDeleteConfirm(true)}>
-                            <TrashIcon className="h-4 w-4 mr-2" />
-                            Hapus
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Mobile QR Code */}
-                <div className="sm:hidden px-6 pb-5 flex justify-center">
-                    {employee.nomor_induk_karyawan && (
+                    <div className="flex gap-4 items-center">
                         <EmployeeQRCode
                             nik={employee.nomor_induk_karyawan}
                             employeeName={employee.nama_lengkap}
-                            showDownload={true}
-                            showPrint={true}
                         />
-                    )}
+                        <div className="flex flex-col gap-2.5">
+                            <button className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-sm hover:shadow-md active:scale-95">
+                                <span className="material-symbols-outlined text-xl">qr_code_2</span>
+                                CETAK QR ID
+                            </button>
+                            <button
+                                onClick={() => navigate(`/hr/employees/${id}/edit`)}
+                                className="bg-white dark:bg-[#2a3447] text-[#0d121b] dark:text-white border border-[#e7ebf3] dark:border-[#374151] px-5 py-2.5 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 hover:bg-[#f6f6f8] dark:hover:bg-[#374151] transition-all shadow-sm active:scale-95"
+                            >
+                                <span className="material-symbols-outlined text-xl">edit</span>
+                                EDIT PROFIL
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Tabs & Content */}
+            <div className="mb-10 border-b border-[#e7ebf3] dark:border-white/5 relative">
+                <div className="flex gap-4 min-w-max">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className="relative group py-5 px-4 outline-none transition-all"
+                        >
+                            <span className={`${activeTab === tab.id
+                                ? 'text-primary'
+                                : 'text-[#4c669a] dark:text-gray-400 hover:text-[#0d121b] dark:hover:text-white'
+                                } text-[13px] font-extrabold uppercase tracking-[0.2em] relative z-10 transition-colors duration-300`}>
+                                {tab.label}
+                            </span>
+                            {activeTab === tab.id && (
+                                <motion.div
+                                    layoutId="activeTabProfile"
+                                    className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full shadow-[0_-4px_8px_rgba(19,91,236,0.3)]"
+                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                />
+                            )}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            {/* Tabs & Content */}
-            <div className="bg-white shadow rounded-lg min-h-[400px]">
-                <div className="border-b border-gray-200">
-                    <nav className="-mb-px flex px-6 space-x-8" aria-label="Tabs">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`${activeTab === tab.id
-                                    ? 'border-primary-500 text-primary-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
-                    </nav>
-                </div>
-
-                <div className="p-6">
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={activeTab}
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    className="min-h-[400px]"
+                >
                     {activeTab === 'personal' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                            <DetailItem label="Tempat, Tanggal Lahir" value={`${employee.personal_info?.tempat_lahir || '-'}, ${employee.personal_info?.tanggal_lahir || '-'}`} />
-                            <DetailItem label="Jenis Kelamin" value={employee.personal_info?.jenis_kelamin || '-'} />
-                            <DetailItem label="Agama" value={employee.personal_info?.agama || '-'} />
-                            <DetailItem label="Status Pernikahan" value={employee.personal_info?.status_pernikahan || '-'} />
-                            <DetailItem label="Email Pribadi" value={employee.personal_info?.email_pribadi || '-'} />
-                            <DetailItem label="No. Handphone" value={employee.nomor_handphone || '-'} />
-                            <DetailItem label="Alamat Domisili" value={employee.personal_info?.alamat_domisili || '-'} fullWidth />
-                            <DetailItem label="Divisi" value={employee.divisi?.nama || '-'} />
-                            <DetailItem label="Departemen" value={employee.department?.nama || '-'} />
-                        </div>
+                        <>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                {/* Group: Biodata */}
+                                <motion.div variants={itemVariants} className="premium-card overflow-hidden">
+                                    <CardHeader title="Biodata" icon="person" />
+                                    <div className="p-8 grid grid-cols-2 gap-8">
+                                        <DetailItem label="Nama Lengkap" value={employee.nama_lengkap} />
+                                        <DetailItem label="Jenis Kelamin" value={employee.personal_info?.jenis_kelamin} />
+                                        <DetailItem label="Tempat, Tgl Lahir" value={`${employee.personal_info?.tempat_lahir || '-'}, ${employee.personal_info?.tanggal_lahir || '-'}`} />
+                                        <DetailItem label="Email Pribadi" value={employee.personal_info?.email_pribadi} />
+                                    </div>
+                                </motion.div>
+
+                                {/* Group: Identifikasi & Pajak */}
+                                <motion.div variants={itemVariants} className="premium-card overflow-hidden">
+                                    <CardHeader title="Identifikasi & Pajak" icon="fingerprint" />
+                                    <div className="p-8 grid grid-cols-2 md:grid-cols-3 gap-8">
+                                        <DetailItem label="Agama" value={employee.personal_info?.agama} />
+                                        <DetailItem label="Gol. Darah" value={employee.personal_info?.golongan_darah} />
+                                        <DetailItem label="No. KTP" value={employee.personal_info?.nomor_ktp} />
+                                        <DetailItem label="No. KK" value={employee.personal_info?.nomor_kartu_keluarga} />
+                                        <DetailItem label="NPWP" value={employee.personal_info?.nomor_npwp} />
+                                        <DetailItem label="Status Pajak" value={employee.personal_info?.status_pajak} />
+                                        <DetailItem label="BPJS Kesehatan" value={employee.personal_info?.nomor_bpjs} />
+                                        <DetailItem label="BPJS TK" value={employee.personal_info?.nomor_bpjs_ketenagakerjaan} />
+                                        <DetailItem label="NIK KK" value={employee.personal_info?.no_nik_kk} />
+                                    </div>
+                                </motion.div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+                                {/* Group: Alamat */}
+                                <motion.div variants={itemVariants} className="premium-card overflow-hidden">
+                                    <CardHeader title="Alamat" icon="location_on" />
+                                    <div className="p-8 space-y-8">
+                                        <div>
+                                            <h5 className="text-[10px] font-bold text-primary mb-4 uppercase tracking-[0.2em] opacity-80">Alamat Domisili</h5>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <DetailItem label="Jalan / No. Rumah" value={employee.personal_info?.alamat_domisili} fullWidth />
+                                                <DetailItem label="Kota / Kabupaten" value={employee.personal_info?.kota_domisili} />
+                                                <DetailItem label="Provinsi" value={employee.personal_info?.provinsi_domisili} />
+                                            </div>
+                                        </div>
+                                        <div className="pt-6 border-t border-dashed border-[#e7ebf3] dark:border-white/5">
+                                            <h5 className="text-[10px] font-bold text-primary mb-4 uppercase tracking-[0.2em] opacity-80">Alamat KTP</h5>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <DetailItem label="Jalan / No. Rumah" value={employee.personal_info?.alamat_ktp} fullWidth />
+                                                <DetailItem label="Kota / Kabupaten" value={employee.personal_info?.kota_ktp} />
+                                                <DetailItem label="Provinsi" value={employee.personal_info?.provinsi_ktp} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                {/* Group: Kontak */}
+                                <motion.div variants={itemVariants} className="premium-card overflow-hidden h-fit">
+                                    <CardHeader title="Kontak" icon="contact_phone" />
+                                    <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <DetailItem label="Handphone 1 (Utama)" value={employee.nomor_handphone} />
+                                        <DetailItem label="Handphone 2" value={employee.personal_info?.nomor_handphone_2} />
+                                        <DetailItem label="Telepon Rumah 1" value={employee.personal_info?.nomor_telepon_rumah_1} />
+                                        <DetailItem label="Telepon Rumah 2" value={employee.personal_info?.nomor_telepon_rumah_2} />
+                                    </div>
+                                </motion.div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+                                {/* Group: Status Pernikahan & Keluarga */}
+                                <motion.div variants={itemVariants} className="premium-card overflow-hidden">
+                                    <CardHeader title="Status Pernikahan & Keluarga" icon="family_restroom" />
+                                    <div className="p-8 grid grid-cols-2 md:grid-cols-3 gap-8">
+                                        <DetailItem label="Status Marital" value={employee.personal_info?.status_pernikahan} />
+                                        <DetailItem label="Nama Pasangan" value={employee.personal_info?.nama_pasangan} fullWidth={true} />
+                                        <DetailItem label="Tgl Menikah" value={employee.personal_info?.tanggal_menikah} />
+                                        <DetailItem label="Pekerjaan Pasangan" value={employee.personal_info?.pekerjaan_pasangan} />
+                                        <DetailItem label="Jumlah Anak" value={employee.personal_info?.jumlah_anak?.toString()} />
+                                    </div>
+                                </motion.div>
+
+                                {/* Group: Informasi Perbankan */}
+                                <motion.div variants={itemVariants} className="premium-card overflow-hidden h-fit">
+                                    <CardHeader title="Informasi Perbankan" icon="account_balance" />
+                                    <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="col-span-1">
+                                            <p className="label-text">Nomor Rekening</p>
+                                            <p className="value-text text-xl font-bold tracking-tight text-primary">
+                                                {employee.personal_info?.nomor_rekening || '-'}
+                                            </p>
+                                        </div>
+                                        <DetailItem label="Nama Pemegang Rekening" value={employee.personal_info?.nama_pemegang_rekening} />
+                                        <DetailItem label="Bank" value={employee.personal_info?.nama_bank} />
+                                        <DetailItem label="Cabang" value={employee.personal_info?.cabang_bank} />
+                                    </div>
+                                </motion.div>
+                            </div>
+                        </>
                     )}
 
                     {activeTab === 'hr' && (
@@ -221,8 +355,8 @@ const EmployeeDetailPage: React.FC = () => {
                     {activeTab === 'history' && employee.id && (
                         <EntityHistoryTimeline entityType="employees" entityId={employee.id} />
                     )}
-                </div>
-            </div>
+                </motion.div>
+            </AnimatePresence>
 
             <ConfirmDialog
                 isOpen={showDeleteConfirm}
@@ -235,10 +369,21 @@ const EmployeeDetailPage: React.FC = () => {
     );
 };
 
-const DetailItem: React.FC<{ label: string; value: string; fullWidth?: boolean }> = ({ label, value, fullWidth }) => (
-    <div className={`${fullWidth ? 'col-span-full' : 'col-span-1'}`}>
-        <dt className="text-sm font-medium text-gray-500">{label}</dt>
-        <dd className="mt-1 text-sm text-gray-900">{value}</dd>
+const CardHeader: React.FC<{ title: string; icon: string }> = ({ title, icon }) => (
+    <div className="px-8 py-5 border-b border-[#e7ebf3] dark:border-white/5 flex items-center gap-3 bg-gradient-to-r from-[#fbfbfc] to-transparent dark:from-[#1c2638] dark:to-transparent">
+        <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary">
+            <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+        </div>
+        <h4 className="text-base font-bold text-[#0d121b] dark:text-white tracking-tight">{title}</h4>
+    </div>
+);
+
+const DetailItem: React.FC<{ label: string; value: string | number | undefined | null; fullWidth?: boolean }> = ({ label, value, fullWidth }) => (
+    <div className={`${fullWidth ? 'col-span-full' : 'col-span-1'} group/item`}>
+        <p className="label-text">{label}</p>
+        <p className="value-text transition-colors group-hover/item:text-primary leading-relaxed">
+            {value !== undefined && value !== null && value !== '' ? value : '-'}
+        </p>
     </div>
 );
 

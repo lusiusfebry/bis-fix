@@ -49,61 +49,68 @@ export const EmployeeDocumentsSection: React.FC<EmployeeDocumentsSectionProps> =
     return (
         <div className="w-full px-2 py-4 sm:px-0">
             <Tab.Group>
-                <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1 mb-6 overflow-x-auto">
-                    {DOCUMENT_CATEGORIES.map((category) => (
-                        <Tab
-                            key={category.id}
-                            className={({ selected }: { selected: boolean }) =>
-                                clsx(
-                                    'w-full rounded-lg py-2.5 text-sm font-medium leading-5 whitespace-nowrap px-4',
-                                    'ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
-                                    selected
-                                        ? 'bg-white text-blue-700 shadow'
-                                        : 'text-gray-600 hover:bg-white/[0.12] hover:text-blue-800'
-                                )
-                            }
-                        >
-                            {category.label}
-                        </Tab>
-                    ))}
-                </Tab.List>
+                <div className="mb-6 border-b border-[#e7ebf3] dark:border-[#2a3447]">
+                    <Tab.List className="flex gap-2 overflow-x-auto min-w-max pb-px">
+                        {DOCUMENT_CATEGORIES.map((category) => (
+                            <Tab
+                                key={category.id}
+                                className={({ selected }: { selected: boolean }) =>
+                                    clsx(
+                                        'px-6 py-4 border-b-2 text-[13px] font-extrabold uppercase tracking-widest whitespace-nowrap transition-all focus:outline-none',
+                                        selected
+                                            ? 'border-primary text-primary bg-primary/5'
+                                            : 'border-transparent text-[#4c669a] dark:text-gray-400 hover:text-[#0d121b] hover:bg-gray-50'
+                                    )
+                                }
+                            >
+                                {category.label}
+                            </Tab>
+                        ))}
+                    </Tab.List>
+                </div>
                 <Tab.Panels>
                     {DOCUMENT_CATEGORIES.map((category, idx) => (
                         <Tab.Panel
                             key={idx}
-                            className={clsx(
-                                'rounded-xl bg-white p-3',
-                                'ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2'
-                            )}
+                            className="focus:outline-none"
                         >
-                            <div className="space-y-8">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {category.types.map(type => (
-                                        <div key={type} className="bg-gray-50 p-4 rounded-lg border">
-                                            <h3 className="font-semibold text-gray-700 mb-4 capitalize">
-                                                {type.replace(/_/g, ' ')}
-                                            </h3>
-                                            <DocumentUpload
-                                                employeeId={employeeId}
-                                                documentType={type}
-                                                label={`Upload ${type.replace(/_/g, ' ')}`}
-                                            />
-                                            <div className="mt-4">
-                                                <DocumentList
-                                                    documents={getDocsByType(type)}
+                                        <div key={type} className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                                            <div className="px-5 py-3 border-b border-[#e7ebf3] dark:border-[#2a3447] bg-[#fbfbfc] dark:bg-[#1c2638] flex items-center gap-2">
+                                                <span className="material-symbols-outlined text-primary text-lg">description</span>
+                                                <h3 className="text-sm font-bold text-[#0d121b] dark:text-white capitalize">
+                                                    {type.replace(/_/g, ' ')}
+                                                </h3>
+                                            </div>
+                                            <div className="p-5">
+                                                <DocumentUpload
                                                     employeeId={employeeId}
+                                                    documentType={type}
+                                                    label={`Upload ${type.replace(/_/g, ' ')}`}
                                                 />
+                                                <div className="mt-4">
+                                                    <DocumentList
+                                                        documents={getDocsByType(type)}
+                                                        employeeId={employeeId}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
 
-                                <div className="mt-8 border-t pt-6">
-                                    <h3 className="text-lg font-medium text-gray-900 mb-4">Semua Dokumen {category.label}</h3>
-                                    <DocumentList
-                                        documents={getDocsByCategory(category.types)}
-                                        employeeId={employeeId}
-                                    />
+                                <div className="bg-white dark:bg-[#161e2e] rounded-xl border border-[#e7ebf3] dark:border-[#2a3447] overflow-hidden shadow-sm">
+                                    <div className="px-6 py-4 border-b border-[#e7ebf3] dark:border-[#2a3447] bg-[#fbfbfc] dark:bg-[#1c2638]">
+                                        <h3 className="text-base font-bold text-[#0d121b] dark:text-white">Semua Riwayat {category.label}</h3>
+                                    </div>
+                                    <div className="p-6">
+                                        <DocumentList
+                                            documents={getDocsByCategory(category.types)}
+                                            employeeId={employeeId}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </Tab.Panel>

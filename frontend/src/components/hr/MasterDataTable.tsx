@@ -23,7 +23,8 @@ interface MasterDataTableProps<T> {
     };
     onEdit: (item: T) => void;
     onDelete: (item: T) => void;
-    view?: LayoutView; // Changed from layout string
+    view?: LayoutView;
+    transparent?: boolean;
 }
 
 const MasterDataTable = <T extends { id: number | string; status?: string }>({
@@ -33,7 +34,8 @@ const MasterDataTable = <T extends { id: number | string; status?: string }>({
     pagination,
     onEdit,
     onDelete,
-    view = LayoutView.VIEW_1
+    view = LayoutView.VIEW_1,
+    transparent = false
 }: MasterDataTableProps<T>) => {
 
     const config = LAYOUT_CONFIGS[view];
@@ -62,62 +64,89 @@ const MasterDataTable = <T extends { id: number | string; status?: string }>({
 
     if (isGrid) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${transparent ? 'bg-transparent shadow-none border-0' : ''}`}>
                 {data.length > 0 ? (
-                    data.map((item, rowIndex) => (
-                        <div key={item.id} className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all p-5 flex flex-col justify-between group">
-                            <div>
-                                <div className="flex justify-between items-start mb-2">
-                                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                    <h3 className="text-lg font-semibold text-gray-900 line-clamp-1" title={(item as any).nama}>{(item as any).nama || (item as any).name || 'Unnamed'}</h3>
-                                    {/* Status Badge */}
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${item.status === 'Aktif' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'
+                    data.map((item, rowIndex) => {
+                        const itemName = (item as any).nama || (item as any).name || 'Unnamed';
+                        const status = item.status || 'Aktif';
+
+                        return (
+                            <div
+                                key={item.id}
+                                onClick={() => onEdit(item)}
+                                className="group relative flex cursor-pointer flex-col gap-4 rounded-xl bg-white dark:bg-slate-800 p-5 shadow-sm ring-1 ring-gray-900/5 hover:shadow-md transition-all hover:-translate-y-1 dark:ring-slate-700"
+                            >
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="bg-primary/10 text-primary p-2.5 rounded-xl group-hover:bg-primary group-hover:text-white transition-colors">
+                                            <span className="material-symbols-outlined text-xl">
+                                                {/* Use icons based on common master data patterns */}
+                                                {itemName.toLowerCase().includes('dept') ? 'corporate_fare' :
+                                                    itemName.toLowerCase().includes('divisi') ? 'groups' :
+                                                        itemName.toLowerCase().includes('lokasi') ? 'location_on' :
+                                                            itemName.toLowerCase().includes('jabatan') ? 'work' : 'layers'}
+                                            </span>
+                                        </div>
+                                        <div className="min-w-0">
+                                            <h4 className="font-bold text-sm text-gray-900 dark:text-white truncate" title={itemName}>
+                                                {itemName}
+                                            </h4>
+                                            <p className="text-[11px] font-medium text-gray-500 dark:text-slate-400">
+                                                ID: {item.id}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset uppercase tracking-wider ${status === 'Aktif' || status === 'true'
+                                        ? 'bg-green-50 text-green-700 ring-green-600/20'
+                                        : 'bg-gray-50 text-gray-700 ring-gray-600/10'
                                         }`}>
-                                        {item.status}
+                                        {status === 'true' ? 'Aktif' : status === 'false' ? 'Non-Aktif' : status}
                                     </span>
                                 </div>
-                                <div className="space-y-2 text-sm text-gray-500 mb-4">
-                                    {columns.slice(0, 3).map((col, i) => { // Show first few cols
-                                        if (col.accessor === 'id') return null; // Skip ID
-                                        return (
-                                            <div key={i} className="flex justify-between border-b border-gray-50 pb-1 last:border-0">
-                                                <span className="text-gray-400">{col.header}:</span>
-                                                <span className="font-medium text-gray-700 text-right">
-                                                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                                    {typeof col.accessor === 'function' ? col.accessor(item, rowIndex) : (item[col.accessor] as any)}
-                                                </span>
-                                            </div>
-                                        )
-                                    })}
+
+                                <div className="border-t border-gray-100 dark:border-slate-700 pt-4 mt-auto">
+                                    <div className="grid grid-cols-2 gap-4 text-[11px]">
+                                        {columns.slice(0, 4).map((col, i) => {
+                                            if (col.header.toLowerCase() === 'no') return null;
+                                            const val = typeof col.accessor === 'function' ? col.accessor(item, rowIndex) : (item[col.accessor] as any);
+                                            // Don't repeat the name/nama since it's in the title
+                                            if (String(val) === itemName) return null;
+
+                                            return (
+                                                <div key={i} className="min-w-0">
+                                                    <p className="text-gray-400 dark:text-slate-500 mb-0.5 font-medium uppercase tracking-[0.05em] truncate">
+                                                        {col.header}
+                                                    </p>
+                                                    <p className="font-semibold text-gray-800 dark:text-slate-200 truncate" title={String(val)}>
+                                                        {val || '-'}
+                                                    </p>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Quick Actions */}
+                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                    <PermissionGuard resource={RESOURCES.MASTER_DATA} action={ACTIONS.DELETE}>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onDelete(item);
+                                            }}
+                                            className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 transition-colors shadow-sm"
+                                        >
+                                            <TrashIcon className="w-4 h-4" />
+                                        </button>
+                                    </PermissionGuard>
                                 </div>
                             </div>
-                            <div className="flex justify-end gap-2 pt-3 border-t border-gray-100">
-                                <PermissionGuard resource={RESOURCES.MASTER_DATA} action={ACTIONS.UPDATE}>
-                                    <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        className="!p-1.5 text-blue-600 hover:bg-blue-50 border-blue-100"
-                                        onClick={() => onEdit(item)}
-                                    >
-                                        <PencilSquareIcon className="w-4 h-4" />
-                                    </Button>
-                                </PermissionGuard>
-                                <PermissionGuard resource={RESOURCES.MASTER_DATA} action={ACTIONS.DELETE}>
-                                    <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        className="!p-1.5 text-red-600 hover:bg-red-50 border-red-100"
-                                        onClick={() => onDelete(item)}
-                                    >
-                                        <TrashIcon className="w-4 h-4" />
-                                    </Button>
-                                </PermissionGuard>
-                            </div>
-                        </div>
-                    ))
+                        );
+                    })
                 ) : (
-                    <div className="col-span-full text-center py-12 text-gray-400 bg-white rounded-xl border border-dashed border-gray-300">
-                        Tidak ada data ditemukan
+                    <div className="col-span-full text-center py-20 text-gray-500 bg-white dark:bg-slate-800 rounded-xl border-2 border-dashed border-gray-100 dark:border-slate-700">
+                        <span className="material-symbols-outlined text-6xl mb-4 opacity-20 whitespace-normal">inventory_2</span>
+                        <p>Tidak ada data ditemukan</p>
                     </div>
                 )}
             </div>
@@ -126,7 +155,10 @@ const MasterDataTable = <T extends { id: number | string; status?: string }>({
 
     // List View with Density adjustments
     return (
-        <div className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden ${showBorders ? 'border-2' : ''}`}>
+        <div className={`${transparent
+            ? 'bg-transparent shadow-none border-0'
+            : 'bg-white rounded-xl shadow-sm border border-gray-100'
+            } overflow-hidden ${showBorders ? 'border-2' : ''}`}>
             <div className="overflow-x-auto">
                 <table className="min-w-full whitespace-nowrap text-left text-sm">
                     <thead className="bg-gray-50 text-gray-900 font-semibold">

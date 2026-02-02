@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api/client';
 import Button from '../../components/common/Button';
 import VirtualEmployeeTable from '../../components/hr/VirtualEmployeeTable';
+import EmployeeGrid from '../../components/hr/EmployeeGrid';
+import LayoutSwitcher from '../../components/layout/LayoutSwitcher';
+import { LayoutView } from '../../types/layout';
 import { toast } from 'react-hot-toast';
 import { useMasterDataList } from '../../hooks/useMasterData';
 import { AdvancedEmployeeFilter } from '../../components/hr/AdvancedEmployeeFilter';
@@ -21,6 +24,10 @@ const EmployeeListPage = () => {
     const [search, setSearch] = useState('');
     const [hasNextPage, setHasNextPage] = useState(true);
     const [page, setPage] = useState(1);
+    const [layout, setLayout] = useState<LayoutView>(() => {
+        const saved = localStorage.getItem('employeeListLayout');
+        return (saved as LayoutView) || LayoutView.VIEW_1; // VIEW_1 is List, VIEW_4 is Grid
+    });
 
     // Advanced Filters State
     const [filters, setFilters] = useState<EmployeeFilterParams>({});
@@ -167,6 +174,16 @@ const EmployeeListPage = () => {
                             Tambah Karyawan
                         </Button>
                     </PermissionGuard>
+
+                    <div className="h-10 w-px bg-gray-200 dark:bg-slate-700 mx-1 hidden md:block"></div>
+
+                    <LayoutSwitcher
+                        currentLayout={layout}
+                        onLayoutChange={(newLayout) => {
+                            setLayout(newLayout);
+                            localStorage.setItem('employeeListLayout', newLayout);
+                        }}
+                    />
                 </div>
             </div>
 
@@ -203,16 +220,27 @@ const EmployeeListPage = () => {
                 />
             </div>
 
-            {/* Virtual Table */}
-            <div className="flex-grow">
-                <VirtualEmployeeTable
-                    employees={employees}
-                    hasNextPage={hasNextPage}
-                    isNextPageLoading={loading}
-                    loadNextPage={loadNextPage}
-                    onRowClick={(employee) => navigate(`/hr/employees/${employee.id}`)}
-                    onDelete={handleDelete}
-                />
+            {/* Data Representative */}
+            <div className="flex-grow overflow-hidden">
+                {layout === LayoutView.VIEW_4 ? (
+                    <EmployeeGrid
+                        employees={employees}
+                        hasNextPage={hasNextPage}
+                        isNextPageLoading={loading}
+                        loadNextPage={loadNextPage}
+                        onRowClick={(employee) => navigate(`/hr/employees/${employee.id}`)}
+                        onDelete={handleDelete}
+                    />
+                ) : (
+                    <VirtualEmployeeTable
+                        employees={employees}
+                        hasNextPage={hasNextPage}
+                        isNextPageLoading={loading}
+                        loadNextPage={loadNextPage}
+                        onRowClick={(employee) => navigate(`/hr/employees/${employee.id}`)}
+                        onDelete={handleDelete}
+                    />
+                )}
             </div>
         </div>
     );
