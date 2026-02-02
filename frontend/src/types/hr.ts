@@ -81,6 +81,8 @@ export interface EmployeePersonalInfo {
     nama_pemegang_rekening?: string;
     nama_bank?: string;
     cabang_bank?: string;
+    nomor_wa?: string;
+    akun_sosmed?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -233,6 +235,8 @@ export interface Employee {
     status_karyawan?: StatusKaryawan;
     lokasi_kerja?: LokasiKerja;
     tag?: Tag;
+    manager?: Employee;
+    atasan_langsung?: Employee;
     personal_info?: EmployeePersonalInfo;
     hr_info?: EmployeeHRInfo;
     family_info?: EmployeeFamilyInfo;

@@ -27,7 +27,7 @@ interface MasterDataTableProps<T> {
     transparent?: boolean;
 }
 
-const MasterDataTable = <T extends { id: number | string; status?: string }>({
+const MasterDataTable = <T extends { id: number | string; status?: string; nama?: string; name?: string }>({
     columns,
     data,
     isLoading,
@@ -67,7 +67,7 @@ const MasterDataTable = <T extends { id: number | string; status?: string }>({
             <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${transparent ? 'bg-transparent shadow-none border-0' : ''}`}>
                 {data.length > 0 ? (
                     data.map((item, rowIndex) => {
-                        const itemName = (item as any).nama || (item as any).name || 'Unnamed';
+                        const itemName = item.nama || item.name || 'Unnamed';
                         const status = item.status || 'Aktif';
 
                         return (
@@ -108,7 +108,7 @@ const MasterDataTable = <T extends { id: number | string; status?: string }>({
                                     <div className="grid grid-cols-2 gap-4 text-[11px]">
                                         {columns.slice(0, 4).map((col, i) => {
                                             if (col.header.toLowerCase() === 'no') return null;
-                                            const val = typeof col.accessor === 'function' ? col.accessor(item, rowIndex) : (item[col.accessor] as any);
+                                            const val = (typeof col.accessor === 'function' ? col.accessor(item, rowIndex) : item[col.accessor]) as unknown as React.ReactNode;
                                             // Don't repeat the name/nama since it's in the title
                                             if (String(val) === itemName) return null;
 

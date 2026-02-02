@@ -567,6 +567,24 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                 />
                             )}
                         />
+                        <Controller
+                            control={control}
+                            name="nomor_wa"
+                            render={({ field }) => (
+                                <Input
+                                    label="Nomor WhatsApp"
+                                    value={field.value || ''}
+                                    onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                                    error={errors.nomor_wa?.message}
+                                />
+                            )}
+                        />
+                        <Input
+                            label="Akun Media Sosial"
+                            {...register('akun_sosmed')}
+                            error={errors.akun_sosmed?.message}
+                            placeholder="Contoh: @username"
+                        />
                     </div>
                 </div>
 

@@ -11,9 +11,9 @@ import { EmployeeHRInfoView } from '../../components/hr/EmployeeHRInfoView';
 import { EmployeeDocumentsSection } from '../../components/hr/EmployeeDocumentsSection';
 import { EmployeeQRCode } from '../../components/hr/EmployeeQRCode';
 import EntityHistoryTimeline from '../../components/hr/EntityHistoryTimeline';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
-const containerVariants: any = {
+const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
@@ -24,7 +24,7 @@ const containerVariants: any = {
     }
 };
 
-const itemVariants: any = {
+const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
         y: 0,
@@ -286,6 +286,7 @@ const EmployeeDetailPage: React.FC = () => {
                                                 <DetailItem label="Jalan / No. Rumah" value={employee.personal_info?.alamat_domisili} fullWidth />
                                                 <DetailItem label="Kota / Kabupaten" value={employee.personal_info?.kota_domisili} />
                                                 <DetailItem label="Provinsi" value={employee.personal_info?.provinsi_domisili} />
+                                                <DetailItem label="Kode Pos" value={employee.personal_info?.kode_pos} />
                                             </div>
                                         </div>
                                         <div className="pt-6 border-t border-dashed border-[#e7ebf3] dark:border-white/5">
@@ -305,8 +306,10 @@ const EmployeeDetailPage: React.FC = () => {
                                     <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <DetailItem label="Handphone 1 (Utama)" value={employee.nomor_handphone} />
                                         <DetailItem label="Handphone 2" value={employee.personal_info?.nomor_handphone_2} />
+                                        <DetailItem label="WhatsApp" value={employee.personal_info?.nomor_wa} />
                                         <DetailItem label="Telepon Rumah 1" value={employee.personal_info?.nomor_telepon_rumah_1} />
                                         <DetailItem label="Telepon Rumah 2" value={employee.personal_info?.nomor_telepon_rumah_2} />
+                                        <DetailItem label="Media Sosial" value={employee.personal_info?.akun_sosmed} />
                                     </div>
                                 </motion.div>
                             </div>

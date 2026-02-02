@@ -28,7 +28,7 @@ class MasterDataService {
             include,
             limit: Number(limit),
             offset: Number(offset),
-            order: [['created_at', 'DESC']],
+            order: [['id', 'ASC']],
             distinct: true
         });
 

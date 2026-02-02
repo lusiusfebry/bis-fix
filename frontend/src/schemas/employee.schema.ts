@@ -31,6 +31,9 @@ export const employeeStep1Schema = z.object({
     email_perusahaan: z.string().email(ERROR_MESSAGES.EMAIL_INVALID_FORMAT).optional().or(z.literal('')),
     nomor_handphone: z.string().max(20, 'Maksimal 20 karakter').optional().or(z.literal(''))
         .refine(customRefine(validatePhoneNumber), { message: ERROR_MESSAGES.PHONE_INVALID_FORMAT }),
+    nomor_wa: z.string().max(20, 'Maksimal 20 karakter').optional().or(z.literal(''))
+        .refine(customRefine(validatePhoneNumber), { message: ERROR_MESSAGES.PHONE_INVALID_FORMAT }),
+    akun_sosmed: z.string().max(255).optional().or(z.literal('')),
 
     // Personal Info - Biodata
     jenis_kelamin: z.enum(['Laki-laki', 'Perempuan']).optional(),
@@ -65,7 +68,7 @@ export const employeeStep1Schema = z.object({
     alamat_domisili: z.string().optional(),
     kota_domisili: z.string().optional(),
     provinsi_domisili: z.string().optional(),
-    kode_pos: z.string().optional(),
+    kode_pos: z.string().max(10, 'Maksimal 10 karakter').optional().or(z.literal('')),
 
     // Family Info Details
     nama_pasangan: z.string().optional(),

@@ -1,5 +1,4 @@
-import React from 'react';
-import { Employee } from '../../types/hr';
+import { Employee, EmployeeHRInfo } from '../../types/hr';
 
 const CardHeader: React.FC<{ title: string; icon: string }> = ({ title, icon }) => (
     <div className="px-6 py-4 border-b border-[#e7ebf3] dark:border-[#2a3447] flex items-center gap-2 bg-[#fbfbfc] dark:bg-[#1c2638]">
@@ -28,8 +27,7 @@ interface EmployeeHRInfoViewProps {
 }
 
 export const EmployeeHRInfoView: React.FC<EmployeeHRInfoViewProps> = ({ employee }) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const hrInfo = (employee as any).hr_info || {};
+    const hrInfo: Partial<EmployeeHRInfo> = employee.hr_info || {};
 
     return (
         <div className="space-y-6">
@@ -42,8 +40,8 @@ export const EmployeeHRInfoView: React.FC<EmployeeHRInfoViewProps> = ({ employee
                     <DetailItem label="Divisi" value={employee.divisi?.nama} />
                     <DetailItem label="Departemen" value={employee.department?.nama} />
                     <DetailItem label="Posisi" value={employee.posisi_jabatan?.nama} />
-                    <DetailItem label="Manager" value={(employee as any).manager?.nama_lengkap} />
-                    <DetailItem label="Atasan Langsung" value={(employee as any).atasan_langsung?.nama_lengkap} />
+                    <DetailItem label="Manager" value={employee.manager?.nama_lengkap} />
+                    <DetailItem label="Atasan Langsung" value={employee.atasan_langsung?.nama_lengkap} />
                 </div>
             </div>
 
@@ -79,8 +77,8 @@ export const EmployeeHRInfoView: React.FC<EmployeeHRInfoViewProps> = ({ employee
                 <CardHeader title="Pangkat & Golongan" icon="stars" />
                 <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <DetailItem label="Kategori Pangkat" value={hrInfo.kategori_pangkat?.nama} />
-                    <DetailItem label="Golongan" value={hrInfo.golongan?.nama} />
-                    <DetailItem label="Sub Golongan" value={hrInfo.sub_golongan?.nama} />
+                    <DetailItem label="Golongan" value={hrInfo.golongan_pangkat?.nama} />
+                    <DetailItem label="Sub Golongan" value={hrInfo.sub_golongan_pangkat?.nama} />
                     <DetailItem label="No. Dana Pensiun" value={hrInfo.no_dana_pensiun} />
                 </div>
             </div>

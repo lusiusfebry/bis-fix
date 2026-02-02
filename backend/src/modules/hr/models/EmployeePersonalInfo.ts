@@ -44,6 +44,10 @@ export interface EmployeePersonalInfoAttributes {
     nama_pemegang_rekening?: string;
     nama_bank?: string;
     cabang_bank?: string;
+    // New fields
+    nomor_wa?: string;
+    akun_sosmed?: string;
+    kode_pos?: string;
 
     created_at?: Date;
     updated_at?: Date;
@@ -89,6 +93,9 @@ export class EmployeePersonalInfo extends Model<EmployeePersonalInfoAttributes, 
     public nama_pemegang_rekening?: string;
     public nama_bank?: string;
     public cabang_bank?: string;
+    public nomor_wa?: string;
+    public akun_sosmed?: string;
+    public kode_pos?: string;
 
     public readonly created_at!: Date;
     public readonly updated_at!: Date;
@@ -240,6 +247,18 @@ EmployeePersonalInfo.init({
     },
     cabang_bank: {
         type: DataTypes.STRING(100),
+        allowNull: true,
+    },
+    nomor_wa: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+    },
+    akun_sosmed: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+    },
+    kode_pos: {
+        type: DataTypes.STRING(10),
         allowNull: true,
     },
     created_at: {
