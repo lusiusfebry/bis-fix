@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { employeeStep1Schema, EmployeeStep1FormValues } from '../../schemas/employee.schema';
 import Input from '../common/Input';
@@ -46,8 +46,8 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
     });
 
     // Watch values for cascade & conditions
-    const selectedDivisi = watch('divisi_id');
-    const selectedDepartment = watch('department_id');
+    const selectedDivisi = useWatch({ control, name: 'divisi_id' });
+    const selectedDepartment = useWatch({ control, name: 'department_id' });
     const statusPernikahan = watch('status_pernikahan');
     const nik = watch('nomor_induk_karyawan');
 
@@ -98,15 +98,10 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
 
     // Map options for selects
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mapOptions = (list: any[]) => {
-        console.log('[DEBUG] mapOptions input:', list);
-        const mapped = list?.map(item => ({
-            value: item.id,
-            label: item.nama || item.nama_lengkap || item.nama_posisi || item.nama_status || item.nama_divisi || item.nama_department || item.nama_lokasi || item.nama_tag || `ID: ${item.id}`
-        })) || [];
-        console.log('[DEBUG] mapOptions output:', mapped);
-        return mapped;
-    };
+    const mapOptions = (list: any[]) => list?.map(item => ({
+        value: item.id,
+        label: item.nama || item.nama_lengkap || item.nama_posisi || item.nama_status || item.nama_divisi || item.nama_department || item.nama_lokasi || item.nama_tag || `ID: ${item.id}`
+    })) || [];
 
     // Helper for Manager/Atasan options (uses nama_lengkap)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

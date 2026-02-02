@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { employeeStep2Schema, EmployeeStep2FormValues } from '../../schemas/employee.schema';
 import Input from '../common/Input';
@@ -83,7 +83,7 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
     const { data: lokasiList } = useLokasiKerjaList();
 
     // Determine if contract dates should be shown
-    const selectedJenisKontrakId = watch('jenis_hubungan_kerja_id');
+    const selectedJenisKontrakId = useWatch({ control, name: 'jenis_hubungan_kerja_id' });
     const isContract = React.useMemo(() => {
         const list = jenisKontrakList?.data;
         if (!list || !selectedJenisKontrakId) return false;

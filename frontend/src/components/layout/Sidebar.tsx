@@ -18,7 +18,7 @@ interface NavItem {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
-    const [openMenus, setOpenMenus] = useState<string[]>(['Manajemen Karyawan', 'Master Data', 'Pengaturan']);
+    const [openMenus, setOpenMenus] = useState<string[]>(['Master Data', 'Manajemen Karyawan', 'Pengaturan']);
     const { can } = usePermission();
 
     const toggleMenu = (name: string) => {
@@ -36,19 +36,6 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
                 permission: { resource: RESOURCES.DASHBOARD, action: ACTIONS.READ }
             },
             {
-                name: 'Manajemen Karyawan',
-                icon: 'groups',
-                permission: { resource: RESOURCES.EMPLOYEES, action: ACTIONS.READ },
-                subItems: [
-                    {
-                        name: 'Karyawan',
-                        path: '/hr/employees',
-                        icon: 'person',
-                        permission: { resource: RESOURCES.EMPLOYEES, action: ACTIONS.READ }
-                    }
-                ]
-            },
-            {
                 name: 'Master Data',
                 icon: 'database',
                 // path: '/hr/master-data', // Main item might not have path if it has subitems in this design? Kept original.
@@ -64,6 +51,19 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
                     { name: 'Tag', path: '/hr/master-data/tag', icon: 'label' },
                     { name: 'Lokasi Kerja', path: '/hr/master-data/lokasi-kerja', icon: 'location_on' },
                     { name: 'Status Karyawan', path: '/hr/master-data/status-karyawan', icon: 'verified_user' },
+                ]
+            },
+            {
+                name: 'Manajemen Karyawan',
+                icon: 'groups',
+                permission: { resource: RESOURCES.EMPLOYEES, action: ACTIONS.READ },
+                subItems: [
+                    {
+                        name: 'Karyawan',
+                        path: '/hr/employees',
+                        icon: 'person',
+                        permission: { resource: RESOURCES.EMPLOYEES, action: ACTIONS.READ }
+                    }
                 ]
             },
             {

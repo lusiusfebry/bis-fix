@@ -151,14 +151,11 @@ class MasterDataController {
     async getDepartmentsByDivisi(req: Request, res: Response, next: NextFunction) {
         try {
             const divisiId = parseInt(req.params.divisiId);
-            console.log(`[DEBUG] Fetching departments for divisi_id: ${divisiId}`);
             const departments = await (models as any).Department.findAll({
                 where: { divisi_id: divisiId }
             });
-            console.log(`[DEBUG] Found ${departments.length} departments`);
             res.json({ status: 'success', data: departments });
         } catch (error) {
-            console.error('[DEBUG] getDepartmentsByDivisi error:', error);
             next(error);
         }
     }
@@ -166,14 +163,11 @@ class MasterDataController {
     async getPosisiByDepartment(req: Request, res: Response, next: NextFunction) {
         try {
             const departmentId = parseInt(req.params.departmentId);
-            console.log(`[DEBUG] Fetching positions for department_id: ${departmentId}`);
             const posisi = await (models as any).PosisiJabatan.findAll({
                 where: { department_id: departmentId }
             });
-            console.log(`[DEBUG] Found ${posisi.length} positions`);
             res.json({ status: 'success', data: posisi });
         } catch (error) {
-            console.error('[DEBUG] getPosisiByDepartment error:', error);
             next(error);
         }
     }

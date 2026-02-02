@@ -9,9 +9,9 @@ async function check() {
 
         for (const d of divisis) {
             const departments = await Department.findAll({ where: { divisi_id: d.id } });
-            console.log(`Divisi ID: ${d.id}, Nama: "${d.nama}", Dept Count: ${departments.length}`);
+            console.log(`Divisi ID: ${d.id}, Nama: "${d.nama}", Status: ${d.status}`);
             if (departments.length > 0) {
-                console.log(`  Depts: ${departments.map(dept => dept.nama).join(', ')}`);
+                console.log(`  Depts: ${departments.map(dept => `${dept.nama} (${dept.status})`).join(', ')}`);
             }
         }
 
