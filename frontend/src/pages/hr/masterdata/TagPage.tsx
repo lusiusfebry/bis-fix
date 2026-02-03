@@ -53,9 +53,9 @@ const TagPage: React.FC = () => {
     ];
 
     const formFields = [
-        { name: 'nama', label: 'Nama Tag', type: 'text' as const, required: true },
+        { name: 'nama', label: 'Nama Tag', type: 'text' as const, required: true, autoTitleCase: true },
         { name: 'warna_tag', label: 'Warna Tag', type: 'color' as const },
-        { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const },
+        { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const, autoTitleCase: true },
         { name: 'status', label: 'Status', type: 'toggle' as const },
     ];
 

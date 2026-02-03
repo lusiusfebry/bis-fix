@@ -55,7 +55,7 @@ const DepartmentPage: React.FC = () => {
 
     // Form Fields
     const formFields = [
-        { name: 'nama', label: 'Nama Department', type: 'text' as const, required: true },
+        { name: 'nama', label: 'Nama Department', type: 'text' as const, required: true, autoTitleCase: true },
         {
             name: 'divisi_id',
             label: 'Divisi',
@@ -71,7 +71,7 @@ const DepartmentPage: React.FC = () => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             options: employeeData?.data.map((e: any) => ({ label: e.nama_lengkap, value: e.id })) || []
         },
-        { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const },
+        { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const, autoTitleCase: true },
         { name: 'status', label: 'Status', type: 'toggle' as const },
     ];
 

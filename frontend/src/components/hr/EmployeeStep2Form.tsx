@@ -225,11 +225,11 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
                     Pendidikan
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input label="Tingkat Pendidikan" {...register('tingkat_pendidikan')} error={errors.tingkat_pendidikan?.message} />
-                    <Input label="Bidang Studi" {...register('bidang_studi')} error={errors.bidang_studi?.message} />
-                    <Input label="Nama Sekolah" {...register('nama_sekolah')} error={errors.nama_sekolah?.message} />
-                    <Input label="Kota Sekolah" {...register('kota_sekolah')} error={errors.kota_sekolah?.message} />
-                    <Input label="Status Kelulusan" {...register('status_kelulusan')} error={errors.status_kelulusan?.message} />
+                    <Input label="Tingkat Pendidikan" {...register('tingkat_pendidikan')} error={errors.tingkat_pendidikan?.message} autoTitleCase={true} />
+                    <Input label="Bidang Studi" {...register('bidang_studi')} error={errors.bidang_studi?.message} autoTitleCase={true} />
+                    <Input label="Nama Sekolah" {...register('nama_sekolah')} error={errors.nama_sekolah?.message} autoTitleCase={true} />
+                    <Input label="Kota Sekolah" {...register('kota_sekolah')} error={errors.kota_sekolah?.message} autoTitleCase={true} />
+                    <Input label="Status Kelulusan" {...register('status_kelulusan')} error={errors.status_kelulusan?.message} autoTitleCase={true} />
                     <div className="col-span-full">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Keterangan Pendidikan</label>
                         <textarea
@@ -302,9 +302,9 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
                 <div className="mb-6">
                     <h5 className="font-medium text-gray-700 mb-3">Kontak Darurat 1</h5>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input label="Nama" {...register('nama_kontak_darurat_1')} error={errors.nama_kontak_darurat_1?.message} />
+                        <Input label="Nama" {...register('nama_kontak_darurat_1')} error={errors.nama_kontak_darurat_1?.message} autoTitleCase={true} />
                         <Input label="Nomor Telepon" {...register('nomor_telepon_kontak_darurat_1')} error={errors.nomor_telepon_kontak_darurat_1?.message} />
-                        <Input label="Hubungan" {...register('hubungan_kontak_darurat_1')} error={errors.hubungan_kontak_darurat_1?.message} />
+                        <Input label="Hubungan" {...register('hubungan_kontak_darurat_1')} error={errors.hubungan_kontak_darurat_1?.message} autoTitleCase={true} />
                         <div className="col-span-full">
                             <label className="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
                             <textarea
@@ -322,9 +322,9 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
                 <div>
                     <h5 className="font-medium text-gray-700 mb-3">Kontak Darurat 2</h5>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input label="Nama" {...register('nama_kontak_darurat_2')} error={errors.nama_kontak_darurat_2?.message} />
+                        <Input label="Nama" {...register('nama_kontak_darurat_2')} error={errors.nama_kontak_darurat_2?.message} autoTitleCase={true} />
                         <Input label="Nomor Telepon" {...register('nomor_telepon_kontak_darurat_2')} error={errors.nomor_telepon_kontak_darurat_2?.message} />
-                        <Input label="Hubungan" {...register('hubungan_kontak_darurat_2')} error={errors.hubungan_kontak_darurat_2?.message} />
+                        <Input label="Hubungan" {...register('hubungan_kontak_darurat_2')} error={errors.hubungan_kontak_darurat_2?.message} autoTitleCase={true} />
                         <div className="col-span-full">
                             <label className="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
                             <textarea

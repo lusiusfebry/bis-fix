@@ -61,8 +61,8 @@ const DivisiPage = () => {
 
     // Form Fields
     const formFields = [
-        { name: 'nama', label: 'Nama Divisi', type: 'text' as const, required: true, placeholder: 'Contoh: IT, HR, Finance' },
-        { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const, placeholder: 'Deskripsi singkat divisi' },
+        { name: 'nama', label: 'Nama Divisi', type: 'text' as const, required: true, placeholder: 'Contoh: IT, HR, Finance', autoTitleCase: true },
+        { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const, placeholder: 'Deskripsi singkat divisi', autoTitleCase: true },
         { name: 'status', label: 'Status', type: 'toggle' as const },
     ];
 

@@ -17,7 +17,7 @@ import {
     useActiveEmployees
 } from '../../hooks/useMasterData';
 import { validationService } from '../../services/validation.service';
-import { formatNPWP, formatPhoneNumber } from '../../utils/validators';
+import { formatNPWP, formatPhoneNumber, formatEmployeeNIK } from '../../utils/validators';
 
 import { DocumentUpload } from './DocumentUpload';
 
@@ -130,12 +130,19 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                     {/* Basic Fields - Right */}
                     <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="relative">
-                            <Input
-                                label="NIK"
-                                {...register('nomor_induk_karyawan')}
-                                error={errors.nomor_induk_karyawan?.message}
-                                required
-                                placeholder="Contoh: 2024001"
+                            <Controller
+                                control={control}
+                                name="nomor_induk_karyawan"
+                                render={({ field }) => (
+                                    <Input
+                                        label="NIK"
+                                        value={field.value || ''}
+                                        onChange={(e) => field.onChange(formatEmployeeNIK(e.target.value))}
+                                        error={errors.nomor_induk_karyawan?.message}
+                                        required
+                                        placeholder="Contoh: 24-00123"
+                                    />
+                                )}
                             />
                             {isNikChecking && <span className="absolute right-3 top-9 text-xs text-gray-400">Checking...</span>}
                         </div>
@@ -144,6 +151,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             {...register('nama_lengkap')}
                             error={errors.nama_lengkap?.message}
                             required
+                            autoTitleCase={true}
                             placeholder="Nama Lengkap Karyawan"
                         />
                         <Controller
@@ -352,6 +360,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             label="Tempat Lahir"
                             {...register('tempat_lahir')}
                             error={errors.tempat_lahir?.message}
+                            autoTitleCase={true}
                         />
                         <Input
                             label="Tanggal Lahir"
@@ -458,11 +467,13 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                 label="Nama Pasangan"
                                 {...register('nama_pasangan')}
                                 error={errors.nama_pasangan?.message}
+                                autoTitleCase={true}
                             />
                             <Input
                                 label="Pekerjaan Pasangan"
                                 {...register('pekerjaan_pasangan')}
                                 error={errors.pekerjaan_pasangan?.message}
+                                autoTitleCase={true}
                             />
                             <Input
                                 label="Tanggal Menikah"
@@ -483,6 +494,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                 label="Nama Pasangan (Mantan)"
                                 {...register('nama_pasangan')}
                                 error={errors.nama_pasangan?.message}
+                                autoTitleCase={true}
                             />
                             <Input
                                 label="Tanggal Cerai"
@@ -503,6 +515,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                 label="Nama Pasangan"
                                 {...register('nama_pasangan')}
                                 error={errors.nama_pasangan?.message}
+                                autoTitleCase={true}
                             />
                             <Input
                                 label="Tanggal Wafat Pasangan"
@@ -538,11 +551,13 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                 label="Nama Bank"
                                 {...register('nama_bank')}
                                 error={errors.nama_bank?.message}
+                                autoTitleCase={true}
                             />
                             <Input
                                 label="Cabang Bank"
                                 {...register('cabang_bank')}
                                 error={errors.cabang_bank?.message}
+                                autoTitleCase={true}
                             />
                         </div>
                         <Input
@@ -554,6 +569,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             label="Nama Pemegang Rekening"
                             {...register('nama_pemegang_rekening')}
                             error={errors.nama_pemegang_rekening?.message}
+                            autoTitleCase={true}
                         />
                     </div>
                 </div>
@@ -674,6 +690,19 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                     </label>
                                     <textarea
                                         {...register('alamat_ktp')}
+                                        onChange={(e) => {
+                                            const start = e.target.selectionStart;
+                                            const end = e.target.selectionEnd;
+                                            const words = e.target.value.split(' ');
+                                            const transformed = words.map(word =>
+                                                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                                            ).join(' ');
+                                            e.target.value = transformed;
+                                            if (start !== null && end !== null) {
+                                                setTimeout(() => e.target.setSelectionRange(start, end), 0);
+                                            }
+                                            register('alamat_ktp').onChange(e);
+                                        }}
                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                                         rows={3}
                                     ></textarea>
@@ -683,11 +712,13 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                         label="Kota/Kab"
                                         {...register('kota_ktp')}
                                         error={errors.kota_ktp?.message}
+                                        autoTitleCase={true}
                                     />
                                     <Input
                                         label="Provinsi"
                                         {...register('provinsi_ktp')}
                                         error={errors.provinsi_ktp?.message}
+                                        autoTitleCase={true}
                                     />
                                 </div>
                             </div>
@@ -705,6 +736,19 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                     </label>
                                     <textarea
                                         {...register('alamat_domisili')}
+                                        onChange={(e) => {
+                                            const start = e.target.selectionStart;
+                                            const end = e.target.selectionEnd;
+                                            const words = e.target.value.split(' ');
+                                            const transformed = words.map(word =>
+                                                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                                            ).join(' ');
+                                            e.target.value = transformed;
+                                            if (start !== null && end !== null) {
+                                                setTimeout(() => e.target.setSelectionRange(start, end), 0);
+                                            }
+                                            register('alamat_domisili').onChange(e);
+                                        }}
                                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                                         rows={3}
                                     ></textarea>
@@ -715,11 +759,13 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                         label="Kota/Kab"
                                         {...register('kota_domisili')}
                                         error={errors.kota_domisili?.message}
+                                        autoTitleCase={true}
                                     />
                                     <Input
                                         label="Provinsi"
                                         {...register('provinsi_domisili')}
                                         error={errors.provinsi_domisili?.message}
+                                        autoTitleCase={true}
                                     />
                                 </div>
                                 <Input

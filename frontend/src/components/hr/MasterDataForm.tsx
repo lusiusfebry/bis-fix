@@ -17,6 +17,7 @@ interface FieldConfig {
     options?: { label: string; value: string | number }[];
     placeholder?: string;
     disabled?: boolean;
+    autoTitleCase?: boolean;
 }
 
 interface MasterDataFormProps {
@@ -73,6 +74,7 @@ const MasterDataForm: React.FC<MasterDataFormProps> = ({
                             {...register(field.name, { required: field.required ? `${field.label} harus diisi` : false })}
                             placeholder={field.placeholder}
                             disabled={field.disabled}
+                            autoTitleCase={field.autoTitleCase}
                             error={errors[field.name]?.message as string}
                         />
                     )}
@@ -85,6 +87,21 @@ const MasterDataForm: React.FC<MasterDataFormProps> = ({
                             placeholder={field.placeholder}
                             rows={3}
                             disabled={field.disabled}
+                            onChange={(e) => {
+                                if (field.autoTitleCase) {
+                                    const start = e.target.selectionStart;
+                                    const end = e.target.selectionEnd;
+                                    const words = e.target.value.split(' ');
+                                    const transformed = words.map(word =>
+                                        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                                    ).join(' ');
+                                    e.target.value = transformed;
+                                    if (start !== null && end !== null) {
+                                        setTimeout(() => e.target.setSelectionRange(start, end), 0);
+                                    }
+                                }
+                                register(field.name).onChange(e);
+                            }}
                         />
                     )}
 

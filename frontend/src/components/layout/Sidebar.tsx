@@ -30,6 +30,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
     const navItems = useMemo(() => {
         const items: NavItem[] = [
             {
+                name: 'Halaman Utama',
+                path: '/welcome',
+                icon: 'dashboard_customize',
+            },
+            {
                 name: 'Dashboard',
                 path: '/dashboard',
                 icon: 'dashboard',

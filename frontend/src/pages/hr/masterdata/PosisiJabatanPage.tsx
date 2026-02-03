@@ -49,7 +49,7 @@ const PosisiJabatanPage: React.FC = () => {
     ];
 
     const formFields = [
-        { name: 'nama', label: 'Nama Posisi', type: 'text' as const, required: true },
+        { name: 'nama', label: 'Nama Posisi', type: 'text' as const, required: true, autoTitleCase: true },
         {
             name: 'department_id',
             label: 'Department',
@@ -57,7 +57,7 @@ const PosisiJabatanPage: React.FC = () => {
             required: true,
             options: deptData?.data.map(d => ({ label: d.nama, value: d.id })) || []
         },
-        { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const },
+        { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const, autoTitleCase: true },
         { name: 'status', label: 'Status', type: 'toggle' as const },
     ];
 

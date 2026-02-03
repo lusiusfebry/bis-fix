@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { validateNIK, validateNPWP, validatePhoneNumber, calculateAge, validateBPJS } from '../utils/validators';
+import { validateNIK, validateNPWP, validatePhoneNumber, calculateAge, validateBPJS, validateEmployeeNIK } from '../utils/validators';
 import { ERROR_MESSAGES } from '../constants/error-messages';
 
 // Helper for custom refinements
@@ -13,8 +13,8 @@ const customRefine = (validator: (val: string) => boolean) => {
 export const employeeStep1Schema = z.object({
     // Head / Basic Info
     nama_lengkap: z.string().min(1, 'Nama lengkap wajib diisi').max(200, 'Maksimal 200 karakter'),
-    nomor_induk_karyawan: z.string().min(1, 'NIK wajib diisi').max(50, 'Maksimal 50 karakter')
-        .refine(customRefine(validateNIK), { message: ERROR_MESSAGES.NIK_INVALID_FORMAT }),
+    nomor_induk_karyawan: z.string().min(1, 'NIK wajib diisi').max(8, 'Maksimal 8 karakter')
+        .refine(customRefine(validateEmployeeNIK), { message: 'Format NIK tidak valid (xx-xxxxx)' }),
     foto_karyawan: z.instanceof(File).optional().or(z.string().optional()),
 
     // Organization

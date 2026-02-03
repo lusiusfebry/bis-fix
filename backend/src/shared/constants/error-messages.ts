@@ -1,5 +1,6 @@
 export const ERROR_MESSAGES = {
     NIK_INVALID_FORMAT: 'NIK harus terdiri dari 16 digit angka',
+    EMPLOYEE_NIK_INVALID_FORMAT: 'Format NIK Karyawan tidak valid (contoh: 24-00123)',
     NIK_ALREADY_EXISTS: 'NIK sudah terdaftar dalam sistem',
     NPWP_INVALID_FORMAT: 'Format NPWP tidak valid (contoh: 12.345.678.9-012.345)',
     BPJS_INVALID_FORMAT: 'BPJS harus terdiri dari 13 digit angka',

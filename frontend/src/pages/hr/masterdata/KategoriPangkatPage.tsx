@@ -42,8 +42,8 @@ const KategoriPangkatPage: React.FC = () => {
     ];
 
     const formFields = [
-        { name: 'nama', label: 'Nama Kategori', type: 'text' as const, required: true },
-        { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const },
+        { name: 'nama', label: 'Nama Kategori', type: 'text' as const, required: true, autoTitleCase: true },
+        { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const, autoTitleCase: true },
         { name: 'status', label: 'Status', type: 'toggle' as const },
     ];
 

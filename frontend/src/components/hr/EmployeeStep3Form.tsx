@@ -182,6 +182,7 @@ export const EmployeeStep3Form: React.FC<EmployeeStep3FormProps> = ({ initialDat
                                         {...register(`data_anak.${index}.nama`)}
                                         error={errors.data_anak?.[index]?.nama?.message}
                                         placeholder="Nama Lengkap"
+                                        autoTitleCase={true}
                                     />
                                     <div className="space-y-1">
                                         <label className="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
@@ -203,6 +204,7 @@ export const EmployeeStep3Form: React.FC<EmployeeStep3FormProps> = ({ initialDat
                                         label="Keterangan"
                                         {...register(`data_anak.${index}.keterangan`)}
                                         placeholder="Contoh: SD Kelas 1"
+                                        autoTitleCase={true}
                                     />
                                 </div>
                             </div>
@@ -222,8 +224,8 @@ export const EmployeeStep3Form: React.FC<EmployeeStep3FormProps> = ({ initialDat
                 <div className="mb-6">
                     <h5 className="font-medium text-gray-700 mb-3 bg-gray-50 p-2 rounded">Orang Tua Kandung</h5>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input label="Nama Ayah Kandung" {...register('nama_ayah_kandung')} />
-                        <Input label="Nama Ibu Kandung" {...register('nama_ibu_kandung')} />
+                        <Input label="Nama Ayah Kandung" {...register('nama_ayah_kandung')} autoTitleCase={true} />
+                        <Input label="Nama Ibu Kandung" {...register('nama_ibu_kandung')} autoTitleCase={true} />
                         <div className="col-span-full">
                             <label className="block text-sm font-medium text-gray-700 mb-1">Alamat Orang Tua</label>
                             <textarea
@@ -242,7 +244,7 @@ export const EmployeeStep3Form: React.FC<EmployeeStep3FormProps> = ({ initialDat
                         {/* Ayah Mertua */}
                         <div className="col-span-full md:col-span-1 space-y-3 pr-2 border-r-0 md:border-r border-gray-100">
                             <p className="text-xs font-semibold text-gray-500 uppercase">Ayah Mertua</p>
-                            <Input label="Nama" {...register('nama_ayah_mertua')} />
+                            <Input label="Nama" {...register('nama_ayah_mertua')} autoTitleCase={true} />
                             <Input type="date" label="Tanggal Lahir" {...register('tanggal_lahir_ayah_mertua')} />
                             <Input label="Pendidikan Terakhir" {...register('pendidikan_terakhir_ayah_mertua')} />
                             <Input label="Keterangan" {...register('keterangan_ayah_mertua')} />
@@ -250,7 +252,7 @@ export const EmployeeStep3Form: React.FC<EmployeeStep3FormProps> = ({ initialDat
                         {/* Ibu Mertua */}
                         <div className="col-span-full md:col-span-1 space-y-3 pl-0 md:pl-2">
                             <p className="text-xs font-semibold text-gray-500 uppercase">Ibu Mertua</p>
-                            <Input label="Nama" {...register('nama_ibu_mertua')} />
+                            <Input label="Nama" {...register('nama_ibu_mertua')} autoTitleCase={true} />
                             <Input type="date" label="Tanggal Lahir" {...register('tanggal_lahir_ibu_mertua')} />
                             <Input label="Pendidikan Terakhir" {...register('pendidikan_terakhir_ibu_mertua')} />
                             <Input label="Keterangan" {...register('keterangan_ibu_mertua')} />
@@ -322,6 +324,7 @@ export const EmployeeStep3Form: React.FC<EmployeeStep3FormProps> = ({ initialDat
                                     label="Nama"
                                     {...register(`data_saudara_kandung.${index}.nama`)}
                                     error={errors.data_saudara_kandung?.[index]?.nama?.message}
+                                    autoTitleCase={true}
                                 />
                                 <div className="space-y-1">
                                     <label className="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
@@ -346,10 +349,12 @@ export const EmployeeStep3Form: React.FC<EmployeeStep3FormProps> = ({ initialDat
                                 <Input
                                     label="Pekerjaan"
                                     {...register(`data_saudara_kandung.${index}.pekerjaan`)}
+                                    autoTitleCase={true}
                                 />
                                 <Input
                                     label="Keterangan"
                                     {...register(`data_saudara_kandung.${index}.keterangan`)}
+                                    autoTitleCase={true}
                                 />
                             </div>
                         </div>

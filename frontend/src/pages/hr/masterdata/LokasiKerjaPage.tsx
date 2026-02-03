@@ -42,9 +42,9 @@ const LokasiKerjaPage: React.FC = () => {
     ];
 
     const formFields = [
-        { name: 'nama', label: 'Nama Lokasi', type: 'text' as const, required: true },
-        { name: 'alamat', label: 'Alamat', type: 'textarea' as const },
-        { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const },
+        { name: 'nama', label: 'Nama Lokasi', type: 'text' as const, required: true, autoTitleCase: true },
+        { name: 'alamat', label: 'Alamat', type: 'textarea' as const, autoTitleCase: true },
+        { name: 'keterangan', label: 'Keterangan', type: 'textarea' as const, autoTitleCase: true },
         { name: 'status', label: 'Status', type: 'toggle' as const },
     ];
 

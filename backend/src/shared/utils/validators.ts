@@ -13,6 +13,14 @@ export const validateNIK = (nik: string): ValidationResult => {
     };
 };
 
+export const validateEmployeeNIK = (nik: string): ValidationResult => {
+    const isValid = /^\d{2}-\d{5}$/.test(nik);
+    return {
+        valid: isValid,
+        message: isValid ? undefined : ERROR_MESSAGES.EMPLOYEE_NIK_INVALID_FORMAT
+    };
+};
+
 export const validateNPWP = (npwp: string): ValidationResult => {
     // Format: 12.345.678.9-012.345 or 15 digits numeric strict
     // We'll support both sanitized inputs or formatted inputs, but usually we sanitize before saving.
@@ -76,4 +84,14 @@ export const sanitizePhoneNumber = (phone: string): string => {
         clean = '0' + clean.slice(2);
     }
     return clean;
+};
+
+export const formatEmployeeNIK = (value: string): string => {
+    const clean = value.replace(/\D/g, '');
+    let formatted = '';
+
+    if (clean.length > 0) formatted += clean.substring(0, 2);
+    if (clean.length > 2) formatted += '-' + clean.substring(2, 7);
+
+    return formatted;
 };

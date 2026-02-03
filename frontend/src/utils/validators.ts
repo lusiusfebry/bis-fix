@@ -9,6 +9,10 @@ export const validateNIK = (nik: string): boolean => {
     return /^\d{16}$/.test(nik);
 };
 
+export const validateEmployeeNIK = (nik: string): boolean => {
+    return /^\d{2}-\d{5}$/.test(nik);
+};
+
 export const validateNPWP = (npwp: string): boolean => {
     // Check length 15 digits (clean) or standard format
     const clean = npwp.replace(/\D/g, '');
@@ -53,4 +57,22 @@ export const formatNPWP = (value: string): string => {
 export const formatPhoneNumber = (value: string): string => {
     // Remove non-numeric chars except +
     return value.replace(/[^0-9+]/g, '');
+};
+
+export const formatEmployeeNIK = (value: string): string => {
+    const clean = value.replace(/\D/g, '');
+    let formatted = '';
+
+    if (clean.length > 0) formatted += clean.substring(0, 2);
+    if (clean.length > 2) formatted += '-' + clean.substring(2, 7);
+
+    return formatted;
+};
+
+export const toTitleCase = (str: string): string => {
+    return str
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 };

@@ -1,6 +1,12 @@
 
+import { useNavigate } from 'react-router-dom';
+import UserProfileDropdown from '../auth/UserProfileDropdown';
+import { useAuthStore } from '../../stores/authStore';
 
 const Header = () => {
+    const navigate = useNavigate();
+    const { user } = useAuthStore();
+
     return (
         <header className="h-20 border-b border-[#e7ebf3] dark:border-[#2a3447] bg-white dark:bg-[#161e2e] flex items-center justify-between px-8 sticky top-0 z-10 shrink-0 shadow-sm/5">
             <div className="flex items-center gap-4">
@@ -20,6 +26,13 @@ const Header = () => {
                     />
                 </div>
                 <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => navigate('/welcome')}
+                        className="p-2.5 bg-[#f6f6f8] dark:bg-[#2a3447] border border-[#e7ebf3] dark:border-[#374151] rounded-xl text-[#4c669a] dark:text-[#f8f9fc] hover:bg-white hover:border-primary/30 hover:text-primary transition-all shadow-sm group"
+                        title="Kembali ke Menu Utama"
+                    >
+                        <span className="material-symbols-outlined text-xl group-hover:scale-110 transition-transform">apps</span>
+                    </button>
                     <button className="p-2.5 bg-[#f6f6f8] dark:bg-[#2a3447] border border-[#e7ebf3] dark:border-[#374151] rounded-xl text-[#4c669a] dark:text-[#f8f9fc] hover:bg-white hover:border-primary/30 hover:text-primary transition-all shadow-sm">
                         <span className="material-symbols-outlined text-xl">notifications</span>
                     </button>
@@ -28,14 +41,16 @@ const Header = () => {
                     </button>
                 </div>
                 <div className="h-10 w-[1px] bg-[#e7ebf3] dark:bg-[#2a3447] mx-2"></div>
-                <div className="flex items-center gap-4 group cursor-pointer">
+                <div className="flex items-center gap-4">
                     <div className="flex flex-col items-end hidden sm:flex">
-                        <span className="text-sm font-extrabold text-[#0d121b] dark:text-white leading-none">HR Admin</span>
-                        <span className="text-[11px] font-bold text-[#4c669a] dark:text-gray-400 mt-1 uppercase tracking-wider">Super Administrator</span>
+                        <span className="text-sm font-extrabold text-[#0d121b] dark:text-white leading-none">
+                            {user?.employee?.nama_lengkap || user?.nik || 'User'}
+                        </span>
+                        <span className="text-[11px] font-bold text-[#4c669a] dark:text-gray-400 mt-1 uppercase tracking-wider">
+                            {user?.roleDetails?.display_name || user?.roleDetails?.name || 'Administrator'}
+                        </span>
                     </div>
-                    <div className="bg-gradient-to-tr from-primary to-blue-500 rounded-xl size-11 flex items-center justify-center text-white border-2 border-white dark:border-[#2a3447] shadow-md group-hover:scale-105 transition-transform">
-                        <span className="material-symbols-outlined text-2xl">person</span>
-                    </div>
+                    <UserProfileDropdown />
                 </div>
             </div>
         </header>
