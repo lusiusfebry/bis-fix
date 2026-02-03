@@ -7,6 +7,8 @@ import App from './App'
 import './styles/index.css'
 import { useAuthStore } from './stores/authStore'
 
+import { Toaster } from 'react-hot-toast'
+
 const queryClient = new QueryClient()
 
 const Root = () => {
@@ -20,6 +22,7 @@ const Root = () => {
         <React.StrictMode>
             <QueryClientProvider client={queryClient}>
                 <BrowserRouter>
+                    <Toaster position="top-right" />
                     <App />
                 </BrowserRouter>
             </QueryClientProvider>

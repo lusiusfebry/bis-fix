@@ -35,11 +35,10 @@ const EmployeeGrid: React.FC<EmployeeGridProps> = ({
             onScroll={handleScroll}
         >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-8 p-2">
-                {employees.map((employee, index) => (
+                {employees.map((employee) => (
                     <EmployeeCard
                         key={employee.id}
                         employee={employee}
-                        index={index + 1}
                         onClick={onRowClick}
                         onDelete={onDelete}
                     />

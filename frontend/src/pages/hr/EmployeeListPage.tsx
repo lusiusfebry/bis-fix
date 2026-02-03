@@ -16,6 +16,7 @@ import { PermissionGuard } from '../../components/auth/PermissionGuard';
 import { RESOURCES, ACTIONS } from '../../types/permission';
 import { useDebounce } from '../../hooks/useDebounce';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
+import { usePermission } from '../../hooks/usePermission';
 
 const EmployeeListPage = () => {
     const navigate = useNavigate();
@@ -35,6 +36,9 @@ const EmployeeListPage = () => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [employeeToDelete, setEmployeeToDelete] = useState<any>(null);
     const [deleting, setDeleting] = useState(false);
+
+    const { can } = usePermission();
+    const canDelete = can(RESOURCES.EMPLOYEES, ACTIONS.DELETE);
 
     const debouncedSearch = useDebounce(search, 500);
 
@@ -108,15 +112,19 @@ const EmployeeListPage = () => {
 
         setDeleting(true);
         try {
+            console.log(`Attempting to delete employee ID: ${employeeToDelete.id}`);
             await api.delete(`/hr/employees/${employeeToDelete.id}`);
+            console.log(`Successfully deleted employee ID: ${employeeToDelete.id}`);
             toast.success('Karyawan berhasil dihapus');
             setShowDeleteConfirm(false);
             setEmployeeToDelete(null);
             // Refresh list
             setPage(1);
             fetchEmployees(1);
-        } catch (error) {
-            toast.error('Gagal menghapus karyawan');
+        } catch (error: any) {
+            console.error('Failed to delete employee:', error);
+            const message = error.response?.data?.message || 'Gagal menghapus karyawan';
+            toast.error(message);
         } finally {
             setDeleting(false);
         }
@@ -246,7 +254,7 @@ const EmployeeListPage = () => {
                         isNextPageLoading={loading}
                         loadNextPage={loadNextPage}
                         onRowClick={(employee) => navigate(`/hr/employees/${employee.id}`)}
-                        onDelete={handleDeleteClick}
+                        onDelete={canDelete ? handleDeleteClick : undefined}
                     />
                 ) : (
                     <VirtualEmployeeTable
@@ -255,7 +263,7 @@ const EmployeeListPage = () => {
                         isNextPageLoading={loading}
                         loadNextPage={loadNextPage}
                         onRowClick={(employee) => navigate(`/hr/employees/${employee.id}`)}
-                        onDelete={handleDeleteClick}
+                        onDelete={canDelete ? handleDeleteClick : undefined}
                     />
                 )}
             </div>

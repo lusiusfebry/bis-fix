@@ -12,6 +12,8 @@ import { EmployeeDocumentsSection } from '../../components/hr/EmployeeDocumentsS
 import { EmployeeQRCode } from '../../components/hr/EmployeeQRCode';
 import EntityHistoryTimeline from '../../components/hr/EntityHistoryTimeline';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { usePermission } from '../../hooks/usePermission';
+import { RESOURCES, ACTIONS } from '../../types/permission';
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -43,6 +45,10 @@ const EmployeeDetailPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [activeTab, setActiveTab] = useState('personal');
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const { can } = usePermission();
+    const canDelete = can(RESOURCES.EMPLOYEES, ACTIONS.DELETE);
 
     useEffect(() => {
         const fetchBase = async () => {
@@ -101,11 +107,17 @@ const EmployeeDetailPage: React.FC = () => {
     const handleDelete = async () => {
         try {
             if (!id) return;
+            setIsDeleting(true);
+            console.log(`Attempting to delete employee ID: ${id} from detail page`);
             await employeeService.deleteEmployee(parseInt(id));
+            console.log(`Successfully deleted employee ID: ${id}`);
             toast.success('Karyawan berhasil dihapus');
             navigate('/hr/employees');
-        } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            console.error('Failed to delete employee:', error);
             toast.error(error.response?.data?.message || 'Gagal menghapus karyawan');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -203,13 +215,15 @@ const EmployeeDetailPage: React.FC = () => {
                                 <span className="material-symbols-outlined text-xl">qr_code_2</span>
                                 CETAK QR ID
                             </button>
-                            <button
-                                onClick={() => setShowDeleteConfirm(true)}
-                                className="bg-white dark:bg-[#161e2e] text-red-500 border border-red-200 dark:border-red-900/30 px-5 py-2.5 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all shadow-sm active:scale-95"
-                            >
-                                <span className="material-symbols-outlined text-xl">delete</span>
-                                HAPUS PROFIL
-                            </button>
+                            {canDelete && (
+                                <button
+                                    onClick={() => setShowDeleteConfirm(true)}
+                                    className="bg-white dark:bg-[#161e2e] text-red-500 border border-red-200 dark:border-red-900/30 px-5 py-2.5 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all shadow-sm active:scale-95"
+                                >
+                                    <span className="material-symbols-outlined text-xl">delete</span>
+                                    HAPUS PROFIL
+                                </button>
+                            )}
                             <button
                                 onClick={() => navigate(`/hr/employees/${id}/edit`)}
                                 className="bg-white dark:bg-[#2a3447] text-[#0d121b] dark:text-white border border-[#e7ebf3] dark:border-[#374151] px-5 py-2.5 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 hover:bg-[#f6f6f8] dark:hover:bg-[#374151] transition-all shadow-sm active:scale-95"
@@ -383,6 +397,7 @@ const EmployeeDetailPage: React.FC = () => {
                 message={`Apakah Anda yakin ingin menghapus karyawan ${employee.nama_lengkap}? Tindakan ini tidak dapat dibatalkan.`}
                 onConfirm={handleDelete}
                 onCancel={() => setShowDeleteConfirm(false)}
+                isLoading={isDeleting}
             />
         </div>
     );

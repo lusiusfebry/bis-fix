@@ -3,12 +3,11 @@ import { Employee } from '../../types/hr';
 
 interface EmployeeCardProps {
     employee: Employee;
-    index?: number;
     onClick: (employee: Employee) => void;
     onDelete?: (id: number) => void;
 }
 
-const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, index, onClick, onDelete }) => {
+const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onClick, onDelete }) => {
     // Determine status color
     const getStatusStyles = (status: string | undefined) => {
         const s = status?.toLowerCase() || '';
@@ -32,56 +31,51 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, index, onClick, o
     return (
         <div
             onClick={() => onClick(employee)}
-            className="group relative flex cursor-pointer flex-col gap-3 rounded-xl bg-white dark:bg-slate-800 p-4 shadow-sm ring-1 ring-gray-900/5 hover:shadow-md transition-all hover:-translate-y-1 dark:ring-slate-700"
+            className="group relative flex cursor-pointer flex-col gap-3 rounded-lg bg-white dark:bg-[#1a202c] p-4 shadow-sm ring-1 ring-gray-900/5 hover:shadow-md transition-shadow dark:ring-gray-700"
         >
-            {index && (
-                <div className="absolute -top-2 -left-2 size-6 rounded-lg bg-primary text-white text-[10px] font-bold flex items-center justify-center shadow-lg z-10 border-2 border-white dark:border-slate-800">
-                    {index}
-                </div>
-            )}
             <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <img
                         alt={employee.nama_lengkap}
-                        className="h-12 w-12 rounded-full object-cover ring-2 ring-white dark:ring-slate-700 shadow-sm"
+                        className="h-10 w-10 rounded-full object-cover ring-2 ring-white dark:ring-gray-800"
                         src={employee.foto_karyawan ? `http://localhost:3000${employee.foto_karyawan}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.nama_lengkap)}&background=random&size=128`}
                         loading="lazy"
                         onError={(e) => {
                             (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.nama_lengkap)}&background=random&size=128`;
                         }}
                     />
-                    <div className="min-w-0">
-                        <h4 className="font-bold text-sm text-gray-900 dark:text-white truncate" title={employee.nama_lengkap}>
+                    <div>
+                        <h4 className="font-semibold text-sm text-[#0d121b] dark:text-white">
                             {employee.nama_lengkap}
                         </h4>
-                        <p className="text-[11px] font-medium text-gray-500 dark:text-slate-400">
+                        <p className="text-xs text-[#4c669a]">
                             NIK: {employee.nomor_induk_karyawan}
                         </p>
                     </div>
                 </div>
-                <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset ${getStatusStyles(statusName)} uppercase tracking-wider`}>
+                <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getStatusStyles(statusName)}`}>
                     {statusName}
                 </span>
             </div>
 
-            <div className="border-t border-gray-100 dark:border-slate-700 pt-3 mt-1">
-                <div className="grid grid-cols-2 gap-2 text-[11px]">
+            <div className="border-t border-gray-100 dark:border-gray-700 pt-3 mt-1">
+                <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
-                        <p className="text-gray-400 dark:text-slate-500 mb-0.5 font-medium uppercase tracking-[0.05em]">Jabatan</p>
-                        <p className="font-semibold text-gray-800 dark:text-slate-200 truncate" title={employee.posisi_jabatan?.nama || '-'}>
+                        <p className="text-gray-400 mb-0.5">Jabatan</p>
+                        <p className="font-medium text-[#0d121b] dark:text-gray-200 truncate" title={employee.posisi_jabatan?.nama || '-'}>
                             {employee.posisi_jabatan?.nama || '-'}
                         </p>
                     </div>
                     <div>
-                        <p className="text-gray-400 dark:text-slate-500 mb-0.5 font-medium uppercase tracking-[0.05em]">Departemen</p>
-                        <p className="font-semibold text-gray-800 dark:text-slate-200 truncate" title={employee.department?.nama || '-'}>
+                        <p className="text-gray-400 mb-0.5">Departemen</p>
+                        <p className="font-medium text-[#0d121b] dark:text-gray-200 truncate" title={employee.department?.nama || '-'}>
                             {employee.department?.nama || '-'}
                         </p>
                     </div>
                 </div>
             </div>
 
-            {/* Quick Actions Overlay (Optional but nice) */}
+            {/* Quick Actions Overlay */}
             {onDelete && (
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
