@@ -70,7 +70,7 @@ function App() {
                     } />
 
                     <Route path="hr">
-                        <Route index element={<EmployeeListPage />} />
+                        <Route index element={<Navigate to="/dashboard" replace />} />
 
                         <Route path="employees" element={
                             <PermissionGuard resource={RESOURCES.EMPLOYEES} action={ACTIONS.READ} redirectTo="/403">

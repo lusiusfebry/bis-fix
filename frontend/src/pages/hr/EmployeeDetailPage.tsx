@@ -204,6 +204,13 @@ const EmployeeDetailPage: React.FC = () => {
                                 CETAK QR ID
                             </button>
                             <button
+                                onClick={() => setShowDeleteConfirm(true)}
+                                className="bg-white dark:bg-[#161e2e] text-red-500 border border-red-200 dark:border-red-900/30 px-5 py-2.5 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all shadow-sm active:scale-95"
+                            >
+                                <span className="material-symbols-outlined text-xl">delete</span>
+                                HAPUS PROFIL
+                            </button>
+                            <button
                                 onClick={() => navigate(`/hr/employees/${id}/edit`)}
                                 className="bg-white dark:bg-[#2a3447] text-[#0d121b] dark:text-white border border-[#e7ebf3] dark:border-[#374151] px-5 py-2.5 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 hover:bg-[#f6f6f8] dark:hover:bg-[#374151] transition-all shadow-sm active:scale-95"
                             >

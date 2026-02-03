@@ -43,7 +43,6 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
         control,
         handleSubmit,
         setValue,
-        watch,
         formState: { errors }
     } = useForm<EmployeeStep2FormValues>({
         resolver: zodResolver(employeeStep2Schema),

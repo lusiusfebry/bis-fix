@@ -15,6 +15,7 @@ import { EmployeeFilterParams, Divisi, Department, PosisiJabatan, StatusKaryawan
 import { PermissionGuard } from '../../components/auth/PermissionGuard';
 import { RESOURCES, ACTIONS } from '../../types/permission';
 import { useDebounce } from '../../hooks/useDebounce';
+import ConfirmDialog from '../../components/common/ConfirmDialog';
 
 const EmployeeListPage = () => {
     const navigate = useNavigate();
@@ -31,6 +32,9 @@ const EmployeeListPage = () => {
 
     // Advanced Filters State
     const [filters, setFilters] = useState<EmployeeFilterParams>({});
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [employeeToDelete, setEmployeeToDelete] = useState<any>(null);
+    const [deleting, setDeleting] = useState(false);
 
     const debouncedSearch = useDebounce(search, 500);
 
@@ -91,17 +95,30 @@ const EmployeeListPage = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!window.confirm('Apakah Anda yakin ingin menghapus data karyawan ini?')) return;
+    const handleDeleteClick = (id: number) => {
+        const employee = employees.find(e => e.id === id);
+        if (employee) {
+            setEmployeeToDelete(employee);
+            setShowDeleteConfirm(true);
+        }
+    };
 
+    const handleConfirmDelete = async () => {
+        if (!employeeToDelete) return;
+
+        setDeleting(true);
         try {
-            await api.delete(`/hr/employees/${id}`);
+            await api.delete(`/hr/employees/${employeeToDelete.id}`);
             toast.success('Karyawan berhasil dihapus');
+            setShowDeleteConfirm(false);
+            setEmployeeToDelete(null);
             // Refresh list
             setPage(1);
             fetchEmployees(1);
         } catch (error) {
             toast.error('Gagal menghapus karyawan');
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -229,7 +246,7 @@ const EmployeeListPage = () => {
                         isNextPageLoading={loading}
                         loadNextPage={loadNextPage}
                         onRowClick={(employee) => navigate(`/hr/employees/${employee.id}`)}
-                        onDelete={handleDelete}
+                        onDelete={handleDeleteClick}
                     />
                 ) : (
                     <VirtualEmployeeTable
@@ -238,10 +255,28 @@ const EmployeeListPage = () => {
                         isNextPageLoading={loading}
                         loadNextPage={loadNextPage}
                         onRowClick={(employee) => navigate(`/hr/employees/${employee.id}`)}
-                        onDelete={handleDelete}
+                        onDelete={handleDeleteClick}
                     />
                 )}
             </div>
+
+            <ConfirmDialog
+                isOpen={showDeleteConfirm}
+                title="Hapus Karyawan"
+                message={`Apakah Anda yakin ingin menghapus data karyawan ${employeeToDelete?.nama_lengkap}? Tindakan ini tidak dapat dibatalkan.`}
+                confirmText="Ya, Hapus"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => {
+                    setShowDeleteConfirm(false);
+                    setEmployeeToDelete(null);
+                }}
+                isLoading={deleting}
+                itemPreview={employeeToDelete ? {
+                    "NIK": employeeToDelete.nomor_induk_karyawan,
+                    "Nama": employeeToDelete.nama_lengkap,
+                    "Jabatan": employeeToDelete.posisi_jabatan?.nama || '-'
+                } : null}
+            />
         </div>
     );
 };
