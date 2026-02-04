@@ -87,6 +87,16 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
     const { data: managerList, isLoading: isManagerLoading } = useManagerList();
     const { data: activeEmployeeList, isLoading: isActiveEmpLoading } = useActiveEmployees();
 
+    // Default Status to Aktif
+    useEffect(() => {
+        if (statusList?.data && !watch('status_karyawan_id') && !employeeId) {
+            const activeStatus = (statusList.data as any[]).find(s => s.nama === 'Aktif');
+            if (activeStatus) {
+                setValue('status_karyawan_id', activeStatus.id);
+            }
+        }
+    }, [statusList, watch('status_karyawan_id'), employeeId, setValue]);
+
 
 
     // Better approach: Handle clear in the onChange of the parent component.

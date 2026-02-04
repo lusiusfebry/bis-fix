@@ -77,8 +77,8 @@ const MasterDataTable = <T extends { id: number | string; status?: string; nama?
                                 className="group relative flex cursor-pointer flex-col gap-4 rounded-xl bg-white dark:bg-slate-800 p-5 shadow-sm ring-1 ring-gray-900/5 hover:shadow-md transition-all hover:-translate-y-1 dark:ring-slate-700"
                             >
                                 <div className="flex items-start justify-between gap-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="bg-primary/10 text-primary p-2.5 rounded-xl group-hover:bg-primary group-hover:text-white transition-colors">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <div className="bg-primary/10 text-primary p-2.5 rounded-xl group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
                                             <span className="material-symbols-outlined text-xl">
                                                 {/* Use icons based on common master data patterns */}
                                                 {itemName.toLowerCase().includes('dept') ? 'corporate_fare' :
@@ -98,7 +98,7 @@ const MasterDataTable = <T extends { id: number | string; status?: string; nama?
                                             </div>
                                         </div>
                                     </div>
-                                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset uppercase tracking-wider ${status === 'Aktif' || status === 'true'
+                                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset uppercase tracking-wider shrink-0 ${status === 'Aktif' || status === 'true'
                                         ? 'bg-green-50 text-green-700 ring-green-600/20'
                                         : 'bg-gray-50 text-gray-700 ring-gray-600/10'
                                         }`}>

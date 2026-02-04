@@ -40,7 +40,7 @@ const MasterDataForm: React.FC<MasterDataFormProps> = ({
     });
 
     useEffect(() => {
-        if (initialValues) {
+        if (initialValues && Object.keys(initialValues).length > 0) {
             // Transform status string 'Aktif'/'Tidak Aktif' back to boolean if needed, or handle in component
             const values = { ...initialValues };
             if (values.status === 'Aktif') values.status = true;

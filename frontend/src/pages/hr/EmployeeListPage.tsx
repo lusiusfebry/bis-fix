@@ -85,6 +85,15 @@ const EmployeeListPage = () => {
     }, [debouncedSearch, filters]);
 
     useEffect(() => {
+        if (statusList?.data && !filters.status_karyawan_id && Object.keys(filters).length === 0) {
+            const activeStatus = (statusList.data as StatusKaryawan[]).find(s => s.nama === 'Aktif');
+            if (activeStatus) {
+                setFilters(prev => ({ ...prev, status_karyawan_id: activeStatus.id }));
+            }
+        }
+    }, [statusList, filters.status_karyawan_id]);
+
+    useEffect(() => {
         setPage(1);
         setEmployees([]);
         setHasNextPage(true);
