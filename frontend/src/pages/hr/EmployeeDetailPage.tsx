@@ -113,9 +113,10 @@ const EmployeeDetailPage: React.FC = () => {
             console.log(`Successfully deleted employee ID: ${id}`);
             toast.success('Karyawan berhasil dihapus');
             navigate('/hr/employees');
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Failed to delete employee:', error);
-            toast.error(error.response?.data?.message || 'Gagal menghapus karyawan');
+            const axiosError = error as { response?: { data?: { message?: string } } };
+            toast.error(axiosError.response?.data?.message || 'Gagal menghapus karyawan');
         } finally {
             setIsDeleting(false);
         }

@@ -5,15 +5,13 @@ import {
     PosisiJabatan,
     KategoriPangkat,
     Golongan,
-    SubGolongan,
     JenisHubunganKerja,
     Tag,
     LokasiKerja,
     StatusKaryawan,
     Employee,
     EmployeePersonalInfo,
-    EmployeeHRInfo,
-    EmployeeFamilyInfo
+    EmployeeHRInfo
 } from '../modules/hr/models';
 
 async function seedEmployees() {

@@ -134,7 +134,7 @@ const EmployeeImportPage: React.FC = () => {
                             <div className="max-w-xl mx-auto py-8">
                                 <ExcelUpload
                                     onFileSelect={handleFileSelect}
-                                    templateUrl="/templates/BMI-kosong.xlsx" // Assuming public folder holds this
+                                    templateUrl="/BMI-kosong.xlsx" // File copied to public folder
                                 />
                             </div>
                         )}

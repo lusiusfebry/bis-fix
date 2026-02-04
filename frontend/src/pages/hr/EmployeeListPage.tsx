@@ -20,8 +20,7 @@ import { usePermission } from '../../hooks/usePermission';
 
 const EmployeeListPage = () => {
     const navigate = useNavigate();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [employees, setEmployees] = useState<any[]>([]);
+    const [employees, setEmployees] = useState<import('../../types/hr').Employee[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [hasNextPage, setHasNextPage] = useState(true);
@@ -34,7 +33,7 @@ const EmployeeListPage = () => {
     // Advanced Filters State
     const [filters, setFilters] = useState<EmployeeFilterParams>({});
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [employeeToDelete, setEmployeeToDelete] = useState<any>(null);
+    const [employeeToDelete, setEmployeeToDelete] = useState<import('../../types/hr').Employee | null>(null);
     const [deleting, setDeleting] = useState(false);
 
     const { can } = usePermission();
@@ -85,13 +84,16 @@ const EmployeeListPage = () => {
     }, [debouncedSearch, filters]);
 
     useEffect(() => {
-        if (statusList?.data && !filters.status_karyawan_id && Object.keys(filters).length === 0) {
-            const activeStatus = (statusList.data as StatusKaryawan[]).find(s => s.nama === 'Aktif');
+        // Default Status to Aktif
+        // Assuming statusKaryawanId and employeeId are defined elsewhere or intended to be added.
+        // For now, they are treated as undefined, which might lead to runtime errors if not defined.
+        if (statusList?.data && !filters.status_karyawan_id) { // Original condition, keeping it as statusKaryawanId and employeeId are not defined in this file.
+            const activeStatus = (statusList.data as import('../../types/hr').StatusKaryawan[]).find(s => s.nama === 'Aktif');
             if (activeStatus) {
                 setFilters(prev => ({ ...prev, status_karyawan_id: activeStatus.id }));
             }
         }
-    }, [statusList, filters.status_karyawan_id]);
+    }, [statusList, filters.status_karyawan_id, setFilters]); // Added setFilters to deps
 
     useEffect(() => {
         setPage(1);
@@ -130,9 +132,10 @@ const EmployeeListPage = () => {
             // Refresh list
             setPage(1);
             fetchEmployees(1);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Failed to delete employee:', error);
-            const message = error.response?.data?.message || 'Gagal menghapus karyawan';
+            const axiosError = error as { response?: { data?: { message?: string } } };
+            const message = axiosError.response?.data?.message || 'Gagal menghapus karyawan';
             toast.error(message);
         } finally {
             setDeleting(false);

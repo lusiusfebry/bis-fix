@@ -20,7 +20,7 @@ async function seedMasterData() {
         // 1. Seed Divisi
         const divSDM = await Divisi.findOrCreate({ where: { nama: 'SDM & Umum' }, defaults: { keterangan: 'Human Resources and General Affairs', status: 'Aktif' } });
         const divIT = await Divisi.findOrCreate({ where: { nama: 'Information Technology' }, defaults: { keterangan: 'IT Infrastructure and Development', status: 'Aktif' } });
-        const divOps = await Divisi.findOrCreate({ where: { nama: 'Operasional' }, defaults: { keterangan: 'Production and Operations', status: 'Aktif' } });
+        await Divisi.findOrCreate({ where: { nama: 'Operasional' }, defaults: { keterangan: 'Production and Operations', status: 'Aktif' } });
         console.log('✅ Seeded Divisi');
 
         // 2. Seed Department

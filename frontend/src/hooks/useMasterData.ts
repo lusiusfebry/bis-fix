@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import masterDataService, { FilterParams } from '../services/api/master-data.service';
 import { MasterData, Divisi, Department, PosisiJabatan, Tag, LokasiKerja } from '../types/hr';
 
@@ -20,7 +21,7 @@ export const useMasterDataById = <T = MasterData>(modelName: string, id: number)
 
 export const useCreateMasterData = <T = MasterData>(modelName: string) => {
     const queryClient = useQueryClient();
-    return useMutation({
+    return useMutation<{ status: string; data: T }, AxiosError<{ message: string }>, Partial<T> | FormData>({
         mutationFn: (data: Partial<T> | FormData) => masterDataService.create<T>(modelName, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['masterData', modelName] });
@@ -30,7 +31,7 @@ export const useCreateMasterData = <T = MasterData>(modelName: string) => {
 
 export const useUpdateMasterData = <T = MasterData>(modelName: string) => {
     const queryClient = useQueryClient();
-    return useMutation({
+    return useMutation<{ status: string; data: T }, AxiosError<{ message: string }>, { id: number; data: Partial<T> | FormData }>({
         mutationFn: ({ id, data }: { id: number; data: Partial<T> | FormData }) => masterDataService.update<T>(modelName, id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['masterData', modelName] });
@@ -40,7 +41,7 @@ export const useUpdateMasterData = <T = MasterData>(modelName: string) => {
 
 export const useDeleteMasterData = (modelName: string) => {
     const queryClient = useQueryClient();
-    return useMutation({
+    return useMutation<{ status: string; message: string }, AxiosError<{ message: string }>, number>({
         mutationFn: (id: number) => masterDataService.delete(modelName, id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['masterData', modelName] });

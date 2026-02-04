@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { AxiosError } from 'axios';
 import { useStatusKaryawanList, useCreateMasterData, useUpdateMasterData, useDeleteMasterData } from '../../../hooks/useMasterData';
 import MasterDataTable, { Column } from '../../../components/hr/MasterDataTable';
 import MasterDataForm from '../../../components/hr/MasterDataForm';
@@ -73,7 +74,7 @@ const StatusKaryawanPage: React.FC = () => {
                     setIsConfirmOpen(false);
                     toast.success('Data berhasil dihapus');
                 },
-                onError: (err: any) => {
+                onError: (err: AxiosError<{ message: string }>) => {
                     const message = err.response?.data?.message || 'Gagal menghapus data';
                     toast.error(message);
                     console.error(err);

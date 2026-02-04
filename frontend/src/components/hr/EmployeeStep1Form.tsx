@@ -88,14 +88,15 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
     const { data: activeEmployeeList, isLoading: isActiveEmpLoading } = useActiveEmployees();
 
     // Default Status to Aktif
+    const statusKaryawanId = watch('status_karyawan_id');
     useEffect(() => {
-        if (statusList?.data && !watch('status_karyawan_id') && !employeeId) {
-            const activeStatus = (statusList.data as any[]).find(s => s.nama === 'Aktif');
+        if (statusList?.data && !statusKaryawanId && !employeeId) {
+            const activeStatus = (statusList.data as import('../../types/hr').StatusKaryawan[]).find(s => s.nama === 'Aktif');
             if (activeStatus) {
                 setValue('status_karyawan_id', activeStatus.id);
             }
         }
-    }, [statusList, watch('status_karyawan_id'), employeeId, setValue]);
+    }, [statusList, statusKaryawanId, employeeId, setValue]);
 
 
 
