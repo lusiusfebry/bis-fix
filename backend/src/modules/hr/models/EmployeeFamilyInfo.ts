@@ -179,6 +179,18 @@ EmployeeFamilyInfo.init({
         type: DataTypes.TEXT,
         allowNull: true,
     },
+    nama_ayah_kandung: {
+        type: DataTypes.STRING(200),
+        allowNull: true,
+    },
+    nama_ibu_kandung: {
+        type: DataTypes.STRING(200),
+        allowNull: true,
+    },
+    alamat_orang_tua: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+    },
     data_anak: {
         type: DataTypes.JSONB,
         allowNull: true,

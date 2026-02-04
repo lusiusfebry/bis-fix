@@ -44,6 +44,22 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error(err.stack);
 
+    // Handle JSON string errors (Business Rule Validations)
+    if (typeof err.message === 'string' && err.message.startsWith('{') && err.message.endsWith('}')) {
+        try {
+            const errorObj = JSON.parse(err.message);
+            if (errorObj.message === 'Terjadi kesalahan validasi') {
+                return res.status(400).json({
+                    status: 'error',
+                    message: errorObj.message,
+                    errors: errorObj.errors,
+                });
+            }
+        } catch (e) {
+            // Not a JSON string after all, continue to default
+        }
+    }
+
     // Handle Sequelize Foreign Key Errors
     if (err.name === 'SequelizeForeignKeyConstraintError') {
         return res.status(400).json({
