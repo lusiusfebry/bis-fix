@@ -87,13 +87,15 @@ const MasterDataTable = <T extends { id: number | string; status?: string; nama?
                                                             itemName.toLowerCase().includes('jabatan') ? 'work' : 'layers'}
                                             </span>
                                         </div>
-                                        <div className="min-w-0">
-                                            <h4 className="font-bold text-sm text-gray-900 dark:text-white truncate" title={itemName}>
-                                                {itemName}
-                                            </h4>
-                                            <p className="text-[11px] font-medium text-gray-500 dark:text-slate-400">
-                                                ID: {item.id}
-                                            </p>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded shrink-0">
+                                                    {(pagination ? (pagination.page - 1) * 10 : 0) + rowIndex + 1}
+                                                </span>
+                                                <h4 className="font-bold text-sm text-gray-900 dark:text-white truncate" title={itemName}>
+                                                    {itemName}
+                                                </h4>
+                                            </div>
                                         </div>
                                     </div>
                                     <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset uppercase tracking-wider ${status === 'Aktif' || status === 'true'

@@ -43,6 +43,16 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error(err.stack);
+
+    // Handle Sequelize Foreign Key Errors
+    if (err.name === 'SequelizeForeignKeyConstraintError') {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Tidak dapat menghapus atau mengubah data karena masih digunakan oleh data lain.',
+            error: env.nodeEnv === 'development' ? err.message : undefined,
+        });
+    }
+
     res.status(500).json({
         status: 'error',
         message: 'Internal Server Error',

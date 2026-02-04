@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { useDepartmentList, useDivisiList, useCreateMasterData, useUpdateMasterData, useDeleteMasterData } from '../../../hooks/useMasterData';
 import { useEmployeeList } from '../../../hooks/useEmployee';
 import MasterDataTable, { Column } from '../../../components/hr/MasterDataTable';
@@ -102,16 +103,46 @@ const DepartmentPage: React.FC = () => {
         };
 
         if (modalMode === 'create') {
-            createMutation.mutate(payload, { onSuccess: () => setIsModalOpen(false) });
+            createMutation.mutate(payload, {
+                onSuccess: () => {
+                    setIsModalOpen(false);
+                    toast.success('Data berhasil disimpan');
+                },
+                onError: (err: any) => {
+                    const message = err.response?.data?.message || 'Gagal menyimpan data';
+                    toast.error(message);
+                    console.error(err);
+                }
+            });
         } else {
             if (!selectedItem) return;
-            updateMutation.mutate({ id: selectedItem.id, data: payload }, { onSuccess: () => setIsModalOpen(false) });
+            updateMutation.mutate({ id: selectedItem.id, data: payload }, {
+                onSuccess: () => {
+                    setIsModalOpen(false);
+                    toast.success('Data berhasil diperbarui');
+                },
+                onError: (err: any) => {
+                    const message = err.response?.data?.message || 'Gagal memperbarui data';
+                    toast.error(message);
+                    console.error(err);
+                }
+            });
         }
     };
 
     const onConfirmDelete = () => {
         if (!selectedItem) return;
-        deleteMutation.mutate(selectedItem.id, { onSuccess: () => setIsConfirmOpen(false) });
+        deleteMutation.mutate(selectedItem.id, {
+            onSuccess: () => {
+                setIsConfirmOpen(false);
+                toast.success('Data berhasil dihapus');
+            },
+            onError: (err: any) => {
+                const message = err.response?.data?.message || 'Gagal menghapus data';
+                toast.error(message);
+                console.error(err);
+            }
+        });
     };
 
     return (

@@ -111,7 +111,11 @@ const PosisiJabatanPage: React.FC = () => {
                 setIsConfirmOpen(false);
                 toast.success('Data berhasil dihapus');
             },
-            onError: () => toast.error('Gagal menghapus data')
+            onError: (err: any) => {
+                const message = err.response?.data?.message || 'Gagal menghapus data';
+                toast.error(message);
+                console.error(err);
+            }
         });
     };
 

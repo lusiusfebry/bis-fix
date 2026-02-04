@@ -69,8 +69,15 @@ const KategoriPangkatPage: React.FC = () => {
 
     const onConfirmDelete = () => {
         if (selectedItem) deleteMutation.mutate(selectedItem.id, {
-            onSuccess: () => { setIsConfirmOpen(false); toast.success('Data berhasil dihapus'); },
-            onError: () => toast.error('Gagal menghapus data')
+            onSuccess: () => {
+                setIsConfirmOpen(false);
+                toast.success('Data berhasil dihapus');
+            },
+            onError: (err: any) => {
+                const message = err.response?.data?.message || 'Gagal menghapus data';
+                toast.error(message);
+                console.error(err);
+            }
         });
     };
 

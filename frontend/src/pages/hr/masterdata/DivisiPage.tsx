@@ -91,8 +91,9 @@ const DivisiPage = () => {
                     setIsModalOpen(false);
                     toast.success('Data berhasil disimpan');
                 },
-                onError: (err) => {
-                    toast.error('Gagal menyimpan data');
+                onError: (err: any) => {
+                    const message = err.response?.data?.message || 'Gagal menyimpan data';
+                    toast.error(message);
                     console.error(err);
                 }
             });
@@ -103,8 +104,9 @@ const DivisiPage = () => {
                     setIsModalOpen(false);
                     toast.success('Data berhasil diperbarui');
                 },
-                onError: (err) => {
-                    toast.error('Gagal memperbarui data');
+                onError: (err: any) => {
+                    const message = err.response?.data?.message || 'Gagal memperbarui data';
+                    toast.error(message);
                     console.error(err);
                 }
             });
@@ -118,8 +120,9 @@ const DivisiPage = () => {
                 setIsConfirmOpen(false);
                 toast.success('Data berhasil dihapus');
             },
-            onError: (err) => {
-                toast.error('Gagal menghapus data');
+            onError: (err: any) => {
+                const message = err.response?.data?.message || 'Gagal menghapus data';
+                toast.error(message);
                 console.error(err);
             }
         });
