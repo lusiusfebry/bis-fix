@@ -10,6 +10,7 @@ interface Employee {
     foto_karyawan?: string;
     posisi_jabatan?: { nama: string };
     department?: { nama: string };
+    is_draft?: boolean;
 }
 
 interface VirtualEmployeeTableProps {
@@ -19,10 +20,11 @@ interface VirtualEmployeeTableProps {
     loadNextPage: () => Promise<void>;
     onRowClick: (employee: Employee) => void;
     onDelete?: (id: number) => void;
+    showDraftBadge?: boolean;
 }
 
 const Row = ({ index, style, data }: ListChildComponentProps) => {
-    const { employees, isItemLoaded, onRowClick, onDelete } = data;
+    const { employees, isItemLoaded, onRowClick, onDelete, showDraftBadge } = data;
 
     if (!isItemLoaded(index)) {
         return (
@@ -55,7 +57,14 @@ const Row = ({ index, style, data }: ListChildComponentProps) => {
                     }}
                 />
                 <div className="truncate">
-                    <div className="font-medium text-gray-900 dark:text-gray-100 truncate">{employee.nama_lengkap}</div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100 truncate flex items-center gap-2">
+                        {employee.nama_lengkap}
+                        {showDraftBadge && employee.is_draft && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                                Draft
+                            </span>
+                        )}
+                    </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400 truncate">{employee.nomor_induk_karyawan}</div>
                 </div>
             </div>
@@ -86,6 +95,7 @@ const VirtualEmployeeTable: React.FC<VirtualEmployeeTableProps> = ({
     loadNextPage,
     onRowClick,
     onDelete,
+    showDraftBadge,
 }) => {
     const itemCount = hasNextPage ? employees.length + 1 : employees.length;
     const isItemLoaded = React.useCallback((index: number) => !hasNextPage || index < employees.length, [hasNextPage, employees.length]);
@@ -95,8 +105,9 @@ const VirtualEmployeeTable: React.FC<VirtualEmployeeTableProps> = ({
         employees,
         isItemLoaded,
         onRowClick,
-        onDelete
-    }), [employees, isItemLoaded, onRowClick, onDelete]);
+        onDelete,
+        showDraftBadge
+    }), [employees, isItemLoaded, onRowClick, onDelete, showDraftBadge]);
 
     return (
         <div className="w-full bg-white dark:bg-slate-800 rounded-lg shadow border border-gray-200 dark:border-slate-700 h-[600px] flex flex-col">

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { validateNIK, validateNPWP, validatePhoneNumber, calculateAge, validateBPJS, validateEmployeeNIK } from '../utils/validators';
+import { validateNIK, validateNPWP, validatePhoneNumber, calculateAge, validateEmployeeNIK } from '../utils/validators';
 import { ERROR_MESSAGES } from '../constants/error-messages';
 
 // Helper for custom refinements
@@ -49,8 +49,7 @@ export const employeeStep1Schema = z.object({
         .refine(customRefine(validateNIK), { message: 'No KTP harus 16 digit angka' }),
     nomor_npwp: z.string().optional()
         .refine(customRefine(validateNPWP), { message: ERROR_MESSAGES.NPWP_INVALID_FORMAT }),
-    nomor_bpjs: z.string().optional()
-        .refine(customRefine(validateBPJS), { message: ERROR_MESSAGES.BPJS_INVALID_FORMAT }),
+    nomor_bpjs: z.string().optional(), // No format validation - BPJS numbers vary
     nomor_kartu_keluarga: z.string().max(50).optional().or(z.literal(''))
         .refine(customRefine(validateNIK), { message: 'Nomor KK harus 16 digit angka' }),
     no_nik_kk: z.string().optional(),

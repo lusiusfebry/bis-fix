@@ -99,8 +99,19 @@ export const employeeHRInfoSchema = z.object({
 export const validateEmployeeCreate = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const body = req.body;
+        const isDraft = body.is_draft === 'true' || body.is_draft === true;
 
-        // Extract and validate parts
+        // For drafts, only validate minimal required fields (NIK)
+        if (isDraft) {
+            const draftSchema = z.object({
+                nomor_induk_karyawan: z.string().min(1, { message: 'NIK wajib diisi untuk draft' }),
+                nama_lengkap: z.string().optional(),
+            });
+            await draftSchema.parseAsync(body);
+            return next();
+        }
+
+        // Full validation for non-draft employees
         await employeeHeadSchema.parseAsync(body);
         await employeePersonalInfoSchema.parseAsync(body);
         await employeeHRInfoSchema.parseAsync(body);

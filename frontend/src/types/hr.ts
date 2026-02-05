@@ -18,6 +18,7 @@ export interface EmployeeFilterParams {
     status_karyawan_id?: number;
     lokasi_kerja_id?: number;
     tag_id?: number;
+    is_draft?: boolean;
     page?: number;
     limit?: number;
 }
@@ -240,6 +241,9 @@ export interface Employee {
     personal_info?: EmployeePersonalInfo;
     hr_info?: EmployeeHRInfo;
     family_info?: EmployeeFamilyInfo;
+
+    // Draft status
+    is_draft?: boolean;
 
     createdAt: string;
     updatedAt: string;

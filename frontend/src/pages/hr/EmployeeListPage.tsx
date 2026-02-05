@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api/client';
 import Button from '../../components/common/Button';
@@ -32,6 +32,7 @@ const EmployeeListPage = () => {
 
     // Advanced Filters State
     const [filters, setFilters] = useState<EmployeeFilterParams>({});
+    const [showDrafts, setShowDrafts] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [employeeToDelete, setEmployeeToDelete] = useState<import('../../types/hr').Employee | null>(null);
     const [deleting, setDeleting] = useState(false);
@@ -62,6 +63,7 @@ const EmployeeListPage = () => {
             const params = {
                 search: debouncedSearch,
                 ...filters,
+                is_draft: showDrafts ? true : undefined,
                 page: pageNum,
                 limit: 20 // Increase limit for virtual scrolling
             };
@@ -81,19 +83,22 @@ const EmployeeListPage = () => {
         } finally {
             setLoading(false);
         }
-    }, [debouncedSearch, filters]);
+    }, [debouncedSearch, filters, showDrafts]);
+
+    // Track if this is the initial load to set default status filter only once
+    const isInitialLoadRef = useRef(true);
 
     useEffect(() => {
-        // Default Status to Aktif
-        // Assuming statusKaryawanId and employeeId are defined elsewhere or intended to be added.
-        // For now, they are treated as undefined, which might lead to runtime errors if not defined.
-        if (statusList?.data && !filters.status_karyawan_id) { // Original condition, keeping it as statusKaryawanId and employeeId are not defined in this file.
+        // Only set default Status to Aktif on initial load, not when user clears the filter
+        if (statusList?.data && isInitialLoadRef.current) {
             const activeStatus = (statusList.data as import('../../types/hr').StatusKaryawan[]).find(s => s.nama === 'Aktif');
-            if (activeStatus) {
+            if (activeStatus && !filters.status_karyawan_id) {
                 setFilters(prev => ({ ...prev, status_karyawan_id: activeStatus.id }));
             }
+            isInitialLoadRef.current = false;
         }
-    }, [statusList, filters.status_karyawan_id, setFilters]); // Added setFilters to deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [statusList]); // Intentionally only depend on statusList to prevent infinite loop
 
     useEffect(() => {
         setPage(1);
@@ -212,6 +217,21 @@ const EmployeeListPage = () => {
                         </Button>
                     </PermissionGuard>
 
+                    {/* Draft Toggle */}
+                    <Button
+                        variant={showDrafts ? 'primary' : 'outline'}
+                        onClick={() => {
+                            setShowDrafts(!showDrafts);
+                            setPage(1);
+                            setEmployees([]);
+                            setHasNextPage(true);
+                        }}
+                        className={`flex items-center gap-2 ${showDrafts ? 'bg-amber-500 hover:bg-amber-600 border-amber-500' : 'border-amber-300 text-amber-700 hover:bg-amber-50'}`}
+                    >
+                        <span className="material-symbols-outlined text-[20px]">draft</span>
+                        {showDrafts ? 'Showing Drafts' : 'View Drafts'}
+                    </Button>
+
                     <div className="h-10 w-px bg-gray-200 dark:bg-slate-700 mx-1 hidden md:block"></div>
 
                     <LayoutSwitcher
@@ -274,8 +294,16 @@ const EmployeeListPage = () => {
                         hasNextPage={hasNextPage}
                         isNextPageLoading={loading}
                         loadNextPage={loadNextPage}
-                        onRowClick={(employee) => navigate(`/hr/employees/${employee.id}`)}
+                        onRowClick={(employee) => {
+                            // Drafts go to edit page, regular employees go to detail page
+                            if (employee.is_draft) {
+                                navigate(`/hr/employees/${employee.id}/edit`);
+                            } else {
+                                navigate(`/hr/employees/${employee.id}`);
+                            }
+                        }}
                         onDelete={canDelete ? handleDeleteClick : undefined}
+                        showDraftBadge={showDrafts}
                     />
                 )}
             </div>

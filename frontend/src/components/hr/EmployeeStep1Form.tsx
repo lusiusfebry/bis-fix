@@ -26,10 +26,11 @@ interface EmployeeStep1FormProps {
     initialData?: any;
     employeeId?: number;
     onNext: (data: EmployeeStep1FormValues) => void;
+    onSaveDraft?: (data: Partial<EmployeeStep1FormValues>) => void;
     onCancel: () => void;
 }
 
-export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialData, employeeId, onNext, onCancel }) => {
+export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialData, employeeId, onNext, onSaveDraft, onCancel }) => {
     const {
         register,
         control,
@@ -38,12 +39,21 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
         setValue,
         setError,
         clearErrors,
+        getValues,
         formState: { errors }
     } = useForm<EmployeeStep1FormValues>({
         resolver: zodResolver(employeeStep1Schema),
         defaultValues: initialData || {},
         mode: 'onChange'
     });
+
+    // Handle save draft - gets current form values without validation
+    const handleSaveDraft = () => {
+        const currentValues = getValues();
+        if (onSaveDraft) {
+            onSaveDraft(currentValues);
+        }
+    };
 
     // Watch values for cascade & conditions
     const selectedDivisi = useWatch({ control, name: 'divisi_id' });
@@ -804,6 +814,19 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                 <Button variant="outline" type="button" onClick={onCancel}>
                     Batal
                 </Button>
+                {onSaveDraft && (
+                    <Button
+                        variant="outline"
+                        type="button"
+                        onClick={handleSaveDraft}
+                        className="border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100"
+                    >
+                        <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                        </svg>
+                        Simpan Draft
+                    </Button>
+                )}
                 <Button variant="primary" type="submit" className="flex items-center">
                     Lanjut ke Informasi HR
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-2">

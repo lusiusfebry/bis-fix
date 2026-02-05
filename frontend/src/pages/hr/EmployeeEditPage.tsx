@@ -76,6 +76,20 @@ const EmployeeEditPage: React.FC = () => {
         navigate('/hr/employees');
     };
 
+    // Save as Draft handler for editing drafts
+    const handleSaveDraft = async (formData: FormData) => {
+        try {
+            if (!id) return;
+            await employeeService.updateEmployee(parseInt(id), formData);
+            toast.success('Draft karyawan berhasil disimpan');
+            navigate('/hr/employees?is_draft=true');
+        } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+            console.error('Failed to save draft:', error);
+            const message = error.response?.data?.message || 'Gagal menyimpan draft';
+            toast.error(message);
+        }
+    };
+
     if (loading) return <LoadingSkeleton />;
 
     return (
@@ -106,12 +120,22 @@ const EmployeeEditPage: React.FC = () => {
                         </li>
                     </ol>
                 </nav>
-                <h1 className="text-2xl font-bold text-gray-900">Edit Karyawan</h1>
+                <div className="flex items-center gap-3">
+                    <h1 className="text-2xl font-bold text-gray-900">
+                        {employee?.is_draft ? 'Lanjutkan Draft' : 'Edit Karyawan'}
+                    </h1>
+                    {employee?.is_draft && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                            Draft
+                        </span>
+                    )}
+                </div>
             </div>
 
             <EmployeeWizard
                 initialData={employee || undefined}
                 onComplete={handleComplete}
+                onSaveDraft={employee?.is_draft ? handleSaveDraft : undefined}
                 onCancel={handleCancel}
             />
         </div>

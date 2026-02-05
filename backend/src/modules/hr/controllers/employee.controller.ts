@@ -102,6 +102,7 @@ class EmployeeController {
                 manager_id: body.manager_id ? parseInt(body.manager_id) : undefined,
                 atasan_langsung_id: body.atasan_langsung_id ? parseInt(body.atasan_langsung_id) : undefined,
                 kategori_pangkat_id: body.kategori_pangkat_id ? parseInt(body.kategori_pangkat_id) : undefined,
+                is_draft: body.is_draft === 'true' || body.is_draft === true,
             };
 
             // 2. Map to Personal Info Attributes

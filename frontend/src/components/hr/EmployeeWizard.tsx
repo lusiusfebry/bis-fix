@@ -21,17 +21,21 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [formData, setFormData] = useState<any>(initialData || {});
 
-    // Save as Draft handler - saves current form data without full validation
-    const handleSaveDraft = () => {
+    // Save as Draft handler - receives data from step form
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleSaveDraftFromStep = (stepData: any) => {
         const payload = new FormData();
 
-        Object.keys(formData).forEach(key => {
-            if (key === 'foto_karyawan' && formData[key] instanceof File) {
-                payload.append('foto_karyawan', formData[key]);
+        // Merge existing formData with step data
+        const mergedData = { ...formData, ...stepData };
+
+        Object.keys(mergedData).forEach(key => {
+            if (key === 'foto_karyawan' && mergedData[key] instanceof File) {
+                payload.append('foto_karyawan', mergedData[key]);
             } else if (key === 'data_anak' || key === 'data_saudara_kandung') {
-                payload.append(key, JSON.stringify(formData[key]));
-            } else if (formData[key] !== undefined && formData[key] !== null) {
-                payload.append(key, String(formData[key]));
+                payload.append(key, JSON.stringify(mergedData[key]));
+            } else if (mergedData[key] !== undefined && mergedData[key] !== null && mergedData[key] !== '') {
+                payload.append(key, String(mergedData[key]));
             }
         });
 
@@ -155,20 +159,6 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
                             ))}
                         </ol>
                     </nav>
-
-                    {/* Save Draft Button */}
-                    {onSaveDraft && (
-                        <button
-                            type="button"
-                            onClick={handleSaveDraft}
-                            className="inline-flex items-center px-4 py-2 border border-amber-300 shadow-sm text-sm font-medium rounded-md text-amber-700 bg-amber-50 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors"
-                        >
-                            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                            </svg>
-                            Simpan Draft
-                        </button>
-                    )}
                 </div>
             </div>
 
@@ -179,6 +169,7 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
                         initialData={formData}
                         employeeId={initialData?.id}
                         onNext={handleStep1Next}
+                        onSaveDraft={handleSaveDraftFromStep}
                         onCancel={onCancel}
                     />
                 )}
