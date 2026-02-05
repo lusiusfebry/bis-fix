@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import employeeService from '../services/employee.service';
+import { parseIdParam } from '../../../shared/utils/validation.utils';
 
 class EmployeeController {
     async getAll(req: Request, res: Response, next: NextFunction) {
@@ -21,22 +22,28 @@ class EmployeeController {
 
     async getOne(req: Request, res: Response, next: NextFunction) {
         try {
-            const id = parseInt(req.params.id);
+            const id = parseIdParam(req.params.id, 'Employee ID');
             const employee = await employeeService.getEmployeeWithDetails(id);
             if (!employee) return res.status(404).json({ message: 'Employee not found' });
             res.json({ data: employee });
-        } catch (error) {
+        } catch (error: any) {
+            if (error.statusCode === 400) {
+                return res.status(400).json({ status: 'error', message: error.message });
+            }
             next(error);
         }
     }
 
     async getBase(req: Request, res: Response, next: NextFunction) {
         try {
-            const id = parseInt(req.params.id);
+            const id = parseIdParam(req.params.id, 'Employee ID');
             const employee = await employeeService.getEmployeeBase(id);
             if (!employee) return res.status(404).json({ message: 'Employee not found' });
             res.json({ data: employee });
-        } catch (error) {
+        } catch (error: any) {
+            if (error.statusCode === 400) {
+                return res.status(400).json({ status: 'error', message: error.message });
+            }
             next(error);
         }
     }

@@ -10,11 +10,15 @@ const app = express();
 
 // Middleware
 import { performanceMonitor } from './shared/middleware/performance.middleware';
+import { apiLimiter } from './shared/middleware/rate-limit.middleware';
 app.use(performanceMonitor);
 app.use(helmet());
 app.use(cors({ origin: env.corsOrigin }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' })); // Limit request body size
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Apply rate limiting to API routes
+app.use('/api/', apiLimiter);
 
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -55,7 +59,7 @@ app.use((err: any, req: express.Request, res: express.Response, _next: express.N
                     errors: errorObj.errors,
                 });
             }
-        } catch (e) {
+        } catch {
             // Not a JSON string after all, continue to default
         }
     }

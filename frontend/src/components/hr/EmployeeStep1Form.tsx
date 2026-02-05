@@ -705,9 +705,13 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                             const start = e.target.selectionStart;
                                             const end = e.target.selectionEnd;
                                             const words = e.target.value.split(' ');
-                                            const transformed = words.map(word =>
-                                                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                                            ).join(' ');
+                                            const transformed = words.map(word => {
+                                                // If word is all uppercase (like PT, IT, HR), preserve it
+                                                if (word === word.toUpperCase() && word.length > 0) {
+                                                    return word;
+                                                }
+                                                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                                            }).join(' ');
                                             e.target.value = transformed;
                                             if (start !== null && end !== null) {
                                                 setTimeout(() => e.target.setSelectionRange(start, end), 0);
@@ -751,9 +755,13 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                             const start = e.target.selectionStart;
                                             const end = e.target.selectionEnd;
                                             const words = e.target.value.split(' ');
-                                            const transformed = words.map(word =>
-                                                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                                            ).join(' ');
+                                            const transformed = words.map(word => {
+                                                // If word is all uppercase, preserve it
+                                                if (word === word.toUpperCase() && word.length > 0) {
+                                                    return word;
+                                                }
+                                                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                                            }).join(' ');
                                             e.target.value = transformed;
                                             if (start !== null && end !== null) {
                                                 setTimeout(() => e.target.setSelectionRange(start, end), 0);

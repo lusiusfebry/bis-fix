@@ -30,6 +30,7 @@ export interface EmployeeAttributes {
     status_karyawan_id?: number;
     lokasi_kerja_id?: number;
     tag_id?: number;
+    is_draft?: boolean;
 
     // Timestamps
     createdAt?: Date;
@@ -64,7 +65,8 @@ export type EmployeeCreationAttributes = Optional<EmployeeAttributes,
     'nomor_handphone' |
     'status_karyawan_id' |
     'lokasi_kerja_id' |
-    'tag_id'
+    'tag_id' |
+    'is_draft'
 >;
 
 export class Employee extends Model<EmployeeAttributes, EmployeeCreationAttributes> implements EmployeeAttributes {
@@ -83,6 +85,7 @@ export class Employee extends Model<EmployeeAttributes, EmployeeCreationAttribut
     public status_karyawan_id?: number;
     public lokasi_kerja_id?: number;
     public tag_id?: number;
+    public is_draft?: boolean;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -194,6 +197,11 @@ Employee.init({
             model: 'tag',
             key: 'id'
         }
+    },
+    is_draft: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
     },
 }, {
     sequelize,

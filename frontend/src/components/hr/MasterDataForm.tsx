@@ -92,9 +92,14 @@ const MasterDataForm: React.FC<MasterDataFormProps> = ({
                                     const start = e.target.selectionStart;
                                     const end = e.target.selectionEnd;
                                     const words = e.target.value.split(' ');
-                                    const transformed = words.map(word =>
-                                        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                                    ).join(' ');
+                                    const transformed = words.map(word => {
+                                        // If word is all uppercase (like PT, IT, HR), preserve it
+                                        if (word === word.toUpperCase() && word.length > 0) {
+                                            return word;
+                                        }
+                                        // Otherwise, capitalize first letter and lowercase the rest
+                                        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                                    }).join(' ');
                                     e.target.value = transformed;
                                     if (start !== null && end !== null) {
                                         setTimeout(() => e.target.setSelectionRange(start, end), 0);

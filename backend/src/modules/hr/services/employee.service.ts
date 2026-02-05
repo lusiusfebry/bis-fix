@@ -53,16 +53,24 @@ class EmployeeService {
     }
 
     async getAllEmployees(params: any = {}, userId?: number) {
-        const { search, divisi_id, department_id, status_id, posisi_jabatan_id, lokasi_kerja_id, tag_id, page = 1, limit = 10 } = params;
+        const { search, divisi_id, department_id, status_id, posisi_jabatan_id, lokasi_kerja_id, tag_id, is_draft, page = 1, limit = 10 } = params;
         const offset = (page - 1) * limit;
 
         const where: any = {};
 
+        // By default, exclude drafts unless specifically requested
+        if (is_draft !== undefined) {
+            where.is_draft = is_draft === 'true' || is_draft === true;
+        } else {
+            where.is_draft = false;
+        }
         // Search functionality
         if (search) {
+            // Sanitize search input to prevent LIKE pattern injection
+            const sanitizedSearch = String(search).replace(/[%_\\]/g, '\\$&');
             where[Op.or] = [
-                { nama_lengkap: { [Op.iLike]: `%${search}%` } }, // Postgres use iLike for case insensitive
-                { nomor_induk_karyawan: { [Op.iLike]: `%${search}%` } }
+                { nama_lengkap: { [Op.iLike]: `%${sanitizedSearch}%` } }, // Postgres use iLike for case insensitive
+                { nomor_induk_karyawan: { [Op.iLike]: `%${sanitizedSearch}%` } }
             ];
         }
 
@@ -285,11 +293,15 @@ class EmployeeService {
     }
 
     async createEmployeeComplete(employeeData: EmployeeCreationAttributes, personalInfoData: any, hrInfoData: any, familyInfoData: any, photoPath?: string, options?: { transaction?: any }) {
-        // Run Business Rule Validation First
-        // Merge data for validation
-        const validationData = { ...employeeData, ...hrInfoData };
-        await this.validateEmployeeBusinessRules(validationData, false);
+        // Skip validation for drafts
+        const isDraft = employeeData.is_draft === true;
 
+        if (!isDraft) {
+            // Run Business Rule Validation First
+            // Merge data for validation
+            const validationData = { ...employeeData, ...hrInfoData };
+            await this.validateEmployeeBusinessRules(validationData, false);
+        }
         const t = options?.transaction || await sequelize.transaction();
         const isExternalTransaction = !!options?.transaction;
 

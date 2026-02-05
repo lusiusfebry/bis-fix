@@ -15,11 +15,16 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 const start = e.target.selectionStart;
                 const end = e.target.selectionEnd;
 
-                // Title Case transformation
+                // Title Case transformation - preserving all-caps words
                 const words = e.target.value.split(' ');
-                const transformed = words.map(word =>
-                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                ).join(' ');
+                const transformed = words.map(word => {
+                    // If word is all uppercase (like PT, IT, HR), preserve it
+                    if (word === word.toUpperCase() && word.length > 0) {
+                        return word;
+                    }
+                    // Otherwise, capitalize first letter and lowercase the rest
+                    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                }).join(' ');
 
                 e.target.value = transformed;
 

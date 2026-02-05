@@ -69,10 +69,23 @@ export const formatEmployeeNIK = (value: string): string => {
     return formatted;
 };
 
+/**
+ * Convert string to Title Case while preserving all-caps words
+ * Examples:
+ * - "driver lube truck" -> "Driver Lube Truck"
+ * - "PT INDONESIA" -> "PT Indonesia" (preserves PT as all-caps)
+ * - "IT department" -> "IT Department" (preserves IT as all-caps)
+ */
 export const toTitleCase = (str: string): string => {
     return str
-        .toLowerCase()
         .split(' ')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .map((word) => {
+            // If word is all uppercase (like PT, IT, HR), preserve it
+            if (word === word.toUpperCase() && word.length > 0) {
+                return word;
+            }
+            // Otherwise, capitalize first letter and lowercase the rest
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        })
         .join(' ');
 };

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authController from '../controllers/auth.controller';
 import { authenticate } from '../../../shared/middleware/auth.middleware';
+import { authLimiter } from '../../../shared/middleware/rate-limit.middleware';
 
 const router = Router();
 
@@ -45,7 +46,7 @@ const router = Router();
  *       401:
  *         $ref: '#/components/schemas/ApiError'
  */
-router.post('/login', (req, res, next) => authController.login(req, res, next));
+router.post('/login', authLimiter, (req, res, next) => authController.login(req, res, next));
 
 /**
  * @swagger
