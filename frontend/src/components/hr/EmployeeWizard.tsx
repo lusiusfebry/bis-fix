@@ -8,10 +8,11 @@ import { CheckIcon } from '@heroicons/react/24/solid';
 interface EmployeeWizardProps {
     initialData?: Employee;
     onComplete: (data: FormData) => void;
+    onSaveDraft?: (data: FormData) => void;
     onCancel: () => void;
 }
 
-export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onComplete, onCancel }) => {
+export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onComplete, onSaveDraft, onCancel }) => {
     const [currentStep, setCurrentStep] = useState(1);
 
     // We store partial data for each step. 
@@ -19,6 +20,28 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
     // For simplicity, we can store the Step 1 values in state.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [formData, setFormData] = useState<any>(initialData || {});
+
+    // Save as Draft handler - saves current form data without full validation
+    const handleSaveDraft = () => {
+        const payload = new FormData();
+
+        Object.keys(formData).forEach(key => {
+            if (key === 'foto_karyawan' && formData[key] instanceof File) {
+                payload.append('foto_karyawan', formData[key]);
+            } else if (key === 'data_anak' || key === 'data_saudara_kandung') {
+                payload.append(key, JSON.stringify(formData[key]));
+            } else if (formData[key] !== undefined && formData[key] !== null) {
+                payload.append(key, String(formData[key]));
+            }
+        });
+
+        // Set as draft
+        payload.append('is_draft', 'true');
+
+        if (onSaveDraft) {
+            onSaveDraft(payload);
+        }
+    };
 
     const steps = [
         { id: 1, name: 'Data Personal' },
@@ -96,41 +119,57 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             {/* Steps Indicator */}
             <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
-                <nav aria-label="Progress">
-                    <ol role="list" className="flex items-center">
-                        {steps.map((step, stepIdx) => (
-                            <li key={step.name} className={`relative ${stepIdx !== steps.length - 1 ? 'pr-8 sm:pr-20' : ''}`}>
-                                <div className="flex items-center">
-                                    <div
-                                        className={`${step.id < currentStep
-                                            ? 'bg-primary-600 hover:bg-primary-900 w-8 h-8 flex items-center justify-center rounded-full'
-                                            : step.id === currentStep
-                                                ? 'border-2 border-primary-600 w-8 h-8 flex items-center justify-center rounded-full bg-white'
-                                                : 'border-2 border-gray-300 w-8 h-8 flex items-center justify-center rounded-full bg-white'
-                                            }`}
-                                    >
-                                        {step.id < currentStep ? (
-                                            <CheckIcon className="w-5 h-5 text-white" aria-hidden="true" />
-                                        ) : (
-                                            <span
-                                                className={`${step.id === currentStep ? 'text-primary-600' : 'text-gray-500'
-                                                    } text-sm font-medium`}
-                                            >
-                                                {step.id}
-                                            </span>
-                                        )}
+                <div className="flex items-center justify-between">
+                    <nav aria-label="Progress">
+                        <ol role="list" className="flex items-center">
+                            {steps.map((step, stepIdx) => (
+                                <li key={step.name} className={`relative ${stepIdx !== steps.length - 1 ? 'pr-8 sm:pr-20' : ''}`}>
+                                    <div className="flex items-center">
+                                        <div
+                                            className={`${step.id < currentStep
+                                                ? 'bg-primary-600 hover:bg-primary-900 w-8 h-8 flex items-center justify-center rounded-full'
+                                                : step.id === currentStep
+                                                    ? 'border-2 border-primary-600 w-8 h-8 flex items-center justify-center rounded-full bg-white'
+                                                    : 'border-2 border-gray-300 w-8 h-8 flex items-center justify-center rounded-full bg-white'
+                                                }`}
+                                        >
+                                            {step.id < currentStep ? (
+                                                <CheckIcon className="w-5 h-5 text-white" aria-hidden="true" />
+                                            ) : (
+                                                <span
+                                                    className={`${step.id === currentStep ? 'text-primary-600' : 'text-gray-500'
+                                                        } text-sm font-medium`}
+                                                >
+                                                    {step.id}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <span className={`ml-4 text-sm font-medium ${step.id === currentStep ? 'text-primary-800' : 'text-gray-500'}`}>
+                                            {step.name}
+                                        </span>
                                     </div>
-                                    <span className={`ml-4 text-sm font-medium ${step.id === currentStep ? 'text-primary-800' : 'text-gray-500'}`}>
-                                        {step.name}
-                                    </span>
-                                </div>
-                                {stepIdx !== steps.length - 1 && (
-                                    <div className="absolute top-4 w-full h-0.5 bg-gray-200 left-0 -ml-px mt-0.5 hidden sm:block" style={{ left: '2rem', width: 'calc(100% - 2rem)' }} />
-                                )}
-                            </li>
-                        ))}
-                    </ol>
-                </nav>
+                                    {stepIdx !== steps.length - 1 && (
+                                        <div className="absolute top-4 w-full h-0.5 bg-gray-200 left-0 -ml-px mt-0.5 hidden sm:block" style={{ left: '2rem', width: 'calc(100% - 2rem)' }} />
+                                    )}
+                                </li>
+                            ))}
+                        </ol>
+                    </nav>
+
+                    {/* Save Draft Button */}
+                    {onSaveDraft && (
+                        <button
+                            type="button"
+                            onClick={handleSaveDraft}
+                            className="inline-flex items-center px-4 py-2 border border-amber-300 shadow-sm text-sm font-medium rounded-md text-amber-700 bg-amber-50 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors"
+                        >
+                            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            Simpan Draft
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Content */}

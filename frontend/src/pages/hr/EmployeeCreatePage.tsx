@@ -23,6 +23,19 @@ const EmployeeCreatePage: React.FC = () => {
         navigate('/hr/employees');
     };
 
+    // Save as Draft handler - saves incomplete employee data
+    const handleSaveDraft = async (formData: FormData) => {
+        try {
+            await employeeService.createEmployee(formData);
+            toast.success('Draft karyawan berhasil disimpan');
+            navigate('/hr/employees?is_draft=true');
+        } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+            console.error('Failed to save draft:', error);
+            const message = error.response?.data?.message || 'Gagal menyimpan draft';
+            toast.error(message);
+        }
+    };
+
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-6">
@@ -34,6 +47,7 @@ const EmployeeCreatePage: React.FC = () => {
 
             <EmployeeWizard
                 onComplete={handleComplete}
+                onSaveDraft={handleSaveDraft}
                 onCancel={handleCancel}
             />
         </div>
