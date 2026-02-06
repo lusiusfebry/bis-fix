@@ -49,6 +49,7 @@ const EmployeeDetailPage: React.FC = () => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [activeTab, setActiveTab] = useState('personal');
     const [isPhotoZoomed, setIsPhotoZoomed] = useState(false);
+    const [showIDCard, setShowIDCard] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
     const { can } = usePermission();
@@ -220,13 +221,22 @@ const EmployeeDetailPage: React.FC = () => {
                             employeeName={employee.nama_lengkap}
                         />
                         <div className="flex flex-col gap-2.5">
-                            <button
-                                onClick={() => window.print()}
-                                className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-sm hover:shadow-md active:scale-95"
-                            >
-                                <span className="material-symbols-outlined text-xl">qr_code_2</span>
-                                CETAK QR ID
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setShowIDCard(true)}
+                                    className="flex-1 bg-white dark:bg-[#2a3447] text-[#0d121b] dark:text-white border border-[#e7ebf3] dark:border-[#374151] px-3 py-2.5 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 hover:bg-[#f6f6f8] dark:hover:bg-[#374151] transition-all shadow-sm active:scale-95"
+                                >
+                                    <span className="material-symbols-outlined text-xl">badge</span>
+                                    LIHAT ID
+                                </button>
+                                <button
+                                    onClick={() => window.print()}
+                                    className="flex-1 bg-primary text-white px-3 py-2.5 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-sm hover:shadow-md active:scale-95"
+                                >
+                                    <span className="material-symbols-outlined text-xl">print</span>
+                                    CETAK
+                                </button>
+                            </div>
                             {canDelete && (
                                 <button
                                     onClick={() => setShowDeleteConfirm(true)}
@@ -430,7 +440,7 @@ const EmployeeDetailPage: React.FC = () => {
                     >
                         <motion.img
                             layoutId="profile-photo"
-                            src={`http://localhost:3000${employee.foto_karyawan}`}
+                            src={employee.foto_karyawan.startsWith('http') ? employee.foto_karyawan : `http://localhost:3000${employee.foto_karyawan}`}
                             alt={employee.nama_lengkap}
                             className="max-h-[90vh] max-w-[90vw] object-contain rounded-2xl shadow-2xl"
                             transition={{
@@ -439,6 +449,40 @@ const EmployeeDetailPage: React.FC = () => {
                                 damping: 30
                             }}
                         />
+                    </motion.div>
+                )}
+                {showIDCard && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setShowIDCard(false)}
+                        className="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-transparent"
+                        >
+                            <EmployeeIDCard employee={employee} />
+                            <div className="flex justify-center gap-4 mt-6">
+                                <button
+                                    onClick={() => window.print()}
+                                    className="bg-white text-black px-6 py-2 rounded-full font-bold hover:bg-gray-100 transition-colors flex items-center gap-2"
+                                >
+                                    <span className="material-symbols-outlined">print</span>
+                                    Cetak
+                                </button>
+                                <button
+                                    onClick={() => setShowIDCard(false)}
+                                    className="bg-white/20 text-white px-6 py-2 rounded-full font-bold hover:bg-white/30 transition-colors backdrop-blur-md"
+                                >
+                                    Tutup
+                                </button>
+                            </div>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>

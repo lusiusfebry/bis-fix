@@ -251,6 +251,66 @@ router.get('/audit-logs/:id', checkPermission(RESOURCES.AUDIT_LOGS, ACTIONS.READ
 router.get('/audit-logs', checkPermission(RESOURCES.AUDIT_LOGS, ACTIONS.READ), auditController.getAuditLogs);
 
 
+// Export Routes
+import exportController from '../controllers/export.controller';
+
+/**
+ * @swagger
+ * /hr/employees/export/excel:
+ *   get:
+ *     summary: Export employees to Excel
+ *     description: Downloads an Excel file containing all employee data based on current system state.
+ *     tags: [Export]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Excel file retrieved successfully
+ *         content:
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema: { type: string, format: binary }
+ *       401:
+ *         $ref: '#/components/schemas/ApiError'
+ */
+router.get(
+    '/employees/export/excel',
+    checkPermission(RESOURCES.EXPORT, ACTIONS.EXPORT),
+    (req, res, next) => exportController.exportToExcel(req, res, next)
+);
+
+/**
+ * @swagger
+ * /hr/employees/{id}/export/pdf:
+ *   get:
+ *     summary: Export employee to PDF
+ *     description: Generates and downloads a personal profile PDF for a specific employee.
+ *     tags: [Export]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: number }
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: PDF file retrieved successfully
+ *         content:
+ *           application/pdf:
+ *             schema: { type: string, format: binary }
+ *       401:
+ *         $ref: '#/components/schemas/ApiError'
+ *       404:
+ *         $ref: '#/components/schemas/ApiError'
+ */
+router.get(
+    '/employees/:id/export/pdf',
+    checkPermission(RESOURCES.EXPORT, ACTIONS.EXPORT),
+    checkResourceOwnership('employee'),
+    (req, res, next) => exportController.exportEmployeeToPDF(req, res, next)
+);
+
 // Employee Routes
 /**
  * @swagger
@@ -1045,65 +1105,7 @@ router.post(
     (req, res, next) => importController.downloadErrorReport(req, res, next)
 );
 
-// Export Routes
-import exportController from '../controllers/export.controller';
 
-/**
- * @swagger
- * /hr/employees/export/excel:
- *   get:
- *     summary: Export employees to Excel
- *     description: Downloads an Excel file containing all employee data based on current system state.
- *     tags: [Export]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Excel file retrieved successfully
- *         content:
- *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
- *             schema: { type: string, format: binary }
- *       401:
- *         $ref: '#/components/schemas/ApiError'
- */
-router.get(
-    '/employees/export/excel',
-    checkPermission(RESOURCES.EXPORT, ACTIONS.EXPORT),
-    (req, res, next) => exportController.exportToExcel(req, res, next)
-);
-
-/**
- * @swagger
- * /hr/employees/{id}/export/pdf:
- *   get:
- *     summary: Export employee to PDF
- *     description: Generates and downloads a personal profile PDF for a specific employee.
- *     tags: [Export]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema: { type: number }
- *         example: 1
- *     responses:
- *       200:
- *         description: PDF file retrieved successfully
- *         content:
- *           application/pdf:
- *             schema: { type: string, format: binary }
- *       401:
- *         $ref: '#/components/schemas/ApiError'
- *       404:
- *         $ref: '#/components/schemas/ApiError'
- */
-router.get(
-    '/employees/:id/export/pdf',
-    checkPermission(RESOURCES.EXPORT, ACTIONS.EXPORT),
-    checkResourceOwnership('employee'),
-    (req, res, next) => exportController.exportEmployeeToPDF(req, res, next)
-);
 
 
 

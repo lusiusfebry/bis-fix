@@ -105,7 +105,7 @@ export const ExcelUpload: React.FC<ExcelUploadProps> = ({
                 <div className="mt-4 text-center">
                     <p className="text-sm text-gray-500">
                         Belum punya template?{' '}
-                        <a href={templateUrl} className="font-medium text-primary-600 hover:text-primary-500">
+                        <a href={templateUrl} download target="_blank" rel="noopener noreferrer" className="font-medium text-primary-600 hover:text-primary-500">
                             Download Template Excel
                         </a>
                     </p>
