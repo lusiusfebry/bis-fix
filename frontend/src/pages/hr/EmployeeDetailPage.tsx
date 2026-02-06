@@ -48,6 +48,7 @@ const EmployeeDetailPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [activeTab, setActiveTab] = useState('personal');
+    const [isPhotoZoomed, setIsPhotoZoomed] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
     const { can } = usePermission();
@@ -158,9 +159,13 @@ const EmployeeDetailPage: React.FC = () => {
                             {/* Glowing Ring */}
                             <div className="absolute -inset-1 bg-gradient-to-tr from-primary via-blue-400 to-cyan-300 rounded-[1.4rem] opacity-40 blur-sm group-hover:opacity-75 transition duration-500"></div>
 
-                            <div className="relative bg-white dark:bg-[#161e2e] rounded-2xl size-28 border border-[#e7ebf3]/50 dark:border-white/10 overflow-hidden shrink-0 shadow-lg p-1.5 backdrop-blur-sm">
+                            <div
+                                className={`relative bg-white dark:bg-[#161e2e] rounded-2xl size-28 border border-[#e7ebf3]/50 dark:border-white/10 overflow-hidden shrink-0 shadow-lg p-1.5 backdrop-blur-sm ${employee.foto_karyawan ? 'cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all' : ''}`}
+                                onClick={() => employee.foto_karyawan && setIsPhotoZoomed(true)}
+                            >
                                 {employee.foto_karyawan ? (
-                                    <img
+                                    <motion.img
+                                        layoutId="profile-photo"
                                         src={`http://localhost:3000${employee.foto_karyawan}`}
                                         alt={employee.nama_lengkap}
                                         className="h-full w-full object-cover rounded-xl"
@@ -413,6 +418,31 @@ const EmployeeDetailPage: React.FC = () => {
                     <EmployeeIDCard employee={employee} />
                 </div>
             </div>
+            {/* Zoom Modal */}
+            <AnimatePresence>
+                {isPhotoZoomed && employee.foto_karyawan && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsPhotoZoomed(false)}
+                        className="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 cursor-zoom-out"
+                    >
+                        <motion.img
+                            layoutId="profile-photo"
+                            src={`http://localhost:3000${employee.foto_karyawan}`}
+                            alt={employee.nama_lengkap}
+                            className="max-h-[90vh] max-w-[90vw] object-contain rounded-2xl shadow-2xl"
+                            transition={{
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 30
+                            }}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
         </div>
     );
 };

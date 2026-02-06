@@ -12,7 +12,9 @@ const app = express();
 import { performanceMonitor } from './shared/middleware/performance.middleware';
 import { apiLimiter } from './shared/middleware/rate-limit.middleware';
 app.use(performanceMonitor);
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(cors({ origin: env.corsOrigin }));
 app.use(express.json({ limit: '10mb' })); // Limit request body size
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
