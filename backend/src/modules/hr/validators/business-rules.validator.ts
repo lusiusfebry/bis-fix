@@ -41,26 +41,28 @@ export const validateAtasanLangsungActive = async (atasanId: number): Promise<Va
     };
 };
 
-export const validateDepartmentBelongsToDivisi = async (departmentId: number, divisiId: number): Promise<ValidationResult> => {
+export const validateDepartmentBelongsToDivisi = async (departmentId: number | string, divisiId: number | string): Promise<ValidationResult> => {
     const department = await Department.findByPk(departmentId);
     if (!department) {
         return { valid: false, message: 'Department not found' };
     }
 
-    const isValid = department.divisi_id === divisiId;
+    // Use Number() to handle string inputs from FormData
+    const isValid = Number(department.divisi_id) === Number(divisiId);
     return {
         valid: isValid,
         message: isValid ? undefined : ERROR_MESSAGES.DEPARTMENT_NOT_IN_DIVISI
     };
 };
 
-export const validatePosisiJabatanBelongsToDepartment = async (posisiId: number, departmentId: number): Promise<ValidationResult> => {
+export const validatePosisiJabatanBelongsToDepartment = async (posisiId: number | string, departmentId: number | string): Promise<ValidationResult> => {
     const posisi = await PosisiJabatan.findByPk(posisiId);
     if (!posisi) {
         return { valid: false, message: 'Position not found' };
     }
 
-    const isValid = posisi.department_id === departmentId;
+    // Use Number() to handle string inputs from FormData
+    const isValid = Number(posisi.department_id) === Number(departmentId);
     return {
         valid: isValid,
         message: isValid ? undefined : ERROR_MESSAGES.POSISI_NOT_IN_DEPARTMENT

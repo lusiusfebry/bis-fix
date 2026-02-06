@@ -293,15 +293,12 @@ class EmployeeService {
     }
 
     async createEmployeeComplete(employeeData: EmployeeCreationAttributes, personalInfoData: any, hrInfoData: any, familyInfoData: any, photoPath?: string, options?: { transaction?: any }) {
-        // Skip validation for drafts
-        const isDraft = employeeData.is_draft === true;
+        // Run Business Rule Validation for ALL (Draft, Create, etc.)
+        // As requested: "validasi untuk semua sub menu master data... ketika add, simpan draft maupun edit"
 
-        if (!isDraft) {
-            // Run Business Rule Validation First
-            // Merge data for validation
-            const validationData = { ...employeeData, ...hrInfoData };
-            await this.validateEmployeeBusinessRules(validationData, false);
-        }
+        const validationData = { ...employeeData, ...hrInfoData };
+        await this.validateEmployeeBusinessRules(validationData, false);
+
         const t = options?.transaction || await sequelize.transaction();
         const isExternalTransaction = !!options?.transaction;
 
@@ -354,7 +351,9 @@ class EmployeeService {
     }
 
     async updateEmployeeComplete(id: number, employeeData: Partial<Employee>, personalInfoData: any, hrInfoData: any, familyInfoData: any, photoPath?: string) {
-        // Run Business Rule Validation
+        // Run Business Rule Validation for ALL (Draft or not)
+        // User requested: "validasi untuk semua sub menu master data... ketika add, simpan draft maupun edit"
+
         const validationData = { ...employeeData, ...hrInfoData };
         await this.validateEmployeeBusinessRules(validationData, true, id);
 

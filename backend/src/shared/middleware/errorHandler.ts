@@ -4,11 +4,12 @@ import { env } from '../../config/env';
 
 export const errorHandler = (err: any, req: Request, res: Response, _next: NextFunction) => {
     // logger.error(err.message, { stack: err.stack });
+    console.error('Error caught in handler:', err.message);
 
     // Handle custom validation error thrown as Error with JSON string
     try {
         const parsed = JSON.parse(err.message);
-        if (parsed.message === 'Terjadi kesalahan validasi' && Array.isArray(parsed.errors)) {
+        if (parsed.message && Array.isArray(parsed.errors)) {
             return res.status(400).json({
                 status: 'error',
                 message: parsed.message,
@@ -18,6 +19,14 @@ export const errorHandler = (err: any, req: Request, res: Response, _next: NextF
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_e) {
         // Not a JSON error, proceed
+    }
+
+    // Handle standard validation/business errors (non-JSON)
+    if (err.statusCode) {
+        return res.status(err.statusCode).json({
+            status: 'error',
+            message: err.message
+        });
     }
 
     res.status(500).json({

@@ -18,7 +18,24 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({ value, onChange, error
         }
 
         if (typeof value === 'string') {
-            setPreview(value);
+            if (value.startsWith('/uploads')) {
+                // If it's a relative path from uploads, prepend backend URL
+                // We try to get origin from VITE_API_URL or fallback to localhost:3000
+                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+                try {
+                    // Handle case where API_URL might be full URL or just path (though unlikely for env)
+                    if (apiUrl.startsWith('http')) {
+                        const url = new URL(apiUrl);
+                        setPreview(`${url.origin}${value}`);
+                    } else {
+                        setPreview(`http://localhost:3000${value}`);
+                    }
+                } catch {
+                    setPreview(`http://localhost:3000${value}`);
+                }
+            } else {
+                setPreview(value);
+            }
         } else if (value instanceof File) {
             const objectUrl = URL.createObjectURL(value);
             setPreview(objectUrl);

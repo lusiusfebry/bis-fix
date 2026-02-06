@@ -70,11 +70,24 @@ const EmployeeEditPage: React.FC = () => {
             // Handle validation errors with detailed messages
             const responseData = error.response?.data;
             if (responseData?.errors && Array.isArray(responseData.errors)) {
-                // Show each validation error
-                responseData.errors.forEach((err: string) => toast.error(err));
+                // Show each validation error - handle both string and object formats
+                responseData.errors.forEach((err: string | { field?: string; message: string }) => {
+                    const errorMessage = typeof err === 'string' ? err : err.message;
+                    toast.error(errorMessage);
+                });
+
+                // Add specific guidance for drafts
+                if (employee?.is_draft) {
+                    toast.success("💡 GUNAKAN TOMBOL 'SIMPAN DRAFT' (KUNING) DI BAWAH JIKA DATA BELUM LENGKAP.", { duration: 6000 });
+                }
             } else {
                 const message = responseData?.message || 'Gagal memperbarui karyawan';
-                toast.error(message);
+                if (employee?.is_draft && message.includes('Validation')) {
+                    toast.error(message);
+                    toast.success("💡 GUNAKAN TOMBOL 'SIMPAN DRAFT' (KUNING) DI BAWAH JIKA DATA BELUM LENGKAP.", { duration: 6000 });
+                } else {
+                    toast.error(message);
+                }
             }
         }
     };
@@ -92,8 +105,16 @@ const EmployeeEditPage: React.FC = () => {
             navigate('/hr/employees?is_draft=true');
         } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             console.error('Failed to save draft:', error);
-            const message = error.response?.data?.message || 'Gagal menyimpan draft';
-            toast.error(message);
+            const responseData = error.response?.data;
+            if (responseData?.errors && Array.isArray(responseData.errors)) {
+                responseData.errors.forEach((err: string | { field?: string; message: string }) => {
+                    const errorMessage = typeof err === 'string' ? err : err.message;
+                    toast.error(errorMessage);
+                });
+            } else {
+                const message = responseData?.message || 'Gagal menyimpan draft';
+                toast.error(message);
+            }
         }
     };
 

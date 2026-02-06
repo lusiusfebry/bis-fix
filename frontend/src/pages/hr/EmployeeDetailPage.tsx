@@ -9,7 +9,10 @@ import { Employee } from '../../types/hr';
 import { EmployeeFamilyInfoView } from '../../components/hr/EmployeeFamilyInfoView';
 import { EmployeeHRInfoView } from '../../components/hr/EmployeeHRInfoView';
 import { EmployeeDocumentsSection } from '../../components/hr/EmployeeDocumentsSection';
+import { EmployeeIDCard } from '../../components/hr/EmployeeIDCard';
 import { EmployeeQRCode } from '../../components/hr/EmployeeQRCode';
+
+
 import EntityHistoryTimeline from '../../components/hr/EntityHistoryTimeline';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { usePermission } from '../../hooks/usePermission';
@@ -212,7 +215,10 @@ const EmployeeDetailPage: React.FC = () => {
                             employeeName={employee.nama_lengkap}
                         />
                         <div className="flex flex-col gap-2.5">
-                            <button className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-sm hover:shadow-md active:scale-95">
+                            <button
+                                onClick={() => window.print()}
+                                className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-sm hover:shadow-md active:scale-95"
+                            >
                                 <span className="material-symbols-outlined text-xl">qr_code_2</span>
                                 CETAK QR ID
                             </button>
@@ -400,6 +406,13 @@ const EmployeeDetailPage: React.FC = () => {
                 onCancel={() => setShowDeleteConfirm(false)}
                 isLoading={isDeleting}
             />
+
+            {/* Print Only View */}
+            <div className="hidden print:flex fixed inset-0 z-[9999] bg-white items-center justify-center">
+                <div className="qr-print-only scale-125 origin-center">
+                    <EmployeeIDCard employee={employee} />
+                </div>
+            </div>
         </div>
     );
 };

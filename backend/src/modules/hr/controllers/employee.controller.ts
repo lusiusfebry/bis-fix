@@ -262,11 +262,16 @@ class EmployeeController {
             const photoPath = req.file ? `/uploads/employees/photos/${req.file.filename}` : undefined;
 
             if (employeeData.nomor_induk_karyawan) {
+                console.log(`[DEBUG] Validating NIK: ${employeeData.nomor_induk_karyawan} for ID: ${id}`);
                 const isUnique = await employeeService.validateNIKUnique(employeeData.nomor_induk_karyawan, id);
+                console.log(`[DEBUG] NIK Unique: ${isUnique}`);
                 if (!isUnique) {
+                    console.log('[DEBUG] NIK Validation Failed');
                     return res.status(400).json({ message: 'NIK already exists' });
                 }
             }
+
+            console.log('[DEBUG] Calling updateEmployeeComplete with data:', JSON.stringify({ is_draft: employeeData.is_draft }));
 
             const employee = await employeeService.updateEmployeeComplete(id, employeeData, personalInfoData, hrInfoData, familyInfoData, photoPath);
 
