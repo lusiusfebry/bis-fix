@@ -18,16 +18,18 @@ interface EmployeeStep3FormProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     headData?: any;
     onNext: (data: EmployeeStep3FormValues) => void;
+    onSaveDraft?: (data: Partial<EmployeeStep3FormValues>) => void;
     onBack: () => void;
 }
 
-export const EmployeeStep3Form: React.FC<EmployeeStep3FormProps> = ({ initialData, headData, onNext, onBack }) => {
+export const EmployeeStep3Form: React.FC<EmployeeStep3FormProps> = ({ initialData, headData, onNext, onSaveDraft, onBack }) => {
     const {
         register,
         control,
         handleSubmit,
         watch,
         setValue,
+        getValues,
         formState: { errors }
     } = useForm<EmployeeStep3FormValues>({
         resolver: zodResolver(employeeStep3Schema),
@@ -374,16 +376,31 @@ export const EmployeeStep3Form: React.FC<EmployeeStep3FormProps> = ({ initialDat
                 </div>
             </div>
 
-            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 -mx-6 -mb-6 flex justify-end space-x-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
-                <Button variant="outline" type="button" onClick={onBack}>
-                    Kembali
-                </Button>
-                <Button variant="primary" type="submit" className="flex items-center">
-                    <span className="mr-2">Simpan Seluruh Data</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                        <path fillRule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clipRule="evenodd" />
-                    </svg>
-                </Button>
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 -mx-6 -mb-6 flex justify-between shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
+                <div>
+                    {onSaveDraft && (
+                        <Button
+                            variant="outline"
+                            type="button"
+                            onClick={() => onSaveDraft(getValues())}
+                            className="border-amber-300 text-amber-700 hover:bg-amber-50"
+                        >
+                            <span className="material-symbols-outlined text-[18px] mr-2">draft</span>
+                            Simpan Draft
+                        </Button>
+                    )}
+                </div>
+                <div className="flex space-x-3">
+                    <Button variant="outline" type="button" onClick={onBack}>
+                        Kembali
+                    </Button>
+                    <Button variant="primary" type="submit" className="flex items-center">
+                        <span className="mr-2">Simpan Seluruh Data</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                            <path fillRule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clipRule="evenodd" />
+                        </svg>
+                    </Button>
+                </div>
             </div>
         </form>
     );

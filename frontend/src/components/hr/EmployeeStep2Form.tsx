@@ -11,7 +11,10 @@ import {
     useGolonganList,
     useSubGolonganList,
     useLokasiKerjaList,
-    // useEmployeeList 
+    usePosisiByDept,
+    useDivisiList,
+    useDepartmentList,
+    useEmployeeList
 } from '../../hooks/useMasterData';
 import {
     BriefcaseIcon,
@@ -34,15 +37,17 @@ interface EmployeeStep2FormProps {
     headData?: any;
     employeeId?: number;
     onNext: (data: EmployeeStep2FormValues) => void;
+    onSaveDraft?: (data: Partial<EmployeeStep2FormValues>) => void;
     onBack: () => void;
 }
 
-export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialData, headData, employeeId, onNext, onBack }) => {
+export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialData, headData, employeeId, onNext, onSaveDraft, onBack }) => {
     const {
         register,
         control,
         handleSubmit,
         setValue,
+        getValues,
         formState: { errors }
     } = useForm<EmployeeStep2FormValues>({
         resolver: zodResolver(employeeStep2Schema),
@@ -81,6 +86,45 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
     const { data: subGolonganList } = useSubGolonganList();
     const { data: lokasiList } = useLokasiKerjaList();
 
+    // Additional hooks for Kepegawaian display
+    const { data: posisiJabatanList } = usePosisiByDept(headData?.department_id ? Number(headData.department_id) : undefined);
+    const { data: divisiList } = useDivisiList();
+    const { data: departmentList } = useDepartmentList();
+    const { data: employeeList } = useEmployeeList();
+
+    // Helper functions to lookup names by ID
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getPosisiJabatanName = (id: any) => {
+        if (!id || !posisiJabatanList?.data) return '-';
+        const numId = Number(id);
+        const found = posisiJabatanList.data.find((item: { id: number; nama: string }) => item.id === numId);
+        return found?.nama || '-';
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getDivisiName = (id: any) => {
+        if (!id || !divisiList?.data) return '-';
+        const numId = Number(id);
+        const found = divisiList.data.find((item: { id: number; nama: string }) => item.id === numId);
+        return found?.nama || '-';
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getDepartmentName = (id: any) => {
+        if (!id || !departmentList?.data) return '-';
+        const numId = Number(id);
+        const found = departmentList.data.find((item: { id: number; nama: string }) => item.id === numId);
+        return found?.nama || '-';
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getEmployeeName = (id: any) => {
+        if (!id || !employeeList?.data) return '-';
+        const numId = Number(id);
+        const found = employeeList.data.find((item: { id: number; nama_lengkap: string }) => item.id === numId);
+        return found?.nama_lengkap || '-';
+    };
+
     // Determine if contract dates should be shown
     const selectedJenisKontrakId = useWatch({ control, name: 'jenis_hubungan_kerja_id' });
     const isContract = React.useMemo(() => {
@@ -111,16 +155,12 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Input label="NIK" disabled {...register('nomor_induk_karyawan')} className="bg-gray-100 placeholder-gray-500" />
                     <Input label="Email Perusahaan" disabled {...register('email_perusahaan')} className="bg-gray-100 placeholder-gray-500" />
-                    {/* Display names if available in headData for better UX, though we primarily pass IDs. 
-                        Since headData is strictly what we have in form state (IDs), we'll display IDs or placeholders 
-                        if logic to fetch names isn't added. For now, we bind to IDs to ensure data consistency 
-                        but mark as disabled. Ideally we'd look up the names from master data hooks.
-                    */}
+                    {/* Display names looked up from master data */}
                     <div className="col-span-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Posisi Jabatan</label>
                         <input
                             disabled
-                            value={headData?.posisi_jabatan_id || ''}
+                            value={getPosisiJabatanName(headData?.posisi_jabatan_id)}
                             className="bg-gray-100 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm text-gray-500"
                         />
                     </div>
@@ -128,7 +168,7 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
                         <label className="block text-sm font-medium text-gray-700 mb-1">Divisi</label>
                         <input
                             disabled
-                            value={headData?.divisi_id || ''}
+                            value={getDivisiName(headData?.divisi_id)}
                             className="bg-gray-100 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm text-gray-500"
                         />
                     </div>
@@ -136,7 +176,7 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
                         <label className="block text-sm font-medium text-gray-700 mb-1">Departemen</label>
                         <input
                             disabled
-                            value={headData?.department_id || ''}
+                            value={getDepartmentName(headData?.department_id)}
                             className="bg-gray-100 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm text-gray-500"
                         />
                     </div>
@@ -144,7 +184,7 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
                         <label className="block text-sm font-medium text-gray-700 mb-1">Manager</label>
                         <input
                             disabled
-                            value={headData?.manager_id || ''}
+                            value={getEmployeeName(headData?.manager_id)}
                             className="bg-gray-100 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm text-gray-500"
                         />
                     </div>
@@ -152,7 +192,7 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
                         <label className="block text-sm font-medium text-gray-700 mb-1">Atasan Langsung</label>
                         <input
                             disabled
-                            value={headData?.atasan_langsung_id || ''}
+                            value={getEmployeeName(headData?.atasan_langsung_id)}
                             className="bg-gray-100 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm text-gray-500"
                         />
                     </div>
@@ -195,12 +235,12 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
             </div>
 
             {/* Section 2.5: Dokumen Kontrak */}
-            {employeeId && (
-                <div className="bg-white border rounded-lg p-6 shadow-sm">
-                    <h4 className="flex items-center text-lg font-medium text-gray-900 mb-4 border-b pb-2">
-                        <DocumentTextIcon className="w-5 h-5 mr-2 text-primary-600" />
-                        Dokumen Kontrak
-                    </h4>
+            <div className="bg-white border rounded-lg p-6 shadow-sm">
+                <h4 className="flex items-center text-lg font-medium text-gray-900 mb-4 border-b pb-2">
+                    <DocumentTextIcon className="w-5 h-5 mr-2 text-primary-600" />
+                    Dokumen Kontrak
+                </h4>
+                {employeeId ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <DocumentUpload
                             employeeId={employeeId}
@@ -215,8 +255,12 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
                             maxFiles={5}
                         />
                     </div>
-                </div>
-            )}
+                ) : (
+                    <div className="text-center py-8 text-gray-500">
+                        <p className="text-sm">Dokumen dapat diupload setelah data karyawan disimpan terlebih dahulu.</p>
+                    </div>
+                )}
+            </div>
 
             {/* Section 3: Education */}
             <div className="bg-white border rounded-lg p-6 shadow-sm">
@@ -400,16 +444,31 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
             </div>
 
             {/* Footer Action Bar */}
-            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 -mx-6 -mb-6 flex justify-end space-x-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
-                <Button variant="outline" type="button" onClick={onBack}>
-                    Kembali
-                </Button>
-                <Button variant="primary" type="submit" className="flex items-center">
-                    Lanjut ke Informasi Keluarga
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-2">
-                        <path fillRule="evenodd" d="M16.72 7.72a.75.75 0 011.06 0l3.75 3.75a.75.75 0 010 1.06l-3.75 3.75a.75.75 0 11-1.06-1.06l2.47-2.47H3a.75.75 0 010-1.5h16.19l-2.47-2.47a.75.75 0 010-1.06z" clipRule="evenodd" />
-                    </svg>
-                </Button>
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 -mx-6 -mb-6 flex justify-between shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
+                <div>
+                    {onSaveDraft && (
+                        <Button
+                            variant="outline"
+                            type="button"
+                            onClick={() => onSaveDraft(getValues())}
+                            className="border-amber-300 text-amber-700 hover:bg-amber-50"
+                        >
+                            <span className="material-symbols-outlined text-[18px] mr-2">draft</span>
+                            Simpan Draft
+                        </Button>
+                    )}
+                </div>
+                <div className="flex space-x-3">
+                    <Button variant="outline" type="button" onClick={onBack}>
+                        Kembali
+                    </Button>
+                    <Button variant="primary" type="submit" className="flex items-center">
+                        Lanjut ke Informasi Keluarga
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-2">
+                            <path fillRule="evenodd" d="M16.72 7.72a.75.75 0 011.06 0l3.75 3.75a.75.75 0 010 1.06l-3.75 3.75a.75.75 0 11-1.06-1.06l2.47-2.47H3a.75.75 0 010-1.5h16.19l-2.47-2.47a.75.75 0 010-1.06z" clipRule="evenodd" />
+                        </svg>
+                    </Button>
+                </div>
             </div>
 
         </form >

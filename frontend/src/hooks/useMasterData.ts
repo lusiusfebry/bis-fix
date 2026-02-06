@@ -79,7 +79,7 @@ export const useEmployeeList = (params?: any) => {
     });
 };
 
-export const useDeptByDivisi = (divisiId?: number) => {
+export const useDeptByDivisi = (divisiId?: number | null) => {
     return useQuery({
         queryKey: ['departments', 'by-divisi', divisiId],
         queryFn: async () => {
@@ -90,7 +90,7 @@ export const useDeptByDivisi = (divisiId?: number) => {
     });
 };
 
-export const usePosisiByDept = (departmentId?: number) => {
+export const usePosisiByDept = (departmentId?: number | null) => {
     return useQuery({
         queryKey: ['posisi', 'by-department', departmentId],
         queryFn: async () => {

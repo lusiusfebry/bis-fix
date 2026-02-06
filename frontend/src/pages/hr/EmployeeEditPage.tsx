@@ -67,8 +67,15 @@ const EmployeeEditPage: React.FC = () => {
             navigate('/hr/employees');
         } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             console.error('Failed to update employee:', error);
-            const message = error.response?.data?.message || 'Gagal memperbarui karyawan';
-            toast.error(message);
+            // Handle validation errors with detailed messages
+            const responseData = error.response?.data;
+            if (responseData?.errors && Array.isArray(responseData.errors)) {
+                // Show each validation error
+                responseData.errors.forEach((err: string) => toast.error(err));
+            } else {
+                const message = responseData?.message || 'Gagal memperbarui karyawan';
+                toast.error(message);
+            }
         }
     };
 

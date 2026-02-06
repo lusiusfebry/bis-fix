@@ -11,7 +11,7 @@ interface Option {
 interface SearchableSelectProps {
     label?: string;
     options: Option[];
-    value?: string | number;
+    value?: string | number | null;
     onChange: (value: string | number) => void;
     error?: string;
     placeholder?: string;

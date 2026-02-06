@@ -44,6 +44,7 @@ export const authLimiter = rateLimit({
     },
     standardHeaders: true,
     legacyHeaders: false,
+    validate: false, // Disable validation to prevent IPv6 error
     // Use IP for auth endpoints (not logged in yet)
     keyGenerator: (req) => req.ip || req.socket.remoteAddress || 'unknown',
 });
@@ -64,6 +65,7 @@ export const apiLimiter = rateLimit({
     },
     standardHeaders: true,
     legacyHeaders: false,
+    validate: false, // Disable validation to prevent IPv6 error
     // Use user ID for authenticated requests, IP as fallback
     keyGenerator: userKeyGenerator,
     // Skip rate limiting for successful requests (optional - comment out if you want strict limiting)
@@ -91,6 +93,7 @@ export const mutationLimiter = rateLimit({
     },
     standardHeaders: true,
     legacyHeaders: false,
+    validate: false, // Disable validation to prevent IPv6 error
     keyGenerator: userKeyGenerator,
 });
 

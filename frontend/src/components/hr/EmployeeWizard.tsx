@@ -102,6 +102,9 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
             }
         });
 
+        // Explicitly set is_draft to false for final save
+        payload.set('is_draft', 'false');
+
         onComplete(payload);
     };
 
@@ -179,6 +182,7 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
                         headData={formData} // Pass collected data to populate read-only fields
                         employeeId={initialData?.id}
                         onNext={handleStep2Next}
+                        onSaveDraft={handleSaveDraftFromStep}
                         onBack={handleStep2Back}
                     />
                 )}
@@ -187,6 +191,7 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
                         initialData={formData}
                         headData={formData}
                         onNext={handleStep3Next}
+                        onSaveDraft={handleSaveDraftFromStep}
                         onBack={handleStep3Back}
                     />
                 )}
