@@ -188,34 +188,9 @@ class ExcelImportService {
         const getValue = (dbField: string, excelHeaderFallback?: string) => {
             const excelHeader = Object.keys(mapping.employeeProfile).find(key => mapping.employeeProfile[key] === dbField);
             const val = excelHeader ? row[excelHeader] : (excelHeaderFallback ? row[excelHeaderFallback] : undefined);
-            if (dbField) rawValues[`${dbField}_raw`] = val; // Store raw for validation
+            if (dbField) rawValues[`${dbField}_raw`] = val;
             return val;
         };
-
-        // Mappings
-        employeeData.nama_lengkap = getValue('nama_lengkap', 'Nama Lengkap');
-        employeeData.nomor_induk_karyawan = getValue('nomor_induk_karyawan', 'No Induk Karyawan');
-        employeeData.email_perusahaan = getValue('email_perusahaan', 'Email Perusahaan');
-        employeeData.nomor_handphone = getValue('nomor_handphone', 'No Handphone');
-
-        // Foreign Keys
-        const checkLookup = async (type: string, dbField: string, excelKey: string) => {
-            const val = getValue(dbField, excelKey); // getValue already stores raw value
-            if (val) {
-                const id = await this.lookupMasterData(type, val, masterCache);
-                return id;
-            }
-            return null;
-        };
-
-        employeeData.divisi_id = await checkLookup('Divisi', 'divisi_id', 'Divisi');
-        employeeData.department_id = await checkLookup('Department', 'department_id', 'Departemen');
-        employeeData.posisi_jabatan_id = await checkLookup('PosisiJabatan', 'posisi_jabatan_id', 'Posisi');
-        employeeData.status_karyawan_id = await checkLookup('StatusKaryawan', 'status_karyawan_id', 'Status Karyawan');
-        employeeData.lokasi_kerja_id = await checkLookup('LokasiKerja', 'lokasi_kerja_id', 'Lokasi Kerja');
-
-        // Personal Info
-        personalInfoData.tempat_lahir = getValue('tempat_lahir', 'Tempat Lahir');
 
         const parseDate = (val: any) => {
             if (!val) return null;
@@ -224,16 +199,95 @@ class ExcelImportService {
             return isNaN(d.getTime()) ? null : d.toISOString().split('T')[0];
         };
 
-        personalInfoData.tanggal_lahir = parseDate(getValue('tanggal_lahir', 'Tanggal Lahir'));
-        personalInfoData.jenis_kelamin = getValue('jenis_kelamin', 'Jenis Kelamin');
-        personalInfoData.agama = getValue('agama', 'Agama');
-        personalInfoData.status_pernikahan = getValue('status_pernikahan', 'Status Pernikahan');
-        personalInfoData.nomor_ktp = getValue('nomor_ktp', 'NIK KTP');
-        personalInfoData.nomor_npwp = getValue('nomor_npwp', 'NPWP');
-        personalInfoData.alamat_domisili = getValue('alamat_domisili', 'Alamat Domisili');
+        const checkLookup = async (type: string, dbField: string, excelKey: string) => {
+            const val = getValue(dbField, excelKey);
+            if (val) {
+                const id = await this.lookupMasterData(type, val, masterCache);
+                return id;
+            }
+            return null;
+        };
 
-        hrInfoData.tanggal_masuk = parseDate(getValue('tanggal_masuk', 'Tanggal Masuk'));
-        hrInfoData.status_aktif = 'Aktif';
+        // --- EMPLOYEE DATA (Core) ---
+        employeeData.nama_lengkap = getValue('nama_lengkap', 'NAMA LENGKAP');
+        employeeData.nomor_induk_karyawan = getValue('nomor_induk_karyawan', 'NOMOR INDUK KARYAWAN');
+        employeeData.email_perusahaan = getValue('email_perusahaan', 'EMAIL PERUSAHAAN');
+        employeeData.nomor_handphone = getValue('nomor_handphone', 'NOMOR HP 1');
+        employeeData.is_draft = false;
+
+        // Foreign Keys
+        employeeData.divisi_id = await checkLookup('Divisi', 'divisi_id', 'DIVISI');
+        employeeData.department_id = await checkLookup('Department', 'department_id', 'DEPARTMENT');
+        employeeData.posisi_jabatan_id = await checkLookup('PosisiJabatan', 'posisi_jabatan_id', 'POSISI JABATAN');
+        employeeData.status_karyawan_id = await checkLookup('StatusKaryawan', 'status_karyawan_id', 'STATUS KARYAWAN');
+        employeeData.lokasi_kerja_id = await checkLookup('LokasiKerja', 'lokasi_kerja_id', 'LOKASI KERJA');
+
+        // --- PERSONAL INFO ---
+        personalInfoData.tempat_lahir = getValue('tempat_lahir', 'TEMPAT LAHIR');
+        personalInfoData.tanggal_lahir = parseDate(getValue('tanggal_lahir', 'TANGGAL LAHIR'));
+        personalInfoData.jenis_kelamin = getValue('jenis_kelamin', 'JENIS KELAMIN') === 'L' ? 'Laki-laki' : (getValue('jenis_kelamin', 'JENIS KELAMIN') === 'P' ? 'Perempuan' : getValue('jenis_kelamin', 'JENIS KELAMIN'));
+        personalInfoData.agama = getValue('agama', 'AGAMA');
+        personalInfoData.email_pribadi = getValue('email_pribadi', 'EMAIL PRIBADI');
+
+        personalInfoData.alamat_domisili = getValue('alamat_domisili', 'ALAMAT DOMISILI');
+        personalInfoData.kota_domisili = getValue('kota_domisili', 'KOTA DOMISILI');
+        personalInfoData.provinsi_domisili = getValue('propinsi_domisili', 'PROPINSI DOMISILI');
+        personalInfoData.nomor_telepon_rumah_1 = getValue('nomor_telepon_rumah_1', 'NOMOR TELEPON RUMAH 1');
+        personalInfoData.nomor_telepon_rumah_2 = getValue('nomor_telepon_rumah_2', 'NOMOR TELEPON RUMAH 2');
+        personalInfoData.nomor_handphone_2 = getValue('nomor_handphone_2', 'NOMOR HP 2');
+
+        personalInfoData.golongan_darah = getValue('golongan_darah', 'GOLONGAN DARAH');
+        personalInfoData.nomor_ktp = getValue('nomor_ktp', 'NOMOR KTP');
+        personalInfoData.alamat_ktp = getValue('alamat_ktp', 'ALAMAT KTP');
+        personalInfoData.nomor_npwp = getValue('nomor_npwp', 'NOMOR NPWP');
+        personalInfoData.nomor_bpjs = getValue('nomor_bpjs', 'NOMOR BPJS-TK');
+
+        personalInfoData.nomor_rekening = getValue('nomor_rekening', 'NOMOR REKENING');
+        personalInfoData.nama_pemegang_rekening = getValue('nama_pemegang_rekening', 'NAMA PEMILIK REKENING');
+        personalInfoData.nama_bank = getValue('nama_bank', 'NAMA BANK');
+        personalInfoData.cabang_bank = getValue('cabang_bank', 'CABANG BANK');
+
+        personalInfoData.status_pernikahan = getValue('status_pernikahan', 'STATUS PERNIKAHAN');
+        personalInfoData.tanggal_menikah = parseDate(getValue('tanggal_menikah', 'TANGGAL MENIKAH'));
+        personalInfoData.tanggal_cerai = parseDate(getValue('tanggal_cerai', 'TANGGAL CERAI'));
+        personalInfoData.tanggal_wafat_pasangan = parseDate(getValue('tanggal_wafat_pasangan', 'TANGGAL WAFAT PASANGAN'));
+        personalInfoData.nama_pasangan = getValue('nama_pasangan', 'NAMA PASANGAN NIKAH');
+        const tglLahirPasangan = parseDate(getValue('tanggal_lahir_pasangan', 'TANGGAL LAHIR PASANGAN'));
+        personalInfoData.pekerjaan_pasangan = getValue('pekerjaan_pasangan', 'PEKERJAAN PASANGAN');
+        const jmlAnakVal = getValue('jumlah_anak', 'JUMLAH ANAK');
+        personalInfoData.jumlah_anak = jmlAnakVal ? parseInt(jmlAnakVal) : 0;
+        personalInfoData.status_pajak = getValue('status_pajak', 'STATUS PAJAK');
+
+        // --- HR INFO ---
+        hrInfoData.tanggal_masuk = parseDate(getValue('tanggal_masuk', 'TANGGAL MASUK'));
+        hrInfoData.tanggal_masuk_group = parseDate(getValue('tanggal_join_group', 'TANGGAL JOIN GROUP'));
+        hrInfoData.tanggal_permanent = parseDate(getValue('tanggal_tetap', 'TANGGAL TETAP'));
+        hrInfoData.tanggal_kontrak = parseDate(getValue('tanggal_awal_kontrak', 'TANGGAL AWAL KONTRAK'));
+        hrInfoData.tanggal_akhir_kontrak = parseDate(getValue('tanggal_akhir_kontrak', 'TANGGAL AKHIR KONTRAK'));
+        hrInfoData.tanggal_berhenti = parseDate(getValue('tanggal_keluar', 'TANGGAL KELUAR'));
+
+        hrInfoData.lokasi_costing = getValue('lokasi_costing', 'LOKASI COSTING');
+        hrInfoData.actual = getValue('actual', 'ACTUAL');
+        hrInfoData.assign = getValue('assign', 'ASSIGN');
+
+        hrInfoData.kategori_pangkat_id = await checkLookup('KategoriPangkat', 'kategori_pangkat_id', 'PANGKAT KATEGORI');
+        hrInfoData.golongan_pangkat_id = await checkLookup('Golongan', 'golongan_pangkat_id', 'GOLONGAN');
+        hrInfoData.sub_golongan_pangkat_id = await checkLookup('SubGolongan', 'sub_golongan_pangkat_id', 'SUB GOLONGAN');
+        hrInfoData.jenis_hubungan_kerja_id = await checkLookup('JenisHubunganKerja', 'jenis_hubungan_kerja_id', 'JENIS HUBUNGAN KERJA');
+
+        hrInfoData.no_dana_pensiun = getValue('no_dana_pensiun', 'NOMOR DANA PENSIUN');
+
+        hrInfoData.tingkat_pendidikan = getValue('pendidikan', 'PENDIDIKAN TERAKHIR');
+        hrInfoData.bidang_studi = getValue('jurusan', 'JURUSAN PENDIDIKAN');
+        hrInfoData.nama_sekolah = getValue('sekolah', 'NAMA SEKOLAH');
+        hrInfoData.kota_sekolah = getValue('kota_sekolah', 'KOTA SEKOLAH');
+        hrInfoData.status_kelulusan = getValue('status_pendidikan', 'STATUS PENDIDIKAN');
+        hrInfoData.keterangan_pendidikan = getValue('ket_pendidikan', 'KETERANGAN PENDIDIKAN');
+
+        // --- FAMILY INFO ---
+        familyInfoData.tanggal_lahir_pasangan = tglLahirPasangan;
+        familyInfoData.pendidikan_terakhir_pasangan = getValue('pendidikan_pasangan', 'PENDIDIKAN TERAKHIR PASANGAN');
+        familyInfoData.keterangan_pasangan = getValue('ket_pasangan', 'KETERANGAN PASANGAN');
 
         return { employeeData, personalInfoData, hrInfoData, familyInfoData, rawValues };
     }
