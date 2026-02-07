@@ -810,7 +810,8 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
             </div >
 
             {/* Footer Action Bar */}
-            < div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 -mx-6 -mb-6 flex justify-end space-x-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 transition-transform" >
+            {/* Footer Action Bar */}
+            <div className="sticky bottom-6 bg-white border border-gray-200 p-4 rounded-lg shadow-lg flex justify-end space-x-3 z-10">
                 <Button variant="outline" type="button" onClick={onCancel}>
                     Batal
                 </Button>
@@ -833,7 +834,7 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                         <path fillRule="evenodd" d="M16.72 7.72a.75.75 0 011.06 0l3.75 3.75a.75.75 0 010 1.06l-3.75 3.75a.75.75 0 11-1.06-1.06l2.47-2.47H3a.75.75 0 010-1.5h16.19l-2.47-2.47a.75.75 0 010-1.06z" clipRule="evenodd" />
                     </svg>
                 </Button>
-            </div >
+            </div>
         </form >
     );
 };

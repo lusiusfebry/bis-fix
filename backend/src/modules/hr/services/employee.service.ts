@@ -350,16 +350,18 @@ class EmployeeService {
         return await this.getEmployeeById(employee.id);
     }
 
-    async updateEmployeeComplete(id: number, employeeData: Partial<Employee>, personalInfoData: any, hrInfoData: any, familyInfoData: any, photoPath?: string) {
+    async updateEmployeeComplete(id: number, employeeData: Partial<Employee>, personalInfoData: any, hrInfoData: any, familyInfoData: any, photoPath?: string, options?: { transaction?: any }) {
         // Run Business Rule Validation for ALL (Draft or not)
         // User requested: "validasi untuk semua sub menu master data... ketika add, simpan draft maupun edit"
 
         const validationData = { ...employeeData, ...hrInfoData };
         await this.validateEmployeeBusinessRules(validationData, true, id);
 
-        const t = await sequelize.transaction();
+        const t = options?.transaction || await sequelize.transaction();
+        const isExternalTransaction = !!options?.transaction;
+
         try {
-            const employee = await Employee.findByPk(id);
+            const employee = await Employee.findByPk(id, { transaction: t });
             if (!employee) throw new Error('Employee not found');
 
             if (photoPath) {
@@ -370,7 +372,7 @@ class EmployeeService {
 
             if (personalInfoData) {
                 // Upsert personal info
-                const existingPersonalInfo = await EmployeePersonalInfo.findOne({ where: { employee_id: id } });
+                const existingPersonalInfo = await EmployeePersonalInfo.findOne({ where: { employee_id: id }, transaction: t });
                 if (existingPersonalInfo) {
                     await existingPersonalInfo.update(personalInfoData, { transaction: t });
                 } else {
@@ -387,7 +389,7 @@ class EmployeeService {
                 if (typeof familyInfoData.data_saudara_kandung === 'string') familyInfoData.data_saudara_kandung = JSON.parse(familyInfoData.data_saudara_kandung);
 
                 // Upsert family info
-                const existingFamilyInfo = await EmployeeFamilyInfo.findOne({ where: { employee_id: id } });
+                const existingFamilyInfo = await EmployeeFamilyInfo.findOne({ where: { employee_id: id }, transaction: t });
                 if (existingFamilyInfo) {
                     await existingFamilyInfo.update(familyInfoData, { transaction: t });
                 } else {
@@ -400,7 +402,7 @@ class EmployeeService {
 
             if (hrInfoData) {
                 // Upsert hr info
-                const existingHRInfo = await EmployeeHRInfo.findOne({ where: { employee_id: id } });
+                const existingHRInfo = await EmployeeHRInfo.findOne({ where: { employee_id: id }, transaction: t });
                 if (existingHRInfo) {
                     await existingHRInfo.update(hrInfoData, { transaction: t });
                 } else {
@@ -411,10 +413,16 @@ class EmployeeService {
                 }
             }
 
-            await t.commit();
+            if (!isExternalTransaction) await t.commit();
             return await this.getEmployeeById(id);
         } catch (error) {
-            await t.rollback();
+            if (!isExternalTransaction) {
+                try {
+                    await t.rollback();
+                } catch {
+                    // Ignore rollback errors
+                }
+            }
             throw error;
         }
     }

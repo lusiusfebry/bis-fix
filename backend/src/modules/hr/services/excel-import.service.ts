@@ -349,15 +349,13 @@ class ExcelImportService {
 
                 // Additional Duplicate Checks
                 if (validationErrors.length === 0) {
-                    const isDuplicate = validEmployees.some(e => e.employeeData.nomor_induk_karyawan === mappedData.employeeData.nomor_induk_karyawan);
-                    if (isDuplicate) {
+                    // Check for duplicates WITHIN the file being imported
+                    const isDuplicateInFile = validEmployees.some(e => e.employeeData.nomor_induk_karyawan === mappedData.employeeData.nomor_induk_karyawan);
+                    if (isDuplicateInFile) {
                         validationErrors.push(`Duplicate NIK in file: ${mappedData.employeeData.nomor_induk_karyawan}`);
-                    } else {
-                        const exists = await employeeService.validateNIKUnique(mappedData.employeeData.nomor_induk_karyawan);
-                        if (!exists) {
-                            validationErrors.push(`NIK ${mappedData.employeeData.nomor_induk_karyawan} sudah terdaftar di sistem`);
-                        }
                     }
+                    
+                    // Note: We removed the check for "already registered in system" because we now support Upsert (Update if exists).
                 }
 
                 if (validationErrors.length > 0) {
@@ -377,23 +375,42 @@ class ExcelImportService {
             }
         }
 
-        // Phase 2: Bulk Insert in Transaction
+        // Phase 2: Bulk Insert/Update in Transaction
         if (validEmployees.length > 0) {
             const t = await sequelize.transaction();
             try {
                 for (const item of validEmployees) {
                     try {
-                        await employeeService.createEmployeeComplete(
-                            item.employeeData,
-                            item.personalInfoData,
-                            item.hrInfoData,
-                            item.familyInfoData,
-                            undefined,
-                            { transaction: t }
-                        );
+                        // Check if NIK exists to determine Create vs Update
+                        const existingEmployee = await employeeService.validateNIKUnique(item.employeeData.nomor_induk_karyawan)
+                            ? null
+                            : await import('../models/Employee').then(m => m.default.findOne({ where: { nomor_induk_karyawan: item.employeeData.nomor_induk_karyawan }, transaction: t }));
+
+                        if (existingEmployee) {
+                            // UDPATE
+                            await employeeService.updateEmployeeComplete(
+                                existingEmployee.id,
+                                item.employeeData,
+                                item.personalInfoData,
+                                item.hrInfoData,
+                                item.familyInfoData,
+                                undefined,
+                                { transaction: t }
+                            );
+                        } else {
+                            // CREATE
+                            await employeeService.createEmployeeComplete(
+                                item.employeeData,
+                                item.personalInfoData,
+                                item.hrInfoData,
+                                item.familyInfoData,
+                                undefined,
+                                { transaction: t }
+                            );
+                        }
                         result.success++;
                     } catch (e: any) {
-                        // If ANY insert fails, we must rollback ALL 
+                        // If ANY operation fails, we must rollback ALL 
                         throw new Error(`DB Error for NIK ${item.employeeData.nomor_induk_karyawan}: ${e.message}`);
                     }
                 }

@@ -123,9 +123,9 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
     // This implies the Wizard calls onComplete when ALL steps are done.
 
     return (
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="space-y-6">
             {/* Steps Indicator */}
-            <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-6 py-4">
                 <div className="flex items-center justify-between">
                     <nav aria-label="Progress">
                         <ol role="list" className="flex items-center">
@@ -166,7 +166,7 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
             </div>
 
             {/* Content */}
-            <div className="p-6">
+            <div>
                 {currentStep === 1 && (
                     <EmployeeStep1Form
                         initialData={formData}
