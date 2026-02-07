@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import employeeService from '../services/employee.service';
-import { parseIdParam } from '../../../shared/utils/validation.utils';
+import { parseIdParam, parseOptionalInt } from '../../../shared/utils/validation.utils';
+
+const parseDate = (value: any): string | null | undefined => {
+    if (!value || value === 'undefined' || value === 'null' || value === '') return null;
+    return value;
+};
 
 class EmployeeController {
     async getAll(req: Request, res: Response, next: NextFunction) {
@@ -93,15 +98,15 @@ class EmployeeController {
                 email_perusahaan: body.email_perusahaan,
                 nomor_handphone: body.nomor_handphone,
 
-                divisi_id: body.divisi_id ? parseInt(body.divisi_id) : undefined,
-                department_id: body.department_id ? parseInt(body.department_id) : undefined,
-                posisi_jabatan_id: body.posisi_jabatan_id ? parseInt(body.posisi_jabatan_id) : undefined,
-                status_karyawan_id: body.status_karyawan_id ? parseInt(body.status_karyawan_id) : 1, // Default to Aktif (ID 1)
-                lokasi_kerja_id: body.lokasi_kerja_id ? parseInt(body.lokasi_kerja_id) : undefined,
-                tag_id: body.tag_id ? parseInt(body.tag_id) : undefined,
-                manager_id: body.manager_id ? parseInt(body.manager_id) : undefined,
-                atasan_langsung_id: body.atasan_langsung_id ? parseInt(body.atasan_langsung_id) : undefined,
-                kategori_pangkat_id: body.kategori_pangkat_id ? parseInt(body.kategori_pangkat_id) : undefined,
+                divisi_id: parseOptionalInt(body.divisi_id),
+                department_id: parseOptionalInt(body.department_id),
+                posisi_jabatan_id: parseOptionalInt(body.posisi_jabatan_id),
+                status_karyawan_id: parseOptionalInt(body.status_karyawan_id) || 1, // Default to Aktif (ID 1)
+                lokasi_kerja_id: parseOptionalInt(body.lokasi_kerja_id),
+                tag_id: parseOptionalInt(body.tag_id),
+                manager_id: parseOptionalInt(body.manager_id),
+                atasan_langsung_id: parseOptionalInt(body.atasan_langsung_id),
+                kategori_pangkat_id: parseOptionalInt(body.kategori_pangkat_id),
                 is_draft: body.is_draft === 'true' || body.is_draft === true,
             };
 
@@ -109,7 +114,7 @@ class EmployeeController {
             const personalInfoData: any = {
                 jenis_kelamin: body.jenis_kelamin,
                 tempat_lahir: body.tempat_lahir,
-                tanggal_lahir: body.tanggal_lahir,
+                tanggal_lahir: parseDate(body.tanggal_lahir),
                 alamat_domisili: body.alamat_domisili,
                 kota_domisili: body.kota_domisili,
                 provinsi_domisili: body.provinsi_domisili,
@@ -122,8 +127,8 @@ class EmployeeController {
                 golongan_darah: body.golongan_darah,
                 nama_pasangan: body.nama_pasangan,
                 pekerjaan_pasangan: body.pekerjaan_pasangan,
-                tanggal_menikah: body.tanggal_menikah,
-                jumlah_anak: body.jumlah_anak ? parseInt(body.jumlah_anak) : 0,
+                tanggal_menikah: parseDate(body.tanggal_menikah),
+                jumlah_anak: parseOptionalInt(body.jumlah_anak) || 0,
                 nomor_rekening: body.nomor_rekening,
                 nama_bank: body.nama_bank,
                 cabang_bank: body.cabang_bank,
@@ -140,19 +145,19 @@ class EmployeeController {
                 akun_sosmed: body.akun_sosmed,
                 no_nik_kk: body.no_nik_kk,
                 status_pajak: body.status_pajak,
-                tanggal_cerai: body.tanggal_cerai,
-                tanggal_wafat_pasangan: body.tanggal_wafat_pasangan,
+                tanggal_cerai: parseDate(body.tanggal_cerai),
+                tanggal_wafat_pasangan: parseDate(body.tanggal_wafat_pasangan),
             };
 
             // 3. Map to HR Info Attributes
             const hrInfoData: any = {
-                jenis_hubungan_kerja_id: body.jenis_hubungan_kerja_id ? parseInt(body.jenis_hubungan_kerja_id) : undefined,
-                tanggal_masuk_group: body.tanggal_masuk_group,
-                tanggal_masuk: body.tanggal_masuk || body.joinDate,
-                tanggal_permanent: body.tanggal_permanent,
-                tanggal_kontrak: body.tanggal_kontrak,
-                tanggal_akhir_kontrak: body.tanggal_akhir_kontrak,
-                tanggal_berhenti: body.tanggal_berhenti,
+                jenis_hubungan_kerja_id: parseOptionalInt(body.jenis_hubungan_kerja_id),
+                tanggal_masuk_group: parseDate(body.tanggal_masuk_group),
+                tanggal_masuk: parseDate(body.tanggal_masuk || body.joinDate),
+                tanggal_permanent: parseDate(body.tanggal_permanent),
+                tanggal_kontrak: parseDate(body.tanggal_kontrak),
+                tanggal_akhir_kontrak: parseDate(body.tanggal_akhir_kontrak),
+                tanggal_berhenti: parseDate(body.tanggal_berhenti),
 
                 tingkat_pendidikan: body.tingkat_pendidikan || body.pendidikan_terakhir,
                 bidang_studi: body.bidang_studi || body.jurusan,
@@ -161,9 +166,9 @@ class EmployeeController {
                 status_kelulusan: body.status_kelulusan,
                 keterangan_pendidikan: body.keterangan_pendidikan,
 
-                kategori_pangkat_id: body.kategori_pangkat_id ? parseInt(body.kategori_pangkat_id) : undefined,
-                golongan_pangkat_id: body.golongan_pangkat_id || (body.golongan_id ? parseInt(body.golongan_id) : undefined),
-                sub_golongan_pangkat_id: body.sub_golongan_pangkat_id || (body.sub_golongan_id ? parseInt(body.sub_golongan_id) : undefined),
+                kategori_pangkat_id: parseOptionalInt(body.kategori_pangkat_id),
+                golongan_pangkat_id: parseOptionalInt(body.golongan_pangkat_id) || parseOptionalInt(body.golongan_id),
+                sub_golongan_pangkat_id: parseOptionalInt(body.sub_golongan_pangkat_id) || parseOptionalInt(body.sub_golongan_id),
                 no_dana_pensiun: body.no_dana_pensiun,
 
                 nama_kontak_darurat_1: body.nama_kontak_darurat_1,
@@ -181,8 +186,8 @@ class EmployeeController {
                 ukuran_seragam_kerja: body.ukuran_seragam_kerja,
                 ukuran_sepatu_kerja: body.ukuran_sepatu_kerja,
 
-                lokasi_sebelumnya_id: body.lokasi_sebelumnya_id ? parseInt(body.lokasi_sebelumnya_id) : undefined,
-                tanggal_mutasi: body.tanggal_mutasi,
+                lokasi_sebelumnya_id: parseOptionalInt(body.lokasi_sebelumnya_id),
+                tanggal_mutasi: parseDate(body.tanggal_mutasi),
                 siklus_pembayaran_gaji: body.siklus_pembayaran_gaji,
                 costing: body.costing,
                 assign: body.assign,
@@ -191,20 +196,20 @@ class EmployeeController {
 
             // 4. Map to Family Info Attributes
             const familyInfoData: any = {
-                tanggal_lahir_pasangan: body.tanggal_lahir_pasangan,
+                tanggal_lahir_pasangan: parseDate(body.tanggal_lahir_pasangan),
                 pendidikan_terakhir_pasangan: body.pendidikan_terakhir_pasangan,
                 keterangan_pasangan: body.keterangan_pasangan,
 
-                anak_ke: body.anak_ke ? parseInt(body.anak_ke) : undefined,
-                jumlah_saudara_kandung: body.jumlah_saudara_kandung ? parseInt(body.jumlah_saudara_kandung) : 0,
+                anak_ke: parseOptionalInt(body.anak_ke),
+                jumlah_saudara_kandung: parseOptionalInt(body.jumlah_saudara_kandung) || 0,
 
                 nama_ayah_mertua: body.nama_ayah_mertua,
-                tanggal_lahir_ayah_mertua: body.tanggal_lahir_ayah_mertua,
+                tanggal_lahir_ayah_mertua: parseDate(body.tanggal_lahir_ayah_mertua),
                 pendidikan_terakhir_ayah_mertua: body.pendidikan_terakhir_ayah_mertua,
                 keterangan_ayah_mertua: body.keterangan_ayah_mertua,
 
                 nama_ibu_mertua: body.nama_ibu_mertua,
-                tanggal_lahir_ibu_mertua: body.tanggal_lahir_ibu_mertua,
+                tanggal_lahir_ibu_mertua: parseDate(body.tanggal_lahir_ibu_mertua),
                 pendidikan_terakhir_ibu_mertua: body.pendidikan_terakhir_ibu_mertua,
                 keterangan_ibu_mertua: body.keterangan_ibu_mertua,
 
@@ -248,6 +253,7 @@ class EmployeeController {
                 } : null
             });
         } catch (error) {
+            console.error('[EmployeeController] Create Error:', error);
             next(error);
         }
     }
@@ -255,23 +261,63 @@ class EmployeeController {
     async update(req: Request, res: Response, next: NextFunction) {
         try {
             const id = parseInt(req.params.id);
-            const employeeData = req.body;
-            const personalInfoData = req.body;
-            const hrInfoData = req.body;
-            const familyInfoData = req.body;
+            const body = req.body;
             const photoPath = req.file ? `/uploads/employees/photos/${req.file.filename}` : undefined;
 
+            const employeeData = {
+                ...body,
+                divisi_id: parseOptionalInt(body.divisi_id),
+                department_id: parseOptionalInt(body.department_id),
+                posisi_jabatan_id: parseOptionalInt(body.posisi_jabatan_id),
+                status_karyawan_id: parseOptionalInt(body.status_karyawan_id),
+                lokasi_kerja_id: parseOptionalInt(body.lokasi_kerja_id),
+                tag_id: parseOptionalInt(body.tag_id),
+                manager_id: parseOptionalInt(body.manager_id),
+                atasan_langsung_id: parseOptionalInt(body.atasan_langsung_id),
+                kategori_pangkat_id: parseOptionalInt(body.kategori_pangkat_id),
+                is_draft: body.is_draft === 'true' || body.is_draft === true,
+            };
+
+            const personalInfoData = {
+                ...body,
+                tanggal_lahir: parseDate(body.tanggal_lahir),
+                tanggal_menikah: parseDate(body.tanggal_menikah),
+                tanggal_cerai: parseDate(body.tanggal_cerai),
+                tanggal_wafat_pasangan: parseDate(body.tanggal_wafat_pasangan),
+                jumlah_anak: parseOptionalInt(body.jumlah_anak),
+            };
+
+            const hrInfoData = {
+                ...body,
+                jenis_hubungan_kerja_id: parseOptionalInt(body.jenis_hubungan_kerja_id),
+                tanggal_masuk_group: parseDate(body.tanggal_masuk_group),
+                tanggal_masuk: parseDate(body.tanggal_masuk || body.joinDate),
+                tanggal_permanent: parseDate(body.tanggal_permanent),
+                tanggal_kontrak: parseDate(body.tanggal_kontrak),
+                tanggal_akhir_kontrak: parseDate(body.tanggal_akhir_kontrak),
+                tanggal_berhenti: parseDate(body.tanggal_berhenti),
+                kategori_pangkat_id: parseOptionalInt(body.kategori_pangkat_id),
+                golongan_pangkat_id: parseOptionalInt(body.golongan_pangkat_id) || parseOptionalInt(body.golongan_id),
+                sub_golongan_pangkat_id: parseOptionalInt(body.sub_golongan_pangkat_id) || parseOptionalInt(body.sub_golongan_id),
+                lokasi_sebelumnya_id: parseOptionalInt(body.lokasi_sebelumnya_id),
+                tanggal_mutasi: parseDate(body.tanggal_mutasi),
+            };
+
+            const familyInfoData = {
+                ...body,
+                tanggal_lahir_pasangan: parseDate(body.tanggal_lahir_pasangan),
+                anak_ke: parseOptionalInt(body.anak_ke),
+                jumlah_saudara_kandung: parseOptionalInt(body.jumlah_saudara_kandung),
+                tanggal_lahir_ayah_mertua: parseDate(body.tanggal_lahir_ayah_mertua),
+                tanggal_lahir_ibu_mertua: parseDate(body.tanggal_lahir_ibu_mertua),
+            };
+
             if (employeeData.nomor_induk_karyawan) {
-                console.log(`[DEBUG] Validating NIK: ${employeeData.nomor_induk_karyawan} for ID: ${id}`);
                 const isUnique = await employeeService.validateNIKUnique(employeeData.nomor_induk_karyawan, id);
-                console.log(`[DEBUG] NIK Unique: ${isUnique}`);
                 if (!isUnique) {
-                    console.log('[DEBUG] NIK Validation Failed');
                     return res.status(400).json({ message: 'NIK already exists' });
                 }
             }
-
-            console.log('[DEBUG] Calling updateEmployeeComplete with data:', JSON.stringify({ is_draft: employeeData.is_draft }));
 
             const employee = await employeeService.updateEmployeeComplete(id, employeeData, personalInfoData, hrInfoData, familyInfoData, photoPath);
 
@@ -293,6 +339,7 @@ class EmployeeController {
                 } : null
             });
         } catch (error) {
+            console.error('[EmployeeController] Update Error:', error);
             next(error);
         }
     }

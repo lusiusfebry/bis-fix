@@ -326,8 +326,31 @@ class EmployeeService {
 
             if (familyInfoData) {
                 // Parse if string (from FormData)
-                if (typeof familyInfoData.data_anak === 'string') familyInfoData.data_anak = JSON.parse(familyInfoData.data_anak);
-                if (typeof familyInfoData.data_saudara_kandung === 'string') familyInfoData.data_saudara_kandung = JSON.parse(familyInfoData.data_saudara_kandung);
+                if (typeof familyInfoData.data_anak === 'string') {
+                    if (familyInfoData.data_anak === 'undefined' || familyInfoData.data_anak === 'null' || !familyInfoData.data_anak.trim()) {
+                        familyInfoData.data_anak = [];
+                    } else {
+                        try {
+                            familyInfoData.data_anak = JSON.parse(familyInfoData.data_anak);
+                        } catch (e) {
+                            console.error('Error parsing data_anak:', e);
+                            familyInfoData.data_anak = [];
+                        }
+                    }
+                }
+
+                if (typeof familyInfoData.data_saudara_kandung === 'string') {
+                    if (familyInfoData.data_saudara_kandung === 'undefined' || familyInfoData.data_saudara_kandung === 'null' || !familyInfoData.data_saudara_kandung.trim()) {
+                        familyInfoData.data_saudara_kandung = [];
+                    } else {
+                        try {
+                            familyInfoData.data_saudara_kandung = JSON.parse(familyInfoData.data_saudara_kandung);
+                        } catch (e) {
+                            console.error('Error parsing data_saudara_kandung:', e);
+                            familyInfoData.data_saudara_kandung = [];
+                        }
+                    }
+                }
 
                 await EmployeeFamilyInfo.create({
                     ...familyInfoData,

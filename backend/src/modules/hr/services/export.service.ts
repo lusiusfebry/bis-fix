@@ -46,6 +46,8 @@ class ExportService {
                 { model: StatusKaryawan, as: 'status_karyawan' },
                 { model: LokasiKerja, as: 'lokasi_kerja' },
                 { model: Tag, as: 'tag' },
+                { model: Employee, as: 'manager' },
+                { model: Employee, as: 'atasan_langsung' },
                 { model: EmployeePersonalInfo, as: 'personal_info' },
                 {
                     model: EmployeeHRInfo,
@@ -71,14 +73,17 @@ class ExportService {
         sheet1.columns = [
             { header: 'NIK', key: 'nik', width: 15 },
             { header: 'Nama Lengkap', key: 'nama', width: 30 },
-            { header: 'Email', key: 'email', width: 25 },
+            { header: 'Email Kantor', key: 'email', width: 25 },
             { header: 'Nomor HP', key: 'phone', width: 15 },
             { header: 'Divisi', key: 'divisi', width: 20 },
             { header: 'Departemen', key: 'department', width: 20 },
             { header: 'Posisi', key: 'posisi', width: 20 },
+            { header: 'Manager', key: 'manager', width: 25 },
+            { header: 'Atasan Langsung', key: 'atasan', width: 25 },
             { header: 'Status', key: 'status', width: 15 },
             { header: 'Lokasi', key: 'lokasi', width: 15 },
             { header: 'Tag', key: 'tag', width: 15 },
+            { header: 'Tanggal Bergabung', key: 'join_date', width: 15 } // Fallback to HR info if needed
         ];
         sheet1.getRow(1).font = headerStyle.font;
         sheet1.getRow(1).fill = headerStyle.fill;
@@ -95,9 +100,29 @@ class ExportService {
             { header: 'Agama', key: 'religion', width: 15 },
             { header: 'Golongan Darah', key: 'blood_type', width: 10 },
             { header: 'NIK KTP', key: 'nik_ktp', width: 20 },
+            { header: 'NIK KK', key: 'no_nik_kk', width: 20 },
+            { header: 'No KK', key: 'no_kk', width: 20 },
             { header: 'NPWP', key: 'npwp', width: 20 },
+            { header: 'Status Pajak', key: 'tax_status', width: 10 },
+            { header: 'BPJS Kesehatan', key: 'bpjs', width: 20 },
+            { header: 'Email Pribadi', key: 'personal_email', width: 25 },
+            { header: 'No HP 2', key: 'phone2', width: 15 },
+            { header: 'Telp Rumah 1', key: 'home_phone1', width: 15 },
+            { header: 'Telp Rumah 2', key: 'home_phone2', width: 15 },
+            { header: 'WhatsApp', key: 'wa', width: 15 },
+            { header: 'Sosmed', key: 'sosmed', width: 20 },
             { header: 'Alamat KTP', key: 'address_ktp', width: 40 },
+            { header: 'Kota KTP', key: 'city_ktp', width: 20 },
+            { header: 'Provinsi KTP', key: 'prov_ktp', width: 20 },
             { header: 'Alamat Domisili', key: 'address_domicile', width: 40 },
+            { header: 'Kota Domisili', key: 'city_domicile', width: 20 },
+            { header: 'Provinsi Domisili', key: 'prov_domicile', width: 20 },
+            { header: 'Kode Pos', key: 'zip_code', width: 10 },
+            { header: 'Nama Bank', key: 'bank_name', width: 20 },
+            { header: 'Cabang Bank', key: 'bank_branch', width: 20 },
+            { header: 'No Rekening', key: 'account_number', width: 20 },
+            { header: 'Nama Pemegang Rek', key: 'account_holder', width: 30 },
+            { header: 'Jumlah Anak', key: 'child_count', width: 10 }
         ];
         sheet2.getRow(1).font = headerStyle.font;
         sheet2.getRow(1).fill = headerStyle.fill;
@@ -108,17 +133,40 @@ class ExportService {
             { header: 'NIK', key: 'nik', width: 15 },
             { header: 'Nama Lengkap', key: 'nama', width: 30 },
             { header: 'Hubungan Kerja', key: 'hubungan_kerja', width: 20 },
+            { header: 'Tgl Masuk (Group)', key: 'tgl_masuk_group', width: 15 },
             { header: 'Tgl Masuk', key: 'tgl_masuk', width: 15 },
             { header: 'Tgl Permanent', key: 'tgl_permanent', width: 15 },
             { header: 'Tgl Kontrak', key: 'tgl_kontrak', width: 15 },
             { header: 'Akhir Kontrak', key: 'akhir_kontrak', width: 15 },
+            { header: 'Tgl Berhenti', key: 'tgl_berhenti', width: 15 },
             { header: 'Pendidikan', key: 'pendidikan', width: 20 },
             { header: 'Jurusan', key: 'jurusan', width: 25 },
             { header: 'Sekolah', key: 'sekolah', width: 25 },
+            { header: 'Kota Sekolah', key: 'school_city', width: 20 },
+            { header: 'Status Lulus', key: 'grad_status', width: 15 },
+            { header: 'Ket. Pendidikan', key: 'edu_note', width: 30 },
             { header: 'Kategori Pangkat', key: 'kategori_pangkat', width: 20 },
             { header: 'Golongan', key: 'golongan', width: 10 },
-            { header: 'Kontak Darurat', key: 'kontak_darurat', width: 25 },
-            { header: 'Telp Darurat', key: 'telp_darurat', width: 15 },
+            { header: 'Sub Golongan', key: 'sub_golongan', width: 10 },
+            { header: 'Dana Pensiun', key: 'pensiun', width: 20 },
+            { header: 'Kontak Darurat 1', key: 'kd1_nama', width: 25 },
+            { header: 'Hubungan KD 1', key: 'kd1_relasi', width: 15 },
+            { header: 'Telp KD 1', key: 'kd1_telp', width: 15 },
+            { header: 'Alamat KD 1', key: 'kd1_alamat', width: 30 },
+            { header: 'Kontak Darurat 2', key: 'kd2_nama', width: 25 },
+            { header: 'Hubungan KD 2', key: 'kd2_relasi', width: 15 },
+            { header: 'Telp KD 2', key: 'kd2_telp', width: 15 },
+            { header: 'Alamat KD 2', key: 'kd2_alamat', width: 30 },
+            { header: 'Point of Original', key: 'poo', width: 20 },
+            { header: 'Point of Hire', key: 'poh', width: 20 },
+            { header: 'Ukuran Baju', key: 'baju', width: 10 },
+            { header: 'Ukuran Sepatu', key: 'sepatu', width: 10 },
+            { header: 'Lokasi Sebelum', key: 'prev_loc', width: 20 },
+            { header: 'Tgl Mutasi', key: 'mut_date', width: 15 },
+            { header: 'Siklus Gaji', key: 'payroll_cycle', width: 20 },
+            { header: 'Costing', key: 'costing', width: 20 },
+            { header: 'Assign', key: 'assign', width: 20 },
+            { header: 'Actual', key: 'actual', width: 20 }
         ];
         sheet3.getRow(1).font = headerStyle.font;
         sheet3.getRow(1).fill = headerStyle.fill;
@@ -130,11 +178,25 @@ class ExportService {
             { header: 'Nama Lengkap', key: 'nama', width: 30 },
             { header: 'Nama Pasangan', key: 'nama_pasangan', width: 25 },
             { header: 'Tgl Lahir Pasangan', key: 'tgl_lahir_pasangan', width: 15 },
+            { header: 'Pend. Pasangan', key: 'edu_pasangan', width: 15 },
+            { header: 'Pek. Pasangan', key: 'job_pasangan', width: 15 },
+            { header: 'Ket. Pasangan', key: 'note_pasangan', width: 20 },
+            { header: 'Tgl Menikah', key: 'tgl_nikah', width: 15 },
+            { header: 'Tgl Cerai', key: 'tgl_cerai', width: 15 },
+            { header: 'Tgl Wafat Pasangan', key: 'tgl_wafat', width: 15 },
             { header: 'Ayah Kandung', key: 'ayah_kandung', width: 25 },
             { header: 'Ibu Kandung', key: 'ibu_kandung', width: 25 },
+            { header: 'Alamat Orang Tua', key: 'alamat_ortu', width: 40 },
             { header: 'Ayah Mertua', key: 'ayah_mertua', width: 25 },
+            { header: 'Tgl Lhr Ayah Mertua', key: 'tgl_ayah_mertua', width: 15 },
+            { header: 'Pend. Ayah Mertua', key: 'edu_ayah_mertua', width: 15 },
+            { header: 'Ket. Ayah Mertua', key: 'note_ayah_mertua', width: 20 },
             { header: 'Ibu Mertua', key: 'ibu_mertua', width: 25 },
+            { header: 'Tgl Lhr Ibu Mertua', key: 'tgl_ibu_mertua', width: 15 },
+            { header: 'Pend. Ibu Mertua', key: 'edu_ibu_mertua', width: 15 },
+            { header: 'Ket. Ibu Mertua', key: 'note_ibu_mertua', width: 20 },
             { header: 'Anak', key: 'data_anak', width: 50 },
+            { header: 'Saudara Kandung', key: 'data_saudara', width: 50 }
         ];
         sheet4.getRow(1).font = headerStyle.font;
         sheet4.getRow(1).fill = headerStyle.fill;
@@ -154,9 +216,12 @@ class ExportService {
                 divisi: emp.divisi?.nama || '-',
                 department: emp.department?.nama || '-',
                 posisi: emp.posisi_jabatan?.nama || '-',
+                manager: emp.manager?.nama_lengkap || '-',
+                atasan: emp.atasan_langsung?.nama_lengkap || '-',
                 status: emp.status_karyawan?.nama || '-',
                 lokasi: emp.lokasi_kerja?.nama || '-',
-                tag: emp.tag?.nama || '-'
+                tag: emp.tag?.nama || '-',
+                join_date: emp.hr_info?.tanggal_masuk ? moment(emp.hr_info.tanggal_masuk).format('YYYY-MM-DD') : '-'
             });
 
             // Sheet 2
@@ -169,10 +234,30 @@ class ExportService {
                 marital_status: personal?.status_pernikahan || '-',
                 religion: personal?.agama || '-',
                 blood_type: personal?.golongan_darah || '-',
-                nik_ktp: personal?.nik_ktp || '-',
+                nik_ktp: personal?.nomor_ktp || '-',
+                no_nik_kk: personal?.no_nik_kk || '-',
+                no_kk: personal?.nomor_kartu_keluarga || '-',
                 npwp: personal?.nomor_npwp || '-',
+                tax_status: personal?.status_pajak || '-',
+                bpjs: personal?.nomor_bpjs || '-',
+                personal_email: personal?.email_pribadi || '-',
+                phone2: personal?.nomor_handphone_2 || '-',
+                home_phone1: personal?.nomor_telepon_rumah_1 || '-',
+                home_phone2: personal?.nomor_telepon_rumah_2 || '-',
+                wa: personal?.nomor_wa || '-',
+                sosmed: personal?.akun_sosmed || '-',
                 address_ktp: personal?.alamat_ktp || '-',
-                address_domicile: personal?.alamat_domisili || '-'
+                city_ktp: personal?.kota_ktp || '-',
+                prov_ktp: personal?.provinsi_ktp || '-',
+                address_domicile: personal?.alamat_domisili || '-',
+                city_domicile: personal?.kota_domisili || '-',
+                prov_domicile: personal?.provinsi_domisili || '-',
+                zip_code: personal?.kode_pos || '-',
+                bank_name: personal?.nama_bank || '-',
+                bank_branch: personal?.cabang_bank || '-',
+                account_number: personal?.nomor_rekening || '-',
+                account_holder: personal?.nama_pemegang_rekening || '-',
+                child_count: personal?.jumlah_anak || 0
             });
 
             // Sheet 3
@@ -180,17 +265,40 @@ class ExportService {
             sheet3.addRow({
                 ...common,
                 hubungan_kerja: hr?.jenis_hubungan_kerja?.nama || '-',
+                tgl_masuk_group: hr?.tanggal_masuk_group ? moment(hr.tanggal_masuk_group).format('YYYY-MM-DD') : '-',
                 tgl_masuk: hr?.tanggal_masuk ? moment(hr.tanggal_masuk).format('YYYY-MM-DD') : '-',
                 tgl_permanent: hr?.tanggal_permanent ? moment(hr.tanggal_permanent).format('YYYY-MM-DD') : '-',
                 tgl_kontrak: hr?.tanggal_kontrak ? moment(hr.tanggal_kontrak).format('YYYY-MM-DD') : '-',
                 akhir_kontrak: hr?.tanggal_akhir_kontrak ? moment(hr.tanggal_akhir_kontrak).format('YYYY-MM-DD') : '-',
+                tgl_berhenti: hr?.tanggal_berhenti ? moment(hr.tanggal_berhenti).format('YYYY-MM-DD') : '-',
                 pendidikan: hr?.tingkat_pendidikan || '-',
                 jurusan: hr?.bidang_studi || '-',
                 sekolah: hr?.nama_sekolah || '-',
+                school_city: hr?.kota_sekolah || '-',
+                grad_status: hr?.status_kelulusan || '-',
+                edu_note: hr?.keterangan_pendidikan || '-',
                 kategori_pangkat: hr?.kategori_pangkat?.nama || '-',
                 golongan: hr?.golongan_pangkat?.nama || '-',
-                kontak_darurat: hr?.nama_kontak_darurat_1 || '-',
-                telp_darurat: hr?.nomor_telepon_kontak_darurat_1 || '-'
+                sub_golongan: hr?.sub_golongan_pangkat?.nama || '-',
+                pensiun: hr?.no_dana_pensiun || '-',
+                kd1_nama: hr?.nama_kontak_darurat_1 || '-',
+                kd1_relasi: hr?.hubungan_kontak_darurat_1 || '-',
+                kd1_telp: hr?.nomor_telepon_kontak_darurat_1 || '-',
+                kd1_alamat: hr?.alamat_kontak_darurat_1 || '-',
+                kd2_nama: hr?.nama_kontak_darurat_2 || '-',
+                kd2_relasi: hr?.hubungan_kontak_darurat_2 || '-',
+                kd2_telp: hr?.nomor_telepon_kontak_darurat_2 || '-',
+                kd2_alamat: hr?.alamat_kontak_darurat_2 || '-',
+                poo: hr?.point_of_original || '-',
+                poh: hr?.point_of_hire || '-',
+                baju: hr?.ukuran_seragam_kerja || '-',
+                sepatu: hr?.ukuran_sepatu_kerja || '-',
+                prev_loc: hr?.lokasi_sebelumnya?.nama || '-',
+                mut_date: hr?.tanggal_mutasi ? moment(hr.tanggal_mutasi).format('YYYY-MM-DD') : '-',
+                payroll_cycle: hr?.siklus_pembayaran_gaji || '-',
+                costing: hr?.costing || '-',
+                assign: hr?.assign || '-',
+                actual: hr?.actual || '-'
             });
 
             // Sheet 4
@@ -199,15 +307,33 @@ class ExportService {
                 ? fam.data_anak.map((a: any) => `${a.nama} (${moment(a.tanggal_lahir).format('YYYY')})`).join(', ')
                 : '-';
 
+            const saudaraList = fam?.data_saudara_kandung && Array.isArray(fam.data_saudara_kandung)
+                ? fam.data_saudara_kandung.map((s: any) => `${s.nama} (${s.jenis_kelamin})`).join(', ')
+                : '-';
+
             sheet4.addRow({
                 ...common,
-                nama_pasangan: fam?.nama_pasangan || '-',
+                nama_pasangan: personal?.nama_pasangan || '-',
                 tgl_lahir_pasangan: fam?.tanggal_lahir_pasangan ? moment(fam.tanggal_lahir_pasangan).format('YYYY-MM-DD') : '-',
+                edu_pasangan: fam?.pendidikan_terakhir_pasangan || '-',
+                job_pasangan: personal?.pekerjaan_pasangan || '-',
+                note_pasangan: fam?.keterangan_pasangan || '-',
+                tgl_nikah: personal?.tanggal_menikah ? moment(personal.tanggal_menikah).format('YYYY-MM-DD') : '-',
+                tgl_cerai: personal?.tanggal_cerai ? moment(personal.tanggal_cerai).format('YYYY-MM-DD') : '-',
+                tgl_wafat: personal?.tanggal_wafat_pasangan ? moment(personal.tanggal_wafat_pasangan).format('YYYY-MM-DD') : '-',
                 ayah_kandung: fam?.nama_ayah_kandung || '-',
                 ibu_kandung: fam?.nama_ibu_kandung || '-',
+                alamat_ortu: fam?.alamat_orang_tua || '-',
                 ayah_mertua: fam?.nama_ayah_mertua || '-',
+                tgl_ayah_mertua: fam?.tanggal_lahir_ayah_mertua ? moment(fam.tanggal_lahir_ayah_mertua).format('YYYY-MM-DD') : '-',
+                edu_ayah_mertua: fam?.pendidikan_terakhir_ayah_mertua || '-',
+                note_ayah_mertua: fam?.keterangan_ayah_mertua || '-',
                 ibu_mertua: fam?.nama_ibu_mertua || '-',
-                data_anak: anakList
+                tgl_ibu_mertua: fam?.tanggal_lahir_ibu_mertua ? moment(fam.tanggal_lahir_ibu_mertua).format('YYYY-MM-DD') : '-',
+                edu_ibu_mertua: fam?.pendidikan_terakhir_ibu_mertua || '-',
+                note_ibu_mertua: fam?.keterangan_ibu_mertua || '-',
+                data_anak: anakList,
+                data_saudara: saudaraList
             });
         });
 

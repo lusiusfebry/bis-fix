@@ -33,7 +33,10 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
             if (key === 'foto_karyawan' && mergedData[key] instanceof File) {
                 payload.append('foto_karyawan', mergedData[key]);
             } else if (key === 'data_anak' || key === 'data_saudara_kandung') {
-                payload.append(key, JSON.stringify(mergedData[key]));
+                // Serialize JSON arrays only if they exist
+                if (finalData[key]) {
+                    payload.append(key, JSON.stringify(finalData[key]));
+                }
             } else if (mergedData[key] !== undefined && mergedData[key] !== null && mergedData[key] !== '') {
                 payload.append(key, String(mergedData[key]));
             }
@@ -95,8 +98,10 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
             if (key === 'foto_karyawan' && finalData[key] instanceof File) {
                 payload.append('foto_karyawan', finalData[key]);
             } else if (key === 'data_anak' || key === 'data_saudara_kandung') {
-                // Serialize JSON arrays
-                payload.append(key, JSON.stringify(finalData[key]));
+                // Serialize JSON arrays only if they exist
+                if (finalData[key]) {
+                    payload.append(key, JSON.stringify(finalData[key]));
+                }
             } else if (finalData[key] !== undefined && finalData[key] !== null) {
                 payload.append(key, String(finalData[key]));
             }
