@@ -216,7 +216,7 @@ class ExcelImportService {
         employeeData.divisi_id = await checkLookup('Divisi', 'divisi_id', 'DIVISI');
         employeeData.department_id = await checkLookup('Department', 'department_id', 'DEPARTMENT');
         employeeData.posisi_jabatan_id = await checkLookup('PosisiJabatan', 'posisi_jabatan_id', 'POSISI JABATAN');
-        employeeData.status_karyawan_id = await checkLookup('StatusKaryawan', 'status_karyawan_id', 'STATUS KARYAWAN');
+        employeeData.status_karyawan_id = (await checkLookup('StatusKaryawan', 'status_karyawan_id', 'STATUS KARYAWAN')) || 1; // Default to Aktif (ID 1)
         employeeData.lokasi_kerja_id = await checkLookup('LokasiKerja', 'lokasi_kerja_id', 'LOKASI KERJA');
 
         // --- PERSONAL INFO ---

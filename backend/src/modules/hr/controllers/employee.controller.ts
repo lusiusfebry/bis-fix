@@ -96,7 +96,7 @@ class EmployeeController {
                 divisi_id: body.divisi_id ? parseInt(body.divisi_id) : undefined,
                 department_id: body.department_id ? parseInt(body.department_id) : undefined,
                 posisi_jabatan_id: body.posisi_jabatan_id ? parseInt(body.posisi_jabatan_id) : undefined,
-                status_karyawan_id: body.status_karyawan_id ? parseInt(body.status_karyawan_id) : undefined,
+                status_karyawan_id: body.status_karyawan_id ? parseInt(body.status_karyawan_id) : 1, // Default to Aktif (ID 1)
                 lokasi_kerja_id: body.lokasi_kerja_id ? parseInt(body.lokasi_kerja_id) : undefined,
                 tag_id: body.tag_id ? parseInt(body.tag_id) : undefined,
                 manager_id: body.manager_id ? parseInt(body.manager_id) : undefined,
