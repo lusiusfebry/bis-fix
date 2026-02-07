@@ -125,83 +125,83 @@ const EmployeeImportPage: React.FC = () => {
             </div>
 
             {/* Content Area */}
-            <div className="bg-white shadow rounded-lg p-6 min-h-[400px]">
-                {isLoading ? (
-                    <ImportProgress status={activeStep === 'preview' ? 'Menganalisis file Excel...' : 'Menyimpan data ke database...'} />
-                ) : (
-                    <>
-                        {activeStep === 'upload' && (
-                            <div className="max-w-xl mx-auto py-8">
-                                <ExcelUpload
-                                    onFileSelect={handleFileSelect}
-                                    templateUrl="/template-karyawan.xlsx"
-                                    templateFileName="template-karyawan.xlsx"
-                                />
-                            </div>
-                        )}
+            <div className="bg-white shadow rounded-lg p-6 min-h-[400px] relative">
+                {isLoading && (
+                    <div className="absolute inset-0 bg-white/80 z-10 flex items-center justify-center rounded-lg">
+                        <ImportProgress status={activeStep === 'preview' ? 'Menganalisis file Excel...' : 'Menyimpan data ke database...'} />
+                    </div>
+                )}
 
-                        {activeStep === 'preview' && previewData && (
-                            <div className="space-y-6">
-                                {/* Mapping Info or Stats could go here */}
-                                <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                                    <table className="min-w-full divide-y divide-gray-200 text-xs">
-                                        <thead className="bg-gray-50">
-                                            <tr>
-                                                <th className="px-4 py-2 text-left font-medium text-gray-500 w-10">No</th>
-                                                {previewData.headers.slice(0, 8).map((header, idx) => ( // Limit cols for preview
-                                                    <th key={idx} className="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                                                        {header}
-                                                    </th>
-                                                ))}
-                                                {previewData.headers.length > 8 && (
-                                                    <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">...</th>
-                                                )}
-                                            </tr>
-                                        </thead>
-                                        <tbody className="bg-white divide-y divide-gray-200">
-                                            {previewData.rows.map((row, idx) => (
-                                                <tr key={idx} className="hover:bg-gray-50">
-                                                    <td className="px-4 py-2 text-gray-500">{String(row._rowNumber)}</td>
-                                                    {previewData.headers.slice(0, 8).map((header, hIdx) => (
-                                                        <td key={hIdx} className="px-4 py-2 text-gray-900 truncate max-w-[150px]">
-                                                            {String(row[header] || '')}
-                                                        </td>
-                                                    ))}
-                                                    {previewData.headers.length > 8 && (
-                                                        <td className="px-4 py-2 text-gray-400">...</td>
-                                                    )}
-                                                </tr>
+                {activeStep === 'upload' && (
+                    <div className="max-w-xl mx-auto py-8">
+                        <ExcelUpload
+                            onFileSelect={handleFileSelect}
+                            templateUrl="/template-karyawan.xlsx"
+                            templateFileName="template-karyawan.xlsx"
+                        />
+                    </div>
+                )}
+
+                {activeStep === 'preview' && previewData && (
+                    <div className="space-y-6">
+                        {/* Mapping Info or Stats could go here */}
+                        <div className="overflow-x-auto border border-gray-200 rounded-lg">
+                            <table className="min-w-full divide-y divide-gray-200 text-xs">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-4 py-2 text-left font-medium text-gray-500 w-10">No</th>
+                                        {previewData.headers.slice(0, 8).map((header, idx) => ( // Limit cols for preview
+                                            <th key={idx} className="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                                                {header}
+                                            </th>
+                                        ))}
+                                        {previewData.headers.length > 8 && (
+                                            <th className="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">...</th>
+                                        )}
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {previewData.rows.map((row, idx) => (
+                                        <tr key={idx} className="hover:bg-gray-50">
+                                            <td className="px-4 py-2 text-gray-500">{String(row._rowNumber)}</td>
+                                            {previewData.headers.slice(0, 8).map((header, hIdx) => (
+                                                <td key={hIdx} className="px-4 py-2 text-gray-900 truncate max-w-[150px]">
+                                                    {String(row[header] || '')}
+                                                </td>
                                             ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                            {previewData.headers.length > 8 && (
+                                                <td className="px-4 py-2 text-gray-400">...</td>
+                                            )}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
 
-                                <div className="flex justify-between items-center pt-4 border-t border-gray-100">
-                                    <button
-                                        onClick={handleReset}
-                                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                                    >
-                                        Batal
-                                    </button>
-                                    <button
-                                        onClick={handleImport}
-                                        className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none"
-                                    >
-                                        Mulai Import
-                                        <ArrowRightIcon className="ml-2 -mr-1 h-4 w-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        )}
+                        <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+                            <button
+                                onClick={handleReset}
+                                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                onClick={handleImport}
+                                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                                Mulai Import
+                                <ArrowRightIcon className="ml-2 -mr-1 h-4 w-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
 
-                        {activeStep === 'result' && importResult && (
-                            <ImportResult
-                                result={importResult}
-                                onDownloadReport={handleDownloadReport}
-                                onReset={handleReset}
-                            />
-                        )}
-                    </>
+                {activeStep === 'result' && importResult && (
+                    <ImportResult
+                        result={importResult}
+                        onDownloadReport={handleDownloadReport}
+                        onReset={handleReset}
+                    />
                 )}
             </div>
 

@@ -12,14 +12,21 @@ import Golongan from '../models/Golongan';
 import SubGolongan from '../models/SubGolongan';
 import employeeService from './employee.service';
 import { ImportResult, ImportError, ExcelMapping } from '../types/import.types';
+import { validateDepartmentBelongsToDivisi, validatePosisiJabatanBelongsToDepartment } from '../validators/business-rules.validator';
 
 class ExcelImportService {
     async parseExcelFile(filePath: string): Promise<{ workbook: ExcelJS.Workbook; rows: any[] }> {
         const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.readFile(filePath);
+        try {
+            await workbook.xlsx.readFile(filePath);
+        } catch (error: any) {
+            throw new Error(`Gagal membaca file Excel: ${error.message}. Pastikan file tidak rusak dan formatnya benar (.xlsx).`);
+        }
 
-        // Assume data is in the first sheet or a sheet named "Data Karyawan" if exact name known.
-        // For now, take the first visible sheet.
+        if (workbook.worksheets.length === 0) {
+            throw new Error('File Excel tidak memiliki worksheet (sheet kosong).');
+        }
+
         const worksheet = workbook.worksheets[0];
         const rows: any[] = [];
 
@@ -29,6 +36,10 @@ class ExcelImportService {
             headers[colNumber] = cell.text ? cell.text.trim() : '';
         });
 
+        if (headers.length === 0) {
+            throw new Error('Header tidak ditemukan di baris 1. Pastikan template sesuai.');
+        }
+
         worksheet.eachRow((row, rowNumber) => {
             if (rowNumber === 1) return; // Skip header
 
@@ -36,18 +47,12 @@ class ExcelImportService {
             row.eachCell((cell, colNumber) => {
                 const header = headers[colNumber];
                 if (header) {
-                    // Start from 1? exceljs cols are 1-based, array is 0-based empty at 0?
-                    // headers array index matches colNumber if we assign carefully.
-                    // Let's use headers dictionary or just standard conversion.
-                    // Handling cell values (dates, formulas, rich text)
-                    // Handling cell values (dates, formulas, rich text)
                     // @ts-ignore: cell.type comparison issue with different ValueType enums
                     if (cell.type === ExcelJS.ValueType.Date) {
                         rowData[header] = cell.value;
                     } else if (typeof cell.value === 'object' && cell.value !== null && 'text' in cell.value) {
                         rowData[header] = (cell.value as any).text;
                     } else {
-                        rowData[header] = cell.text;
                         // @ts-ignore: cell.type comparison issue
                         if (cell.type !== ExcelJS.ValueType.Date) rowData[header] = cell.value?.toString().trim();
                     }
@@ -59,6 +64,10 @@ class ExcelImportService {
             }
         });
 
+        if (rows.length === 0) {
+            throw new Error('Tidak ada data yang ditemukan di sheet pertama.');
+        }
+
         return { workbook, rows };
     }
 
@@ -68,13 +77,10 @@ class ExcelImportService {
             employeeProfile: {}
         };
 
-        const masterDataSheet = workbook.getWorksheet('header excel vs master data'); // Fixed casing
+        const masterDataSheet = workbook.getWorksheet('header excel vs master data');
         if (masterDataSheet) {
             masterDataSheet.eachRow((row, rowNumber) => {
                 if (rowNumber === 1) return;
-                // Col A (1): Master Type (not used in direct simple mapping but useful context)
-                // Col B (2): Excel Header
-                // Col C (3): DB Field
                 const excelHeader = row.getCell(2).text?.trim();
                 const dbField = row.getCell(3).text?.trim();
                 if (excelHeader && dbField) {
@@ -83,46 +89,40 @@ class ExcelImportService {
             });
         }
 
-        const profileSheet = workbook.getWorksheet('header excel vs profil karyawan'); // Fixed casing
+        const profileSheet = workbook.getWorksheet('header excel vs profil karyawan');
         if (profileSheet) {
             profileSheet.eachRow((row, rowNumber) => {
                 if (rowNumber === 1) return;
-                // Col B (2): Excel Header
-                // Col D (4): DB Field
                 const excelHeader = row.getCell(2).text?.trim();
                 const dbField = row.getCell(4).text?.trim();
-                // We might need table info from Col C (3) to know where to map.
-                // For simplicity, we'll assume field names are unique enough or we use a flat map first then split.
-                // Better: Store { table: field }
                 if (excelHeader && dbField) {
                     mapping.employeeProfile[excelHeader] = dbField;
                 }
             });
         }
 
-        // Fallback or Hardcoded Manual Mapping if sheets missing (Likely needed for MVP testing)
         if (Object.keys(mapping.employeeProfile).length === 0) {
-            // Basic Default Mapping based on common Excel headers usually provided
-            // This is a safety net
+            // Updated fallback mapping with UPPERCASE keys to match template
             mapping.employeeProfile = {
-                'No Induk Karyawan': 'nomor_induk_karyawan',
-                'Nama Lengkap': 'nama_lengkap',
-                'Email Perusahaan': 'email_perusahaan',
-                'No Handphone': 'nomor_handphone',
-                'Divisi': 'divisi_id', // Needs lookup
-                'Departemen': 'department_id', // Needs lookup
-                'Posisi': 'posisi_jabatan_id',
-                'Status Karyawan': 'status_karyawan_id',
-                'Lokasi Kerja': 'lokasi_kerja_id',
-                'Tempat Lahir': 'tempat_lahir',
-                'Tanggal Lahir': 'tanggal_lahir',
-                'Jenis Kelamin': 'jenis_kelamin',
-                'Agama': 'agama',
-                'Status Pernikahan': 'status_pernikahan',
-                'NIK KTP': 'nomor_ktp',
-                'NPWP': 'nomor_npwp',
-                'Alamat Domisili': 'alamat_domisili',
-                'Tanggal Masuk': 'tanggal_masuk'
+                'NOMOR INDUK KARYAWAN': 'nomor_induk_karyawan',
+                'NAMA LENGKAP': 'nama_lengkap',
+                'EMAIL PERUSAHAAN': 'email_perusahaan',
+                'EMAIL PRIBADI': 'email_pribadi',
+                'NOMOR HP 1': 'nomor_handphone',
+                'DIVISI': 'divisi_id',
+                'DEPARTMENT': 'department_id',
+                'POSISI JABATAN': 'posisi_jabatan_id',
+                'STATUS KARYAWAN': 'status_karyawan_id',
+                'LOKASI KERJA': 'lokasi_kerja_id',
+                'TEMPAT LAHIR': 'tempat_lahir',
+                'TANGGAL LAHIR': 'tanggal_lahir',
+                'JENIS KELAMIN': 'jenis_kelamin',
+                'AGAMA': 'agama',
+                'STATUS PERNIKAHAN': 'status_pernikahan',
+                'NOMOR KTP': 'nomor_ktp',
+                'NOMOR NPWP': 'nomor_npwp',
+                'ALAMAT DOMISILI': 'alamat_domisili',
+                'TANGGAL MASUK': 'tanggal_masuk'
             };
         }
 
@@ -130,7 +130,6 @@ class ExcelImportService {
     }
 
     async loadMasterDataCache() {
-        // Load all master data into maps for fast lookup
         const cache: any = {
             Divisi: new Map(),
             Department: new Map(),
@@ -173,7 +172,7 @@ class ExcelImportService {
         if (cache[type] && cache[type].has(normalized)) {
             return cache[type].get(normalized);
         }
-        return null; // Could implement auto-create here
+        return null;
     }
 
     async mapExcelRowToEmployee(row: any, mapping: ExcelMapping, masterCache: any): Promise<any> {
@@ -181,8 +180,6 @@ class ExcelImportService {
         const personalInfoData: any = {};
         const hrInfoData: any = {};
         const familyInfoData: any = {};
-
-        // Validation tracking object
         const rawValues: any = {};
 
         const getValue = (dbField: string, excelHeaderFallback?: string) => {
@@ -292,20 +289,48 @@ class ExcelImportService {
         return { employeeData, personalInfoData, hrInfoData, familyInfoData, rawValues };
     }
 
-    async validateEmployeeData(data: any): Promise<string | null> {
+    async validateEmployeeData(data: any): Promise<string[]> {
         const { employeeData, rawValues } = data;
+        const errors: string[] = [];
 
-        if (!employeeData.nama_lengkap) return "Nama Lengkap wajib diisi";
-        if (!employeeData.nomor_induk_karyawan) return "No Induk Karyawan wajib diisi";
+        if (!employeeData.nama_lengkap) errors.push("Nama Lengkap wajib diisi");
+        if (!employeeData.nomor_induk_karyawan) errors.push("No Induk Karyawan wajib diisi");
 
-        // FK Validation
-        if (rawValues.divisi_id_raw && !employeeData.divisi_id) return `Divisi '${rawValues.divisi_id_raw}' tidak ditemukan dalam master data`;
-        if (rawValues.department_id_raw && !employeeData.department_id) return `Department '${rawValues.department_id_raw}' tidak ditemukan`;
-        if (rawValues.posisi_jabatan_id_raw && !employeeData.posisi_jabatan_id) return `Posisi '${rawValues.posisi_jabatan_id_raw}' tidak ditemukan`;
-        if (rawValues.status_karyawan_id_raw && !employeeData.status_karyawan_id) return `Status Karyawan '${rawValues.status_karyawan_id_raw}' tidak ditemukan`;
-        if (rawValues.lokasi_kerja_id_raw && !employeeData.lokasi_kerja_id) return `Lokasi Kerja '${rawValues.lokasi_kerja_id_raw}' tidak ditemukan`;
+        // FK Validation & Relationship Validation
+        // 1. Divisi
+        if (rawValues.divisi_id_raw && !employeeData.divisi_id) {
+            errors.push(`Divisi '${rawValues.divisi_id_raw}' tidak ditemukan dalam master data`);
+        }
 
-        return null;
+        // 2. Department
+        if (rawValues.department_id_raw && !employeeData.department_id) {
+            errors.push(`Department '${rawValues.department_id_raw}' tidak ditemukan`);
+        } else if (employeeData.divisi_id && employeeData.department_id) {
+            // Check Relation Divisi-Dept
+            const relCheck = await validateDepartmentBelongsToDivisi(employeeData.department_id, employeeData.divisi_id);
+            if (!relCheck.valid) errors.push(`Department '${rawValues.department_id_raw}' tidak sesuai dengan Divisi '${rawValues.divisi_id_raw}'`);
+        }
+
+        // 3. Posisi
+        if (rawValues.posisi_jabatan_id_raw && !employeeData.posisi_jabatan_id) {
+            errors.push(`Posisi '${rawValues.posisi_jabatan_id_raw}' tidak ditemukan`);
+        } else if (employeeData.department_id && employeeData.posisi_jabatan_id) {
+            // Check Relation Dept-Posisi
+            const relCheck = await validatePosisiJabatanBelongsToDepartment(employeeData.posisi_jabatan_id, employeeData.department_id);
+            if (!relCheck.valid) errors.push(`Posisi '${rawValues.posisi_jabatan_id_raw}' tidak sesuai dengan Department '${rawValues.department_id_raw}'`);
+        }
+
+        // 4. Status Karyawan
+        if (rawValues.status_karyawan_id_raw && !employeeData.status_karyawan_id) {
+            errors.push(`Status Karyawan '${rawValues.status_karyawan_id_raw}' tidak ditemukan`);
+        }
+
+        // 5. Lokasi Kerja
+        if (rawValues.lokasi_kerja_id_raw && !employeeData.lokasi_kerja_id) {
+            errors.push(`Lokasi Kerja '${rawValues.lokasi_kerja_id_raw}' tidak ditemukan`);
+        }
+
+        return errors;
     }
 
     async importEmployees(filePath: string): Promise<ImportResult> {
@@ -320,25 +345,31 @@ class ExcelImportService {
         for (const row of rows) {
             try {
                 const mappedData = await this.mapExcelRowToEmployee(row, mapping, masterCache);
-                const error = await this.validateEmployeeData(mappedData);
+                const validationErrors = await this.validateEmployeeData(mappedData);
 
-                if (error) {
-                    result.failed++;
-                    result.errors.push({ row: row._rowNumber, message: error, data: row });
-                } else {
+                // Additional Duplicate Checks
+                if (validationErrors.length === 0) {
                     const isDuplicate = validEmployees.some(e => e.employeeData.nomor_induk_karyawan === mappedData.employeeData.nomor_induk_karyawan);
                     if (isDuplicate) {
-                        result.failed++;
-                        result.errors.push({ row: row._rowNumber, message: `Duplicate NIK in file: ${mappedData.employeeData.nomor_induk_karyawan}`, data: row });
+                        validationErrors.push(`Duplicate NIK in file: ${mappedData.employeeData.nomor_induk_karyawan}`);
                     } else {
                         const exists = await employeeService.validateNIKUnique(mappedData.employeeData.nomor_induk_karyawan);
                         if (!exists) {
-                            result.failed++;
-                            result.errors.push({ row: row._rowNumber, message: `NIK ${mappedData.employeeData.nomor_induk_karyawan} sudah terdaftar`, data: row });
-                        } else {
-                            validEmployees.push(mappedData);
+                            validationErrors.push(`NIK ${mappedData.employeeData.nomor_induk_karyawan} sudah terdaftar di sistem`);
                         }
                     }
+                }
+
+                if (validationErrors.length > 0) {
+                    result.failed++;
+                    // Join multiple errors with semicolon or newline
+                    result.errors.push({
+                        row: row._rowNumber,
+                        message: validationErrors.join('; '),
+                        data: row
+                    });
+                } else {
+                    validEmployees.push(mappedData);
                 }
             } catch (e: any) {
                 result.failed++;
@@ -372,8 +403,6 @@ class ExcelImportService {
                 // If rollback, all "success" must be reverted to failed
                 result.failed += result.success;
                 result.success = 0;
-                // Add a global error or per-item error?
-                // Add specific error that caused rollback
                 result.errors.push({ row: 0, message: `Import Transaction Failed: ${e.message}` });
             }
         }
@@ -383,9 +412,6 @@ class ExcelImportService {
 
     async importMasterData(filePath: string, type: string): Promise<ImportResult> {
         const { rows } = await this.parseExcelFile(filePath);
-        // Look for sheet matching type name or default 'Master Data'
-        // For simplicity, we scan rows and insert.
-        // Assume mapping is simple: 'Nama' -> name, 'Kode' -> code
 
         const result: ImportResult = { success: 0, failed: 0, total: rows.length, errors: [] };
 
@@ -411,7 +437,6 @@ class ExcelImportService {
                     const name = row['Nama'] || row['Name'] || row['nama'];
                     if (!name) throw new Error('Nama is required');
 
-                    // Upsert? Or Create if not exist?
                     // Check existence
                     // @ts-ignore
                     const existing = await Model.findOne({ where: { nama: name }, transaction: t });
@@ -419,9 +444,6 @@ class ExcelImportService {
                         // @ts-ignore
                         await Model.create({ nama: name }, { transaction: t });
                         result.success++;
-                    } else {
-                        // Skip or update? Skip for now.
-                        // result.success++; // Counted as processed
                     }
                 } catch (e: any) {
                     result.failed++;
@@ -445,7 +467,7 @@ class ExcelImportService {
         sheet.columns = [
             { header: 'No. Baris', key: 'row', width: 10 },
             { header: 'Pesan Error', key: 'message', width: 50 },
-            { header: 'Data', key: 'data', width: 100 } // JSON dump of row data?
+            { header: 'Data', key: 'data', width: 100 }
         ];
 
         errors.forEach(err => {

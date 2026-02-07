@@ -8,6 +8,10 @@ import { Sequelize, Op } from 'sequelize';
 
 class DashboardService {
     async getDashboardStats() {
+        // DEBUG: Check counts
+        const allEmp = await Employee.count();
+        console.log('DEBUG: All Employees Count:', allEmp);
+
         // Total Active Employees
         const totalEmployees = await Employee.count({
             include: [{
@@ -16,6 +20,14 @@ class DashboardService {
                 where: { status: 'Aktif' }
             }]
         });
+        console.log('DEBUG: Active Employees Count:', totalEmployees);
+
+        if (totalEmployees === 0 && allEmp > 0) {
+            const empWithStatus = await Employee.count({
+                where: { status_karyawan_id: { [Op.ne]: null } }
+            });
+            console.log('DEBUG: Employees with ANY Status ID:', empWithStatus);
+        }
 
         // Total Active Departments
         const totalDepartments = await Department.count();

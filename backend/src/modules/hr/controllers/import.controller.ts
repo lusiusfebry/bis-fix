@@ -11,24 +11,30 @@ class ImportController {
             }
 
             const filePath = req.file.path;
-            const { workbook, rows } = await excelImportService.parseExcelFile(filePath);
-            const mapping = await excelImportService.getMappingConfiguration(workbook);
 
-            // Preview first 20 rows
-            const previewRows = rows.slice(0, 20);
+            try {
+                const { workbook, rows } = await excelImportService.parseExcelFile(filePath);
+                const mapping = await excelImportService.getMappingConfiguration(workbook);
 
-            // Get headers from mapping or first row keys
-            const headers = rows.length > 0 ? Object.keys(rows[0]).filter(k => k !== '_rowNumber') : [];
+                // Preview first 20 rows
+                const previewRows = rows.slice(0, 20);
 
-            res.json({
-                data: {
-                    headers,
-                    rows: previewRows,
-                    totalRows: rows.length,
-                    mapping,
-                    filePath: req.file.path // Return path to be sent back for import confirmation
-                }
-            });
+                // Get headers from mapping or first row keys
+                const headers = rows.length > 0 ? Object.keys(rows[0]).filter(k => k !== '_rowNumber') : [];
+
+                res.json({
+                    data: {
+                        headers,
+                        rows: previewRows,
+                        totalRows: rows.length,
+                        mapping,
+                        filePath: req.file.path // Return path to be sent back for import confirmation
+                    }
+                });
+            } catch (serviceError: any) {
+                // Return 400 for parsing errors (e.g. invalid format, password protected)
+                return res.status(400).json({ message: serviceError.message || 'Gagal memproses file Excel' });
+            }
         } catch (error) {
             next(error);
         }
