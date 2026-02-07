@@ -9,13 +9,15 @@ interface ExcelUploadProps {
     accept?: string;
     maxSize?: number; // bytes
     templateUrl?: string;
+    templateFileName?: string;
 }
 
 export const ExcelUpload: React.FC<ExcelUploadProps> = ({
     onFileSelect,
     // accept = '.xlsx, .xls', // Unused as we hardcode specific mimes below
     maxSize = 10 * 1024 * 1024, // 10MB
-    templateUrl
+    templateUrl,
+    templateFileName
 }) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -105,7 +107,7 @@ export const ExcelUpload: React.FC<ExcelUploadProps> = ({
                 <div className="mt-4 text-center">
                     <p className="text-sm text-gray-500">
                         Belum punya template?{' '}
-                        <a href={templateUrl} download target="_blank" rel="noopener noreferrer" className="font-medium text-primary-600 hover:text-primary-500">
+                        <a href={templateUrl} download={templateFileName || true} className="font-medium text-primary-600 hover:text-primary-500">
                             Download Template Excel
                         </a>
                     </p>
