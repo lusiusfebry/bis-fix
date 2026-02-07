@@ -1,8 +1,9 @@
-/// <reference types="node" />
+
 import ExcelJS from 'exceljs';
 import path from 'path';
 
 async function readHeaders() {
+    // Correct path relative to where script is run (backend root)
     const filePath = path.join('c:\\project-it\\bis-fix', 'template-karyawan .xlsx');
     const workbook = new ExcelJS.Workbook();
     try {
@@ -17,6 +18,15 @@ async function readHeaders() {
                 headers.push(`[${colNumber}] ${cell.text}`);
             });
             console.log(headers.join('\n'));
+
+            // Also print first data row to see values for Pangkat
+            const row2 = sheet.getRow(2);
+            const values: string[] = [];
+            row2.eachCell((cell, colNumber) => {
+                values.push(`[${colNumber}] ${cell.text}`);
+            });
+            console.log('\n--- First Data Row ---');
+            console.log(values.join('\n'));
         });
 
     } catch (error) {

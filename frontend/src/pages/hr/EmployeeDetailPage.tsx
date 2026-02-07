@@ -304,22 +304,21 @@ const EmployeeDetailPage: React.FC = () => {
                                         <DetailItem label="Nama Lengkap" value={employee.nama_lengkap} />
                                         <DetailItem label="Jenis Kelamin" value={employee.personal_info?.jenis_kelamin} />
                                         <DetailItem label="Tempat, Tgl Lahir" value={`${employee.personal_info?.tempat_lahir || '-'}, ${employee.personal_info?.tanggal_lahir || '-'}`} />
-                                        <DetailItem label="Email Pribadi" value={employee.personal_info?.email_pribadi} />
+                                        <DetailItem label="Status Pernikahan" value={employee.personal_info?.status_pernikahan} />
                                     </div>
                                 </motion.div>
 
-                                {/* Group: Identifikasi & Pajak */}
+                                {/* Group: Identifikasi */}
                                 <motion.div variants={itemVariants} className="premium-card overflow-hidden">
-                                    <CardHeader title="Identifikasi & Pajak" icon="fingerprint" />
+                                    <CardHeader title="Identifikasi" icon="fingerprint" />
                                     <div className="p-8 grid grid-cols-2 md:grid-cols-3 gap-8">
                                         <DetailItem label="Agama" value={employee.personal_info?.agama} />
                                         <DetailItem label="Gol. Darah" value={employee.personal_info?.golongan_darah} />
-                                        <DetailItem label="No. KTP" value={employee.personal_info?.nomor_ktp} />
                                         <DetailItem label="No. KK" value={employee.personal_info?.nomor_kartu_keluarga} />
+                                        <DetailItem label="No. KTP" value={employee.personal_info?.nomor_ktp} />
                                         <DetailItem label="NPWP" value={employee.personal_info?.nomor_npwp} />
                                         <DetailItem label="Status Pajak" value={employee.personal_info?.status_pajak} />
                                         <DetailItem label="BPJS Kesehatan" value={employee.personal_info?.nomor_bpjs} />
-                                        <DetailItem label="BPJS TK" value={employee.personal_info?.nomor_bpjs_ketenagakerjaan} />
                                         <DetailItem label="NIK KK" value={employee.personal_info?.no_nik_kk} />
                                     </div>
                                 </motion.div>
@@ -350,10 +349,11 @@ const EmployeeDetailPage: React.FC = () => {
                                     </div>
                                 </motion.div>
 
-                                {/* Group: Kontak */}
+                                {/* Group: Informasi Kontak */}
                                 <motion.div variants={itemVariants} className="premium-card overflow-hidden h-fit">
-                                    <CardHeader title="Kontak" icon="contact_phone" />
+                                    <CardHeader title="Informasi Kontak" icon="contact_phone" />
                                     <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <DetailItem label="Email Pribadi" value={employee.personal_info?.email_pribadi} />
                                         <DetailItem label="Handphone 1 (Utama)" value={employee.nomor_handphone} />
                                         <DetailItem label="Handphone 2" value={employee.personal_info?.nomor_handphone_2} />
                                         <DetailItem label="WhatsApp" value={employee.personal_info?.nomor_wa} />
@@ -365,11 +365,10 @@ const EmployeeDetailPage: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-                                {/* Group: Status Pernikahan & Keluarga */}
+                                {/* Group: Informasi Keluarga */}
                                 <motion.div variants={itemVariants} className="premium-card overflow-hidden">
-                                    <CardHeader title="Status Pernikahan & Keluarga" icon="family_restroom" />
+                                    <CardHeader title="Informasi Keluarga" icon="family_restroom" />
                                     <div className="p-8 grid grid-cols-2 md:grid-cols-3 gap-8">
-                                        <DetailItem label="Status Marital" value={employee.personal_info?.status_pernikahan} />
                                         <DetailItem label="Nama Pasangan" value={employee.personal_info?.nama_pasangan} fullWidth={true} />
                                         <DetailItem label="Tgl Menikah" value={employee.personal_info?.tanggal_menikah} />
                                         <DetailItem label="Tgl Cerai" value={employee.personal_info?.tanggal_cerai} />

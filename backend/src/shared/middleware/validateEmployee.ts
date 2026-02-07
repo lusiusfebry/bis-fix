@@ -1,19 +1,7 @@
 import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
-import { validateNIK, validateNPWP, validateBPJS, validatePhoneNumber, validateAge } from '../utils/validators';
-import { ERROR_MESSAGES } from '../constants/error-messages';
 
-// Helper for custom refinements - RELAXED: always returns true if valid, else true (to skip strict validation)
-// User requested: "tanpa validasi kecuali nik dan nama"
-const customRefine = (validator: (val: string) => { valid: boolean; message?: string }) => {
-    return (val: string | undefined | null) => {
-        if (!val) return true;
-        // We still run the validator but we DON'T block if it fails, unless required
-        // Actually, user wants NO validation except NIK/Name.
-        // So we just return true.
-        return true;
-    };
-};
+// We only enforce MINIMAL validation for everyone now.
 
 // We only enforce MINIMAL validation for everyone now.
 

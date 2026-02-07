@@ -50,11 +50,9 @@ class ExcelImportService {
                     // @ts-ignore: cell.type comparison issue with different ValueType enums
                     if (cell.type === ExcelJS.ValueType.Date) {
                         rowData[header] = cell.value;
-                    } else if (typeof cell.value === 'object' && cell.value !== null && 'text' in cell.value) {
-                        rowData[header] = (cell.value as any).text;
                     } else {
-                        // @ts-ignore: cell.type comparison issue
-                        if (cell.type !== ExcelJS.ValueType.Date) rowData[header] = cell.value?.toString().trim();
+                        // Use cell.text which handles RichText, Hyperlinks, and Formulas correctly
+                        rowData[header] = cell.text ? cell.text.trim() : '';
                     }
                 }
             });
@@ -107,13 +105,17 @@ class ExcelImportService {
                 'NOMOR INDUK KARYAWAN': 'nomor_induk_karyawan',
                 'NAMA LENGKAP': 'nama_lengkap',
                 'EMAIL PERUSAHAAN': 'email_perusahaan',
-                'EMAIL PRIBADI': 'email_pribadi',
+                'EMAIL PRIBADI': 'email_pribadi', // Personal
                 'NOMOR HP 1': 'nomor_handphone',
                 'DIVISI': 'divisi_id',
                 'DEPARTMENT': 'department_id',
                 'POSISI JABATAN': 'posisi_jabatan_id',
                 'STATUS KARYAWAN': 'status_karyawan_id',
                 'LOKASI KERJA': 'lokasi_kerja_id',
+                'TAG': 'tag_id', // New
+                'MANAGER': 'manager_id', // New
+                'ATASAN LANGSUNG': 'atasan_langsung_id', // New
+                // Personal Info
                 'TEMPAT LAHIR': 'tempat_lahir',
                 'TANGGAL LAHIR': 'tanggal_lahir',
                 'JENIS KELAMIN': 'jenis_kelamin',
@@ -121,8 +123,60 @@ class ExcelImportService {
                 'STATUS PERNIKAHAN': 'status_pernikahan',
                 'NOMOR KTP': 'nomor_ktp',
                 'NOMOR NPWP': 'nomor_npwp',
+                'NOMOR BPJS-TK': 'nomor_bpjs', // Mapped
+                'NOMOR KARTU KELUARGA': 'nomor_kartu_keluarga', // New
+                'NOMOR NIK KK': 'no_nik_kk', // New
                 'ALAMAT DOMISILI': 'alamat_domisili',
-                'TANGGAL MASUK': 'tanggal_masuk'
+                'KOTA DOMISILI': 'kota_domisili',
+                'PROPINSI DOMISILI': 'provinsi_domisili',
+                'ALAMAT KTP': 'alamat_ktp',
+                'NOMOR TELEPON RUMAH 1': 'nomor_telepon_rumah_1',
+                'NOMOR TELEPON RUMAH 2': 'nomor_telepon_rumah_2',
+                'NOMOR HP 2': 'nomor_handphone_2',
+                'NOMOR REKENING': 'nomor_rekening',
+                'NAMA PEMILIK REKENING': 'nama_pemegang_rekening',
+                'NAMA BANK': 'nama_bank',
+                'CABANG BANK': 'cabang_bank',
+                'STATUS PAJAK': 'status_pajak',
+                // Family
+                'NAMA PASANGAN NIKAH': 'nama_pasangan',
+                'TANGGAL MENIKAH': 'tanggal_menikah',
+                'JUMLAH ANAK': 'jumlah_anak',
+                'PEKERJAAN PASANGAN': 'pekerjaan_pasangan',
+                'NAMA BAPAK KANDUNG': 'nama_ayah_kandung', // New
+                'NAMA IBU KANDUNG': 'nama_ibu_kandung', // New
+                // HR Info
+                'TANGGAL MASUK': 'tanggal_masuk',
+                'TANGGAL JOIN GROUP': 'tanggal_masuk_group',
+                'TANGGAL TETAP': 'tanggal_permanent',
+                'TANGGAL AWAL KONTRAK': 'tanggal_kontrak',
+                'TANGGAL AKHIR KONTRAK': 'tanggal_akhir_kontrak',
+                'TANGGAL KELUAR': 'tanggal_berhenti',
+                'LOKASI COSTING': 'lokasi_costing',
+                'ACTUAL': 'actual',
+                'ASSIGN': 'assign',
+                'SIKLUS PEMBAYARAN': 'siklus_pembayaran_gaji', // New
+                'PENDIDIKAN TERAKHIR': 'tingkat_pendidikan',
+                'JURUSAN PENDIDIKAN': 'bidang_studi',
+                'NAMA SEKOLAH': 'nama_sekolah',
+                'KOTA SEKOLAH': 'kota_sekolah',
+                'STATUS PENDIDIKAN': 'status_kelulusan',
+                'KETERANGAN PENDIDIKAN': 'keterangan_pendidikan',
+                'PANGKAT KATEGORI': 'kategori_pangkat_id',
+                'GOLONGAN': 'golongan_pangkat_id',
+                'SUB GOLONGAN': 'sub_golongan_pangkat_id',
+                'JENIS HUBUNGAN KERJA': 'jenis_hubungan_kerja_id',
+                'NOMOR DANA PENSIUN': 'no_dana_pensiun',
+                'NAMA KONTAK DARURAT 1': 'nama_kontak_darurat_1', // New
+                'HUBUNGAN KONTAK DARURAT 1': 'hubungan_kontak_darurat_1', // New
+                'ALAMAT KONTAK DARURAT 1': 'alamat_kontak_darurat_1', // New
+                'NOMOR HP1 KONTAK DARURAT 1': 'nomor_telepon_kontak_darurat_1', // New
+                'UKURAN SEPATU': 'ukuran_sepatu_kerja', // New
+                'UKURAN BAJU': 'ukuran_seragam_kerja', // New
+                'LOKASI SEBELUMNYA': 'lokasi_sebelumnya_id', // New
+                'TANGGAL MUTASI': 'tanggal_mutasi', // New
+                'POINT OF ORIGINAL': 'point_of_original', // New
+                'POINT OF HIRE': 'point_of_hire' // New
             };
         }
 
@@ -212,12 +266,37 @@ class ExcelImportService {
         employeeData.nomor_handphone = getValue('nomor_handphone', 'NOMOR HP 1');
         employeeData.is_draft = false;
 
-        // Foreign Keys
+        // Foreign Keys Master Data
         employeeData.divisi_id = await checkLookup('Divisi', 'divisi_id', 'DIVISI');
         employeeData.department_id = await checkLookup('Department', 'department_id', 'DEPARTMENT');
         employeeData.posisi_jabatan_id = await checkLookup('PosisiJabatan', 'posisi_jabatan_id', 'POSISI JABATAN');
         employeeData.status_karyawan_id = (await checkLookup('StatusKaryawan', 'status_karyawan_id', 'STATUS KARYAWAN')) || 1; // Default to Aktif (ID 1)
         employeeData.lokasi_kerja_id = await checkLookup('LokasiKerja', 'lokasi_kerja_id', 'LOKASI KERJA');
+        employeeData.tag_id = await checkLookup('Tag', 'tag_id', 'TAG'); // New Tag Mapping
+
+        // Reporting Line Lookup (Manager & Atasan)
+        // We need to look up employee IDs based on Names or NIKs provided in Excel.
+        // Optimization: We could cache employees map (Name/NIK -> ID) in loadMasterDataCache if dataset is small,
+        // or query one by one. For bulk import, getting all employees might be better.
+        // For now, let's simple query.
+        const findEmployeeId = async (nameOrNik: string) => {
+            if (!nameOrNik) return null;
+            // Try cache first if we implemented it, otherwise query
+            const emp = await import('../models/Employee').then(m => m.default.findOne({
+                where: sequelize.or(
+                    { nomor_induk_karyawan: nameOrNik },
+                    { nama_lengkap: nameOrNik }
+                )
+            }));
+            return emp ? emp.id : null;
+        };
+
+        const managerVal = getValue('manager_id', 'MANAGER');
+        if (managerVal) employeeData.manager_id = await findEmployeeId(managerVal);
+
+        const atasanVal = getValue('atasan_langsung_id', 'ATASAN LANGSUNG');
+        if (atasanVal) employeeData.atasan_langsung_id = await findEmployeeId(atasanVal);
+
 
         // --- PERSONAL INFO ---
         personalInfoData.tempat_lahir = getValue('tempat_lahir', 'TEMPAT LAHIR');
@@ -238,6 +317,10 @@ class ExcelImportService {
         personalInfoData.alamat_ktp = getValue('alamat_ktp', 'ALAMAT KTP');
         personalInfoData.nomor_npwp = getValue('nomor_npwp', 'NOMOR NPWP');
         personalInfoData.nomor_bpjs = getValue('nomor_bpjs', 'NOMOR BPJS-TK');
+
+        // New Personal Info Fields
+        personalInfoData.nomor_kartu_keluarga = getValue('nomor_kartu_keluarga', 'NOMOR KARTU KELUARGA');
+        personalInfoData.no_nik_kk = getValue('no_nik_kk', 'NOMOR NIK KK');
 
         personalInfoData.nomor_rekening = getValue('nomor_rekening', 'NOMOR REKENING');
         personalInfoData.nama_pemegang_rekening = getValue('nama_pemegang_rekening', 'NAMA PEMILIK REKENING');
@@ -266,6 +349,7 @@ class ExcelImportService {
         hrInfoData.lokasi_costing = getValue('lokasi_costing', 'LOKASI COSTING');
         hrInfoData.actual = getValue('actual', 'ACTUAL');
         hrInfoData.assign = getValue('assign', 'ASSIGN');
+        hrInfoData.siklus_pembayaran_gaji = getValue('siklus_pembayaran_gaji', 'SIKLUS PEMBAYARAN'); // New
 
         hrInfoData.kategori_pangkat_id = await checkLookup('KategoriPangkat', 'kategori_pangkat_id', 'PANGKAT KATEGORI');
         hrInfoData.golongan_pangkat_id = await checkLookup('Golongan', 'golongan_pangkat_id', 'GOLONGAN');
@@ -274,6 +358,7 @@ class ExcelImportService {
 
         hrInfoData.no_dana_pensiun = getValue('no_dana_pensiun', 'NOMOR DANA PENSIUN');
 
+        // Education
         hrInfoData.tingkat_pendidikan = getValue('pendidikan', 'PENDIDIKAN TERAKHIR');
         hrInfoData.bidang_studi = getValue('jurusan', 'JURUSAN PENDIDIKAN');
         hrInfoData.nama_sekolah = getValue('sekolah', 'NAMA SEKOLAH');
@@ -281,10 +366,38 @@ class ExcelImportService {
         hrInfoData.status_kelulusan = getValue('status_pendidikan', 'STATUS PENDIDIKAN');
         hrInfoData.keterangan_pendidikan = getValue('ket_pendidikan', 'KETERANGAN PENDIDIKAN');
 
+        // New HR Info Fields (Emergency Contacts, Historical, Uniforms)
+        hrInfoData.nama_kontak_darurat_1 = getValue('nama_kontak_darurat_1', 'NAMA KONTAK DARURAT 1');
+        hrInfoData.hubungan_kontak_darurat_1 = getValue('hubungan_kontak_darurat_1', 'HUBUNGAN KONTAK DARURAT 1');
+        hrInfoData.alamat_kontak_darurat_1 = getValue('alamat_kontak_darurat_1', 'ALAMAT KONTAK DARURAT 1');
+        hrInfoData.nomor_telepon_kontak_darurat_1 = getValue('nomor_telepon_kontak_darurat_1', 'NOMOR HP1 KONTAK DARURAT 1');
+        // Note: Template has HP1 and HP2 for Contact 1? Or Contact 2? 
+        // Template: "NOMOR HP1 KONTAK DARURAT 1", "NOMOR HP2 KONTAK DARURAT 1". 
+        // DB only has `nomor_telepon_kontak_darurat_1`. We'll map HP1 to it.
+
+        // We don't see Contact 2 in the template log provided? 
+        // Log showed: [127] NAMA KONTAK DARURAT 1 ... [131] NOMOR HP2 KONTAK DARURAT 1.
+        // It seems only Contact 1 is in template? Or I missed scrolling.
+        // I will map Contact 1 for now.
+
+        hrInfoData.ukuran_sepatu_kerja = getValue('ukuran_sepatu_kerja', 'UKURAN SEPATU');
+        hrInfoData.ukuran_seragam_kerja = getValue('ukuran_seragam_kerja', 'UKURAN BAJU');
+
+        hrInfoData.lokasi_sebelumnya_id = await checkLookup('LokasiKerja', 'lokasi_sebelumnya_id', 'LOKASI SEBELUMNYA'); // Needs lookup
+        hrInfoData.tanggal_mutasi = parseDate(getValue('tanggal_mutasi', 'TANGGAL MUTASI'));
+
+        hrInfoData.point_of_original = getValue('point_of_original', 'POINT OF ORIGINAL');
+        hrInfoData.point_of_hire = getValue('point_of_hire', 'POINT OF HIRE');
+
+
         // --- FAMILY INFO ---
         familyInfoData.tanggal_lahir_pasangan = tglLahirPasangan;
         familyInfoData.pendidikan_terakhir_pasangan = getValue('pendidikan_pasangan', 'PENDIDIKAN TERAKHIR PASANGAN');
         familyInfoData.keterangan_pasangan = getValue('ket_pasangan', 'KETERANGAN PASANGAN');
+
+        // Parent Data
+        familyInfoData.nama_ayah_kandung = getValue('nama_ayah_kandung', 'NAMA BAPAK KANDUNG');
+        familyInfoData.nama_ibu_kandung = getValue('nama_ibu_kandung', 'NAMA IBU KANDUNG');
 
         return { employeeData, personalInfoData, hrInfoData, familyInfoData, rawValues };
     }
@@ -354,7 +467,7 @@ class ExcelImportService {
                     if (isDuplicateInFile) {
                         validationErrors.push(`Duplicate NIK in file: ${mappedData.employeeData.nomor_induk_karyawan}`);
                     }
-                    
+
                     // Note: We removed the check for "already registered in system" because we now support Upsert (Update if exists).
                 }
 

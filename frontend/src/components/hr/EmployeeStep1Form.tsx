@@ -407,6 +407,33 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                         />
                         <Controller
                             control={control}
+                            name="status_pernikahan"
+                            render={({ field }) => (
+                                <SearchableSelect
+                                    label="Status Pernikahan"
+                                    options={[
+                                        { value: 'Belum Menikah', label: 'Belum Menikah' },
+                                        { value: 'Menikah', label: 'Menikah' },
+                                        { value: 'Cerai Hidup', label: 'Cerai Hidup' },
+                                        { value: 'Cerai Mati', label: 'Cerai Mati' }
+                                    ]}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    error={errors.status_pernikahan?.message}
+                                />
+                            )}
+                        />
+                    </div>
+                </div>
+
+                {/* Group 2: Identifikasi */}
+                <div className="mb-6 border-t pt-4">
+                    <h4 className="flex items-center text-sm font-semibold text-gray-700 mb-3">
+                        <span className="mr-2">🆔</span> Identifikasi
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <Controller
+                            control={control}
                             name="agama"
                             render={({ field }) => (
                                 <SearchableSelect
@@ -422,24 +449,6 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                                     value={field.value}
                                     onChange={field.onChange}
                                     error={errors.agama?.message}
-                                />
-                            )}
-                        />
-                        <Controller
-                            control={control}
-                            name="status_pernikahan"
-                            render={({ field }) => (
-                                <SearchableSelect
-                                    label="Status Pernikahan"
-                                    options={[
-                                        { value: 'Belum Menikah', label: 'Belum Menikah' },
-                                        { value: 'Menikah', label: 'Menikah' },
-                                        { value: 'Cerai Hidup', label: 'Cerai Hidup' },
-                                        { value: 'Cerai Mati', label: 'Cerai Mati' }
-                                    ]}
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    error={errors.status_pernikahan?.message}
                                 />
                             )}
                         />
@@ -462,6 +471,35 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                             )}
                         />
                         <Input
+                            label="Nomor Kartu Keluarga (KK)"
+                            {...register('nomor_kartu_keluarga')}
+                            error={errors.nomor_kartu_keluarga?.message}
+                            placeholder="Nomor KK (16 digit)"
+                        />
+                        <Input
+                            label="Nomor KTP"
+                            {...register('nomor_ktp')}
+                            error={errors.nomor_ktp?.message}
+                        />
+                        <Controller
+                            control={control}
+                            name="nomor_npwp"
+                            render={({ field }) => (
+                                <Input
+                                    label="Nomor NPWP"
+                                    value={field.value || ''}
+                                    onChange={(e) => field.onChange(formatNPWP(e.target.value))}
+                                    error={errors.nomor_npwp?.message}
+                                />
+                            )}
+                        />
+                        <Input
+                            label="Nomor BPJS"
+                            {...register('nomor_bpjs')}
+                            error={errors.nomor_bpjs?.message}
+                            placeholder="13 digit angka"
+                        />
+                        <Input
                             label="NIK KK"
                             {...register('no_nik_kk')}
                             error={errors.no_nik_kk?.message}
@@ -475,8 +513,6 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                         />
                     </div>
                 </div>
-
-                {/* Family Info */}
                 {/* Family Info - Conditional */}
                 {statusPernikahan === 'Menikah' && (
                     <div className="mb-6 border-t pt-4">
@@ -598,40 +634,11 @@ export const EmployeeStep1Form: React.FC<EmployeeStep1FormProps> = ({ initialDat
                 <hr className="my-6 border-gray-200" />
 
                 {/* Group 2: Identitas & Kontak */}
-                <div className="mb-6">
+                <div className="mb-6 border-t pt-4">
                     <h4 className="flex items-center text-sm font-semibold text-gray-700 mb-3">
-                        <span className="mr-2">🆔</span> Identitas & Kontak
+                        <span className="mr-2">📞</span> Informasi Kontak
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input
-                            label="Nomor KTP"
-                            {...register('nomor_ktp')}
-                            error={errors.nomor_ktp?.message}
-                        />
-                        <Input
-                            label="Nomor Kartu Keluarga (KK)"
-                            {...register('nomor_kartu_keluarga')}
-                            error={errors.nomor_kartu_keluarga?.message}
-                            placeholder="Nomor KK (16 digit)"
-                        />
-                        <Controller
-                            control={control}
-                            name="nomor_npwp"
-                            render={({ field }) => (
-                                <Input
-                                    label="Nomor NPWP"
-                                    value={field.value || ''}
-                                    onChange={(e) => field.onChange(formatNPWP(e.target.value))}
-                                    error={errors.nomor_npwp?.message}
-                                />
-                            )}
-                        />
-                        <Input
-                            label="Nomor BPJS"
-                            {...register('nomor_bpjs')}
-                            error={errors.nomor_bpjs?.message}
-                            placeholder="13 digit angka"
-                        />
                         <Input
                             label="Email Pribadi"
                             type="email"

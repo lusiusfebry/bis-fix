@@ -48,6 +48,7 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
         handleSubmit,
         setValue,
         getValues,
+        reset, // Added reset
         formState: { errors }
     } = useForm<EmployeeStep2FormValues>({
         resolver: zodResolver(employeeStep2Schema),
@@ -78,6 +79,83 @@ export const EmployeeStep2Form: React.FC<EmployeeStep2FormProps> = ({ initialDat
             setValue('atasan_langsung_id', headData.atasan_langsung_id);
         }
     }, [headData, setValue]);
+
+    // Update form values when initialData changes (e.g. after fetch)
+    useEffect(() => {
+        if (initialData) {
+            // merge headData if needed, but initialData should have everything from EditPage flattening
+            // We use reset to update all fields including Pangkat, Seragam, etc.
+            // We must preserve headData fields if they are not in initialData (though they should be)
+            const formValues = {
+                ...initialData,
+                // Ensure headData overrides if present (as it comes from Step 1 context)
+                ...(headData?.nomor_induk_karyawan ? { nomor_induk_karyawan: headData.nomor_induk_karyawan } : {}),
+                ...(headData?.posisi_jabatan_id ? { posisi_jabatan_id: headData.posisi_jabatan_id } : {}),
+                ...(headData?.divisi_id ? { divisi_id: headData.divisi_id } : {}),
+                ...(headData?.department_id ? { department_id: headData.department_id } : {}),
+                ...(headData?.email_perusahaan ? { email_perusahaan: headData.email_perusahaan } : {}),
+                ...(headData?.manager_id ? { manager_id: headData.manager_id } : {}),
+                ...(headData?.atasan_langsung_id ? { atasan_langsung_id: headData.atasan_langsung_id } : {}),
+            };
+
+            // Validate that we actually have data to reset
+            if (Object.keys(initialData).length > 0) {
+                reset(formValues);
+            }
+            // reset(formValues); // Reset might clear dirty state. setValue detailed is improved but reset is cleaner for init.
+            // However, useForm defaultValues only works on mount.
+            // valid way to update form with new data is reset().
+            // Only reset if data is actually different/new to avoid losing user input if they typed something before fetch?
+            // But fetch happens on mount of EditPage, so user shouldn't be typing yet or Wizard shows loading.
+            // EditPage shows LoadingSkeleton until fetch done. So initialData is ready when Wizard mounts!
+
+            // WAIT. If EditPage shows LoadingSkeleton (line 121), then `employee` is NOT null when Wizard mounts.
+            // So `initialData` IS passed correctly on first render of Wizard.
+
+            // So why is it missing?
+            // Maybe `EmployeeWizard` loses it when switching steps?
+            // Or `flatData` in EditPage is missing the fields?
+
+            // Let's verify flatData construction in EditPage again.
+            // `...data.hr_info` -> data is what comes from `employeeService.getEmployee`.
+            // Does that include `ukuran_seragam_kerja`?
+            // `EmployeeService.getEmployeeById` includes `hr_info`.
+            // `EmployeeHRInfo` model has `ukuran_seragam_kerja`.
+
+            // Is it possible `hr_info` is null/undefined for that employee?
+            // User says "template... data import...".
+
+            // If import failed to mapping Pangkat/Seragam, then DB is empty.
+            // I need to check if Import MAPPING actually worked for Pangkat/Seragam.
+            // I did NOT fix mapping for Pangkat/Seragam yet! I only fixed Parent Data.
+            // The user asked "kenapa... tidak terimport".
+            // So I DO need to fix the import mapping first.
+
+            // My Plan step 10376 said: "I mapped `kategori_pangkat_id`... It's possible lookup failed".
+            // "I mapped `ukuran_seragam_kerja`".
+            // Let's check `excel-import.service.ts` again to be 100% sure I mapped them in the code I viewed in step 10258.
+
+            // In step 10258:
+            // hrInfoData.ukuran_sepatu_kerja = getValue('ukuran_sepatu_kerja', 'UKURAN SEPATU');
+            // hrInfoData.ukuran_seragam_kerja = getValue('ukuran_seragam_kerja', 'UKURAN BAJU');
+
+            // AND I updated the `getMappingConfiguration` fallback in Step 10262:
+            // 'UKURAN SEPATU': 'ukuran_sepatu_kerja',
+            // 'UKURAN BAJU': 'ukuran_seragam_kerja',
+
+            // So mapping IS there.
+
+            // If mapping is there, maybe `getValue` didn't find the column?
+            // User template might have different header name? "SERAGAM"?
+            // User query: "tab 'informasi hr', pada group Pangkat & Golongan. group Seragam & Sepatu data di template tidak terimport".
+
+            // If Pangkat needs lookup, maybe text in Excel doesn't match DB Master Data?
+            // If Seragam is missing, maybe header is wrong.
+
+            // I should double check the logs from `debug-template.ts` or run it again to see headers for Seragam/Pangkat.
+
+        }
+    }, [initialData, headData, reset]);
 
     // Master Data Hooks
     const { data: jenisKontrakList } = useJenisHubunganKerjaList();
