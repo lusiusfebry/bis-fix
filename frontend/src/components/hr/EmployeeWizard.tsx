@@ -34,8 +34,8 @@ export const EmployeeWizard: React.FC<EmployeeWizardProps> = ({ initialData, onC
                 payload.append('foto_karyawan', mergedData[key]);
             } else if (key === 'data_anak' || key === 'data_saudara_kandung') {
                 // Serialize JSON arrays only if they exist
-                if (finalData[key]) {
-                    payload.append(key, JSON.stringify(finalData[key]));
+                if (mergedData[key]) {
+                    payload.append(key, JSON.stringify(mergedData[key]));
                 }
             } else if (mergedData[key] !== undefined && mergedData[key] !== null && mergedData[key] !== '') {
                 payload.append(key, String(mergedData[key]));
