@@ -6,7 +6,7 @@ Aplikasi enterprise web progresif bernama **Bebang Sistem Informasi** akan diimp
 ### Flow
 Login page - Welcome Page - Module
 
-1. login page, akan menggunakan nomor induk karyawan sebagai username
+1. login page, akan menggunakan nomor induk karyawan sebagai username, format nomor induk karyawan : xx-xxxxx, contoh 02-03827
 2. Pada welcome page, akan terdapat shortcut untuk module yang akan di akses
 3. Module, akan terdiri dari module human resources, inventory, mess management, building management, user access right management. 
 
